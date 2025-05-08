@@ -1,6 +1,6 @@
 # Believr
 
-Believr is a decentralized social app for early believers, where fans co-invest in creators they believe in. Built on Lens Protocol, it allows creators to raise funds and build loyal communities, while fans earn rewards and unlock exclusive access.
+Believr is a decentralized social app for early believers that allows fans to co-invest in creators they believe in. Built on Lens Protocol, it helps creators raise funds and build loyal communities, while fans earn rewards and unlock exclusive access.
 
 ## Features
 

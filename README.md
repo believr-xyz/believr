@@ -1,16 +1,20 @@
 # Believr
 
-Believr is a decentralized social platform where early backers co-invest in creators they believe in — and grow with them. Built on Lens Protocol, it helps creators raise funds and build loyal communities, while supporters earn rewards, gain access, and co-own their success.
+Believr is a decentralized social platform where early believers co-invest in creators they believe in and share in their rise. Built on Lens Protocol, it enables creators to launch tokenized posts or campaigns to gain support, while backers earn rewards, access, and a stake in their journey.
 
 ## Features
 
--   **Creator Fundraising**: Creators can launch campaigns to raise funds directly from their community for specific projects.
--   **Fan Co-investing**: Support your favorite creators by investing early in their journey.
--   **Exclusive Access**: Unlock premium content for being an early believer.
--   **Earn Rewards**: Receive token-based rewards tied to project success.
--   **Tokenized Incentives**: Use tokens to access content, claim rewards, and engage on the platform.
--   **Community Engagement**: Connect with like-minded fans and creators through social features.
--   **Lens Integration**: Built on Lens Protocol for transparency, ownership, and social interoperability.
+- **Login with Lens Profile**  
+  Sign in by connecting your wallet and Lens profile.
+
+- **Tokenized Creator Posts**  
+  Creators can launch tokenized posts to gain early backing from their community.
+
+- **Believer Co-Investing**  
+  Back your favorite creators early by collecting tokenized posts to earn rewards, exclusive access, and a stake in their journey.
+
+- **Lens-Powered Social Layer**  
+  Creators and believers connect, share, and engage in a community-led space powered by Lens Protocol's social primitives.
 
 ## Tech Stack
 

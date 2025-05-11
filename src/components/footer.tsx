@@ -10,11 +10,9 @@ export function Footer() {
     <footer className="mt-auto bg-background py-4">
       <div className="mx-auto max-w-7xl px-4">
         <div className="flex items-center justify-center gap-5">
-          <span className="text-xs text-muted-foreground md:text-sm">
-            Believr @{currentYear}
-          </span>
+          <span className="text-muted-foreground text-xs md:text-sm">Believr @{currentYear}</span>
 
-          <span className="text-xs text-muted-foreground md:text-sm">
+          <span className="text-muted-foreground text-xs md:text-sm">
             Built by{" "}
             <Link
               href="https://twitter.com/samueldans0"

@@ -14,8 +14,7 @@ interface LoginProps {
 
 export function Login({ variant = "default" }: LoginProps) {
   const [showAccountSelector, setShowAccountSelector] = useState(false);
-  const { data: authenticatedUser, loading: authUserLoading } =
-    useAuthenticatedUser();
+  const { data: authenticatedUser, loading: authUserLoading } = useAuthenticatedUser();
   const isHeader = variant === "header";
 
   return (
@@ -36,11 +35,7 @@ export function Login({ variant = "default" }: LoginProps) {
             return (
               <Button
                 onClick={show}
-                className={
-                  isHeader
-                    ? "px-5 text-sm font-semibold"
-                    : "w-full text-sm font-semibold"
-                }
+                className={isHeader ? "px-5 font-semibold text-sm" : "w-full font-semibold text-sm"}
                 size={isHeader ? "sm" : "default"}
                 disabled={isConnecting}
                 variant="default"
@@ -66,9 +61,7 @@ export function Login({ variant = "default" }: LoginProps) {
                   <DialogTrigger asChild>
                     <Button
                       className={
-                        isHeader
-                          ? "px-5 text-base font-semibold"
-                          : "w-full text-base font-semibold"
+                        isHeader ? "px-5 font-semibold text-base" : "w-full font-semibold text-base"
                       }
                       size={isHeader ? "sm" : "default"}
                       disabled={authUserLoading}
@@ -91,14 +84,9 @@ export function Login({ variant = "default" }: LoginProps) {
             const displayIdentity = connectKitDisplayName ?? "...";
             return (
               <div className="flex w-full items-center justify-between gap-2 text-sm">
-                <span
-                  className="truncate text-muted-foreground"
-                  title={authenticatedUser.address}
-                >
+                <span className="truncate text-muted-foreground" title={authenticatedUser.address}>
                   Signed in as:{" "}
-                  <span className="font-semibold text-primary">
-                    {displayIdentity}
-                  </span>
+                  <span className="font-semibold text-primary">{displayIdentity}</span>
                 </span>
               </div>
             );

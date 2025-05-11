@@ -40,8 +40,8 @@ export function Header() {
           <Link
             href="/feed"
             className={cn(
-              "text-base text-primary/80 font-semibold transition-colors hover:text-[#00A8FF]",
-              pathname.startsWith("/feed") && "text-[#00A8FF]"
+              "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
+              pathname.startsWith("/feed") && "text-[#00A8FF]",
             )}
           >
             Feed
@@ -49,8 +49,8 @@ export function Header() {
           <Link
             href="/discover"
             className={cn(
-              "text-base text-primary/80 font-semibold transition-colors hover:text-[#00A8FF]",
-              pathname.startsWith("/discover") && "text-[#00A8FF]"
+              "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
+              pathname.startsWith("/discover") && "text-[#00A8FF]",
             )}
           >
             Discover

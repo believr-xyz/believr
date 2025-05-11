@@ -6,6 +6,7 @@ import { useAuthenticatedUser } from "@lens-protocol/react";
 import { ConnectKitButton } from "connectkit";
 import { useState, useEffect } from "react";
 import { AccountSelector } from "./accounts";
+import { Loader2 } from "lucide-react";
 
 interface LoginProps {
   variant?: "default" | "header";
@@ -26,6 +27,7 @@ export function Login({ variant = "default" }: LoginProps) {
           truncatedAddress,
           ensName,
           chain,
+          isConnecting,
         }) => {
           const connectKitDisplayName = ensName ?? truncatedAddress;
 
@@ -36,8 +38,13 @@ export function Login({ variant = "default" }: LoginProps) {
                 onClick={show}
                 className={isHeader ? "" : "w-full"}
                 size={isHeader ? "sm" : "default"}
+                disabled={isConnecting}
               >
-                Login
+                {isConnecting ? (
+                  <Loader2 className="size-4 animate-spin" />
+                ) : (
+                  "Connect Wallet"
+                )}
               </Button>
             );
           }
@@ -53,8 +60,13 @@ export function Login({ variant = "default" }: LoginProps) {
                     <Button
                       className={isHeader ? "" : "w-full"}
                       size={isHeader ? "sm" : "default"}
+                      disabled={authUserLoading}
                     >
-                      Login with Lens
+                      {authUserLoading ? (
+                        <Loader2 className="size-4 animate-spin" />
+                      ) : (
+                        "Sign in with Lens"
+                      )}
                     </Button>
                   </DialogTrigger>
                 }
@@ -81,7 +93,9 @@ export function Login({ variant = "default" }: LoginProps) {
           }
 
           return (
-            <p className="text-muted-foreground text-xs">Checking status...</p>
+            <div className="flex items-center text-muted-foreground text-xs">
+              <Loader2 className="size-3 animate-spin" />
+            </div>
           );
         }}
       </ConnectKitButton.Custom>

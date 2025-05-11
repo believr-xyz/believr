@@ -4,12 +4,20 @@ import { useState } from "react";
 import { Account } from "@lens-protocol/client";
 import { useLogin, useAccountsAvailable } from "@lens-protocol/react";
 import { useAccount, useWalletClient } from "wagmi";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "./ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
+} from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { ScrollArea } from "./ui/scroll-area";
 import { useRouter } from "next/navigation";
 import { ConnectKitButton } from "connectkit";
+import { toast } from "sonner";
+import { Loader2 } from "lucide-react";
 
 interface AccountSelectorProps {
   open: boolean;
@@ -27,9 +35,10 @@ export function AccountSelector({
   trigger,
 }: AccountSelectorProps) {
   const { data: walletClient } = useWalletClient();
-  const { data: availableAccounts, loading: accountsLoading } = useAccountsAvailable({
-    managedBy: walletClient?.account.address,
-  });
+  const { data: availableAccounts, loading: accountsLoading } =
+    useAccountsAvailable({
+      managedBy: walletClient?.account.address,
+    });
   const { execute: authenticate, loading: authenticateLoading } = useLogin();
   const router = useRouter();
   const wallet = useAccount();
@@ -70,6 +79,7 @@ export function AccountSelector({
       router.refresh();
     } catch (error) {
       console.error("Lens authentication failed:", error);
+      toast.error("Authentication failed. Please try again.");
     }
   };
 
@@ -83,16 +93,22 @@ export function AccountSelector({
         <ScrollArea className="max-h-[600px] py-4 pr-4">
           <div className="grid grid-cols-3 gap-2">
             {accountsLoading && (
-              <div className="col-span-3 text-muted-foreground text-sm">Loading accounts...</div>
+              <div className="col-span-3 flex justify-center py-4">
+                <Loader2 className="size-6 animate-spin text-primary" />
+              </div>
             )}
             {availableAccounts && availableAccounts.items.length === 0 && (
               <div className="col-span-3 text-muted-foreground">
-                <p className="text-sm">No Lens profiles found for this wallet.</p>
+                <p className="text-sm">
+                  No Lens profiles found for this wallet.
+                </p>
                 <div className="mt-4">
                   <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() => window.open("https://onboarding.lens.xyz/", "_blank")}
+                    onClick={() =>
+                      window.open("https://onboarding.lens.xyz/", "_blank")
+                    }
                   >
                     Create a Lens profile
                   </Button>
@@ -124,9 +140,14 @@ export function AccountSelector({
                     <span className="w-full truncate text-center text-xs">
                       {acc.account.username?.localName || acc.account.address}
                       {isCurrentAccount && (
-                        <span className="block text-muted-foreground text-xs">(current)</span>
+                        <span className="block text-muted-foreground text-xs">
+                          (current)
+                        </span>
                       )}
                     </span>
+                    {authenticateLoading && (
+                      <Loader2 className="mt-1 size-3 animate-spin text-muted-foreground" />
+                    )}
                   </Button>
                 );
               })}

@@ -4,13 +4,7 @@ import { useState } from "react";
 import { Account } from "@lens-protocol/client";
 import { useLogin, useAccountsAvailable } from "@lens-protocol/react";
 import { useAccount, useWalletClient } from "wagmi";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogClose,
-} from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "./ui/dialog";
 import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { ScrollArea } from "./ui/scroll-area";
@@ -35,10 +29,9 @@ export function AccountSelector({
   trigger,
 }: AccountSelectorProps) {
   const { data: walletClient } = useWalletClient();
-  const { data: availableAccounts, loading: accountsLoading } =
-    useAccountsAvailable({
-      managedBy: walletClient?.account.address,
-    });
+  const { data: availableAccounts, loading: accountsLoading } = useAccountsAvailable({
+    managedBy: walletClient?.account.address,
+  });
   const { execute: authenticate, loading: authenticateLoading } = useLogin();
   const router = useRouter();
   const wallet = useAccount();
@@ -99,16 +92,12 @@ export function AccountSelector({
             )}
             {availableAccounts && availableAccounts.items.length === 0 && (
               <div className="col-span-3 text-muted-foreground">
-                <p className="text-sm">
-                  No Lens profiles found for this wallet.
-                </p>
+                <p className="text-sm">No Lens profiles found for this wallet.</p>
                 <div className="mt-4">
                   <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() =>
-                      window.open("https://onboarding.lens.xyz/", "_blank")
-                    }
+                    onClick={() => window.open("https://onboarding.lens.xyz/", "_blank")}
                   >
                     Create a Lens profile
                   </Button>
@@ -140,9 +129,7 @@ export function AccountSelector({
                     <span className="w-full truncate text-center text-xs">
                       {acc.account.username?.localName || acc.account.address}
                       {isCurrentAccount && (
-                        <span className="block text-muted-foreground text-xs">
-                          (current)
-                        </span>
+                        <span className="block text-muted-foreground text-xs">(current)</span>
                       )}
                     </span>
                     {authenticateLoading && (

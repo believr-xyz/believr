@@ -7,6 +7,7 @@ import { Login } from "@/components/login";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { ProfileMenu } from "@/components/profile-menu";
 import { useEffect, useState } from "react";
+import { Logo } from "@/components/logo";
 
 export function Header() {
   const pathname = usePathname();
@@ -32,17 +33,15 @@ export function Header() {
   }, [isAuthenticated]);
 
   return (
-    <header className="fixed top-0 left-0 z-10 w-full border-b bg-background/80 p-4 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between">
-        <Link href="/" className="font-bold text-xl">
-          Believr
-        </Link>
-        <div className="flex items-center gap-4">
+    <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-4 backdrop-blur-sm">
+      <div className="mx-auto flex max-w-7xl items-center justify-between px-4">
+        <Logo className="mr-6" />
+        <div className="flex items-center gap-8">
           <Link
             href="/feed"
             className={cn(
-              "text-primary transition-colors hover:underline",
-              pathname.startsWith("/feed") && "font-semibold",
+              "text-base text-primary/80 font-semibold transition-colors hover:text-[#00A8FF]",
+              pathname.startsWith("/feed") && "text-[#00A8FF]"
             )}
           >
             Feed
@@ -50,8 +49,8 @@ export function Header() {
           <Link
             href="/discover"
             className={cn(
-              "text-primary transition-colors hover:underline",
-              pathname.startsWith("/discover") && "font-semibold",
+              "text-base text-primary/80 font-semibold transition-colors hover:text-[#00A8FF]",
+              pathname.startsWith("/discover") && "text-[#00A8FF]"
             )}
           >
             Discover

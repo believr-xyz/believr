@@ -36,14 +36,21 @@ export function Login({ variant = "default" }: LoginProps) {
             return (
               <Button
                 onClick={show}
-                className={isHeader ? "" : "w-full"}
+                className={
+                  isHeader
+                    ? "px-5 text-sm font-semibold"
+                    : "w-full text-sm font-semibold"
+                }
                 size={isHeader ? "sm" : "default"}
                 disabled={isConnecting}
+                variant="default"
               >
                 {isConnecting ? (
-                  <Loader2 className="size-4 animate-spin" />
+                  <Loader2 className="mr-1 size-4 animate-spin" />
+                ) : isHeader ? (
+                  "Login"
                 ) : (
-                  "Connect Wallet"
+                  "Get Started"
                 )}
               </Button>
             );
@@ -58,12 +65,17 @@ export function Login({ variant = "default" }: LoginProps) {
                 trigger={
                   <DialogTrigger asChild>
                     <Button
-                      className={isHeader ? "" : "w-full"}
+                      className={
+                        isHeader
+                          ? "px-5 text-base font-semibold"
+                          : "w-full text-base font-semibold"
+                      }
                       size={isHeader ? "sm" : "default"}
                       disabled={authUserLoading}
+                      variant="default"
                     >
                       {authUserLoading ? (
-                        <Loader2 className="size-4 animate-spin" />
+                        <Loader2 className="mr-1 size-4 animate-spin" />
                       ) : (
                         "Sign in with Lens"
                       )}

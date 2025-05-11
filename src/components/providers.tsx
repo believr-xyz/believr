@@ -30,7 +30,7 @@ export const Providers = ({ children }: { children: JSX.Element }) => {
   const publicClient = getPublicClient();
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
       <WagmiProvider config={wagmiConfig}>
         <QueryClientProvider client={queryClient}>
           <ConnectKitProvider>

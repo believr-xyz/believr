@@ -84,6 +84,11 @@
     "typescript": "^5"
   },
   "trustedDependencies": [
-    "@biomejs/biome"
+    "@biomejs/biome",
+    "@tailwindcss/oxide",
+    "bufferutil",
+    "keccak",
+    "sharp",
+    "utf-8-validate"
   ]
 }

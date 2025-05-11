@@ -1,13 +1,7 @@
 import { Login } from "@/components/login";
 import { getLensClient } from "@/lib/lens/client";
 import { fetchAccount } from "@lens-protocol/client/actions";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 /**
@@ -25,9 +19,7 @@ async function getAuthenticatedAccount() {
     return null;
   }
 
-  return fetchAccount(client, { address: authenticatedUser.address }).unwrapOr(
-    null
-  );
+  return fetchAccount(client, { address: authenticatedUser.address }).unwrapOr(null);
 }
 
 export default async function Home() {
@@ -39,9 +31,7 @@ export default async function Home() {
         <Card className="w-full max-w-md">
           <CardHeader>
             <CardTitle>Sign in with Lens</CardTitle>
-            <CardDescription>
-              Connect your wallet to access your Lens profile
-            </CardDescription>
+            <CardDescription>Connect your wallet to access your Lens profile</CardDescription>
           </CardHeader>
           <CardContent>
             <Login />
@@ -57,15 +47,11 @@ export default async function Home() {
         <CardHeader className="flex flex-row items-center gap-4">
           <Avatar className="h-16 w-16">
             <AvatarImage src={account.metadata?.picture} />
-            <AvatarFallback>
-              {account.address.substring(0, 2).toUpperCase()}
-            </AvatarFallback>
+            <AvatarFallback>{account.address.substring(0, 2).toUpperCase()}</AvatarFallback>
           </Avatar>
           <div>
             <CardTitle className="text-xl">{account.metadata?.name}</CardTitle>
-            <CardDescription className="mt-1">
-              {account.address}
-            </CardDescription>
+            <CardDescription className="mt-1">{account.address}</CardDescription>
           </div>
         </CardHeader>
         <CardContent>

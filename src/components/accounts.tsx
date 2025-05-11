@@ -15,6 +15,7 @@ import { Button } from "./ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { ScrollArea } from "./ui/scroll-area";
 import { useRouter } from "next/navigation";
+import { ConnectKitButton } from "connectkit";
 
 interface AccountSelectorProps {
   open: boolean;
@@ -40,7 +41,7 @@ export function AccountSelector({
   const router = useRouter();
   const wallet = useAccount();
 
-  const handleSelectAccount = async (account: Account) => {
+  const handleSelectAccount = async (account: any) => {
     if (!walletClient) return;
     try {
       const isOwner = wallet.address === account.owner;
@@ -69,12 +70,8 @@ export function AccountSelector({
 
       onOpenChange(false);
 
-      const selectedAccount = availableAccounts?.items.find(
-        (acc) => acc.account.address === account.address
-      )?.account;
-
       if (onSuccess) {
-        onSuccess(selectedAccount);
+        onSuccess(account);
       }
 
       router.refresh();
@@ -98,9 +95,22 @@ export function AccountSelector({
               </div>
             )}
             {availableAccounts && availableAccounts.items.length === 0 && (
-              <p className="col-span-3 text-muted-foreground text-sm">
-                No Lens profiles found for this wallet.
-              </p>
+              <div className="col-span-3 text-muted-foreground">
+                <p className="text-sm">
+                  No Lens profiles found for this wallet.
+                </p>
+                <div className="mt-4">
+                  <Button
+                    variant="outline"
+                    className="w-full"
+                    onClick={() =>
+                      window.open("https://onboarding.lens.xyz/", "_blank")
+                    }
+                  >
+                    Create a Lens profile
+                  </Button>
+                </div>
+              </div>
             )}
             {availableAccounts &&
               availableAccounts.items.length > 0 &&
@@ -137,6 +147,16 @@ export function AccountSelector({
               })}
           </div>
         </ScrollArea>
+
+        <div className="mt-6 text-center">
+          <ConnectKitButton.Custom>
+            {({ show }) => (
+              <Button variant="ghost" size="sm" onClick={show}>
+                Switch Wallet
+              </Button>
+            )}
+          </ConnectKitButton.Custom>
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -4,16 +4,21 @@ import { Button } from "@/components/ui/button";
 import { DialogTrigger } from "@/components/ui/dialog";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { ConnectKitButton } from "connectkit";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AccountSelector } from "./accounts";
 
-export function Login() {
+interface LoginProps {
+  variant?: "default" | "header";
+}
+
+export function Login({ variant = "default" }: LoginProps) {
   const [showAccountSelector, setShowAccountSelector] = useState(false);
   const { data: authenticatedUser, loading: authUserLoading } =
     useAuthenticatedUser();
+  const isHeader = variant === "header";
 
   return (
-    <div className="mb-2 space-y-2 p-2">
+    <div className={isHeader ? "" : "mb-2 space-y-2 p-2"}>
       <ConnectKitButton.Custom>
         {({
           isConnected: isWalletConnected,
@@ -24,16 +29,20 @@ export function Login() {
         }) => {
           const connectKitDisplayName = ensName ?? truncatedAddress;
 
+          // If not connected to wallet, show login button
           if (!isWalletConnected) {
             return (
-              <>
-                <Button onClick={show} className="w-full">
-                  Login
-                </Button>
-              </>
+              <Button
+                onClick={show}
+                className={isHeader ? "" : "w-full"}
+                size={isHeader ? "sm" : "default"}
+              >
+                Connect Wallet
+              </Button>
             );
           }
 
+          // If connected to wallet but not authenticated with Lens
           if (isWalletConnected && !authenticatedUser) {
             return (
               <AccountSelector
@@ -41,13 +50,19 @@ export function Login() {
                 onOpenChange={setShowAccountSelector}
                 trigger={
                   <DialogTrigger asChild>
-                    <Button className="w-full">Login with Lens</Button>
+                    <Button
+                      className={isHeader ? "" : "w-full"}
+                      size={isHeader ? "sm" : "default"}
+                    >
+                      Sign in with Lens
+                    </Button>
                   </DialogTrigger>
                 }
               />
             );
           }
 
+          // If connected and authenticated
           if (isWalletConnected && authenticatedUser) {
             const displayIdentity = connectKitDisplayName ?? "...";
             return (

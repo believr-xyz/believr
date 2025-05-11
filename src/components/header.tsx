@@ -42,7 +42,7 @@ export function Header() {
             href="/feed"
             className={cn(
               "text-primary transition-colors hover:underline",
-              pathname.startsWith("/feed") && "font-semibold"
+              pathname.startsWith("/feed") && "font-semibold",
             )}
           >
             Feed
@@ -51,7 +51,7 @@ export function Header() {
             href="/discover"
             className={cn(
               "text-primary transition-colors hover:underline",
-              pathname.startsWith("/discover") && "font-semibold"
+              pathname.startsWith("/discover") && "font-semibold",
             )}
           >
             Discover

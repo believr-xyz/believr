@@ -37,7 +37,7 @@ export function Login({ variant = "default" }: LoginProps) {
                 className={isHeader ? "" : "w-full"}
                 size={isHeader ? "sm" : "default"}
               >
-                Connect Wallet
+                Login
               </Button>
             );
           }
@@ -54,7 +54,7 @@ export function Login({ variant = "default" }: LoginProps) {
                       className={isHeader ? "" : "w-full"}
                       size={isHeader ? "sm" : "default"}
                     >
-                      Sign in with Lens
+                      Login with Lens
                     </Button>
                   </DialogTrigger>
                 }

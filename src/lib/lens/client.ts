@@ -1,11 +1,11 @@
-import { mainnet, PublicClient, testnet } from "@lens-protocol/client";
-import { clientCookieStorage, cookieStorage } from "./storage";
 import { env } from "@/env";
+import { PublicClient, mainnet, testnet } from "@lens-protocol/client";
+import { clientCookieStorage, cookieStorage } from "./storage";
 
 const isServer = typeof window === "undefined";
 
 const publicClient = PublicClient.create({
-  environment: testnet,
+  environment: mainnet,
   origin: env.NEXT_PUBLIC_APP_URL,
   storage: isServer ? cookieStorage : clientCookieStorage,
 });
@@ -16,7 +16,7 @@ export const getPublicClient = () => {
 
 export const getBuilderClient = async (
   address: string,
-  signMessage: (message: string) => Promise<string>
+  signMessage: (message: string) => Promise<string>,
 ) => {
   if (!address) return null;
 

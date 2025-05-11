@@ -1,14 +1,14 @@
 "use client";
 
+import { env } from "@/env";
 import { getPublicClient } from "@/lib/lens/client";
 import { chains } from "@lens-chain/sdk/viem";
 import { LensProvider } from "@lens-protocol/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
-import { JSX } from "react";
-import { createConfig, http, WagmiProvider } from "wagmi";
 import { ThemeProvider } from "next-themes";
-import { env } from "@/env";
+import { JSX } from "react";
+import { http, WagmiProvider, createConfig } from "wagmi";
 
 const wagmiConfig = createConfig(
   getDefaultConfig({
@@ -19,11 +19,10 @@ const wagmiConfig = createConfig(
       [chains.testnet.id]: http(),
     },
     appName: "Believr",
-    appDescription:
-      "Where early believers co-invest in creators' success and share in the rise",
+    appDescription: "Where early believers co-invest in creators' success and share in the rise",
     appUrl: env.NEXT_PUBLIC_APP_URL,
     appIcon: `${env.NEXT_PUBLIC_APP_URL}/favicon.svg`,
-  })
+  }),
 );
 
 export const Providers = ({ children }: { children: JSX.Element }) => {

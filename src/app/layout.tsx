@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/globals.css";
+import MainLayout from "@/components/layout";
 import { Providers } from "@/components/providers";
 
 const geistSans = Geist({
@@ -14,10 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title:
-    "Believr – The social app for early believers to co-invest in creators ",
+  title: "Believr – The social app for early believers to co-invest in creators ",
   description:
-    "Believr is a decentralized social app for early believers that allows fans to co-invest in creators they believe in. Built on Lens Protocol, it helps creators raise funds and build loyal communities, while fans earn rewards and unlock exclusive access.",
+    "Believr is a decentralized social platform where early believers co-invest in creators they believe in and share in their rise. Built on Lens Protocol, it enables creators to launch tokenized posts or campaigns to gain support, while backers earn rewards, access, and a stake in their journey.",
   icons: [{ rel: "icon", url: "/favicon.svg" }],
 };
 
@@ -28,10 +28,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <Providers>{children}</Providers>
+      <body className={`${geistSans.variable} ${geistMono.variable} m-0 p-0 antialiased`}>
+        <Providers>
+          <MainLayout>{children}</MainLayout>
+        </Providers>
       </body>
     </html>
   );

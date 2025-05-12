@@ -2,6 +2,7 @@
 
 import { Login } from "@/components/auth/login";
 import { ProfileMenu } from "@/components/layout/profile-menu";
+import { SearchBar } from "@/components/layout/search-bar";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
@@ -39,8 +40,8 @@ export function Header() {
 
   if (isLandingPage) {
     return (
-      <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-4 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-4">
+      <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-3 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-5xl items-center justify-between px-5">
           <Logo className="mr-6" />
           <Login variant="header" key={`login-${authKey}`} />
         </div>
@@ -49,8 +50,8 @@ export function Header() {
   }
 
   return (
-    <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-4 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4">
+    <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-3 backdrop-blur-sm">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-5">
         <div className="flex items-center">
           <Logo className="mr-6" />
           {isAuthenticated && (
@@ -59,16 +60,16 @@ export function Header() {
                 href="/feed"
                 className={cn(
                   "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                  pathname.startsWith("/feed") && "text-[#00A8FF]",
+                  pathname.startsWith("/feed") && "text-[#00A8FF]"
                 )}
               >
-                Feed
+                Home
               </Link>
               <Link
                 href="/discover"
                 className={cn(
                   "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                  pathname.startsWith("/discover") && "text-[#00A8FF]",
+                  pathname.startsWith("/discover") && "text-[#00A8FF]"
                 )}
               >
                 Discover
@@ -77,19 +78,17 @@ export function Header() {
           )}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
+          {isAuthenticated && <SearchBar />}
+
           {isAuthenticated && (
             <Button
               asChild
-              variant="outline"
+              className="hidden bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90 sm:flex"
               size="sm"
-              className={cn(
-                "hidden sm:flex",
-                pathname.startsWith("/create") && "border-[#00A8FF] text-[#00A8FF]",
-              )}
             >
               <Link href="/create">
-                <PlusIcon className="mr-1 size-4" />
+                <PlusIcon className="mr-1.5 size-3.5" />
                 Create
               </Link>
             </Button>

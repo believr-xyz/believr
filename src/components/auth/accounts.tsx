@@ -70,7 +70,7 @@ export function AccountSelector({
         onSuccess(account);
       }
 
-      router.refresh();
+      router.push("/feed");
     } catch (error) {
       console.error("Lens authentication failed:", error);
       toast.error("Authentication failed. Please try again.");

@@ -25,7 +25,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning className={urbanist.className}>
-      <body className="antialiased">
+      <body className="min-h-screen bg-background antialiased">
         <Providers>
           <MainLayout>{children}</MainLayout>
         </Providers>

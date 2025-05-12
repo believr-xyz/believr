@@ -4,9 +4,9 @@ import { Button } from "@/components/ui/button";
 import { DialogTrigger } from "@/components/ui/dialog";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { ConnectKitButton } from "connectkit";
-import { useState, useEffect } from "react";
-import { AccountSelector } from "./accounts";
 import { Loader2 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { AccountSelector } from "./accounts";
 
 interface LoginProps {
   variant?: "default" | "header";

@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,14 +9,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { UserRound, LogOut } from "lucide-react";
-import { useLogout, useAuthenticatedUser } from "@lens-protocol/react";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { fetchAccount } from "@lens-protocol/client/actions";
 import { getLensClient } from "@/lib/lens/client";
+import { fetchAccount } from "@lens-protocol/client/actions";
+import { useAuthenticatedUser, useLogout } from "@lens-protocol/react";
+import { LogOut, UserRound } from "lucide-react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 export function ProfileMenu() {
   const { execute: executeLogout } = useLogout();
@@ -69,6 +69,17 @@ export function ProfileMenu() {
     }
   };
 
+  const handleProfileClick = () => {
+    if (accountData?.ownedBy?.defaultProfile?.handle) {
+      router.push(`/u/${accountData.ownedBy.defaultProfile.handle}`);
+    } else if (accountData?.ownedBy?.handle) {
+      router.push(`/u/${accountData.ownedBy.handle}`);
+    } else {
+      // Fallback if we don't have a handle
+      router.push(`/u/default`); // This would be replaced with proper handling in production
+    }
+  };
+
   if (!user) return null;
 
   // Get the first few characters of the address for display
@@ -88,7 +99,7 @@ export function ProfileMenu() {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={handleProfileClick}>
           <UserRound className="mr-2 h-4 w-4" />
           <span>Profile</span>
         </DropdownMenuItem>

@@ -1,14 +1,14 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Login } from "@/components/login";
-import { Button } from "@/components/ui/button";
+import { Login } from "@/components/auth/login";
 import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
-import { motion } from "framer-motion";
-import { useAuthenticatedUser } from "@lens-protocol/react";
-import { fetchAccount } from "@lens-protocol/client/actions";
+import { Button } from "@/components/ui/button";
 import { getLensClient } from "@/lib/lens/client";
+import { fetchAccount } from "@lens-protocol/client/actions";
+import { useAuthenticatedUser } from "@lens-protocol/react";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import { useEffect, useState } from "react";
 
 // Placeholder creator data with curated human photos
 const leftColumnCreators = [

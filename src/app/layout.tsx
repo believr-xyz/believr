@@ -12,7 +12,7 @@ const urbanist = Urbanist({
 });
 
 export const metadata: Metadata = {
-  title: "Believr",
+  title: "Believr — The social platform for early believers and creators",
   description:
     "Believr is a decentralized social platform where early believers co-invest in creators they believe in and share in their rise. Built on Lens Protocol, it enables creators to launch tokenized posts or campaigns to gain support, while backers earn rewards, access, and a stake in their journey.",
   icons: [{ rel: "icon", url: "/favicon.svg" }],

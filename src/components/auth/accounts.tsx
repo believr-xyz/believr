@@ -1,17 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import { Account } from "@lens-protocol/client";
-import { useLogin, useAccountsAvailable } from "@lens-protocol/react";
-import { useAccount, useWalletClient } from "wagmi";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "./ui/dialog";
-import { Button } from "./ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { ScrollArea } from "./ui/scroll-area";
-import { useRouter } from "next/navigation";
+import { useAccountsAvailable, useLogin } from "@lens-protocol/react";
 import { ConnectKitButton } from "connectkit";
-import { toast } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
+import { useAccount, useWalletClient } from "wagmi";
+
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { ScrollArea } from "../ui/scroll-area";
 
 interface AccountSelectorProps {
   open: boolean;

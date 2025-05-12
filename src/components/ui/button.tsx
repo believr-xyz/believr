@@ -3,6 +3,7 @@ import { type VariantProps, cva } from "class-variance-authority";
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import { LoadingSpinner } from "./loading-spinner";
 
 const buttonVariants = cva(
   "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg:not([class*='size-'])]:size-4 shrink-0 [&_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive",
@@ -32,25 +33,58 @@ const buttonVariants = cva(
   },
 );
 
+interface ButtonProps extends React.ComponentProps<"button">, VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+  isLoading?: boolean;
+  spinnerSize?: "xs" | "sm" | "md";
+  spinnerColor?: string;
+}
+
 function Button({
   className,
   variant,
   size,
   asChild = false,
+  isLoading = false,
+  spinnerSize = "sm",
+  spinnerColor,
+  children,
+  disabled,
   ...props
-}: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
+}: ButtonProps) {
   const Comp = asChild ? Slot : "button";
+
+  // Determine spinner color based on variant
+  const getSpinnerColor = () => {
+    if (spinnerColor) return spinnerColor;
+
+    switch (variant) {
+      case "default":
+        return "text-primary-foreground";
+      case "destructive":
+        return "text-white";
+      default:
+        return "text-foreground";
+    }
+  };
 
   return (
     <Comp
       data-slot="button"
       className={cn(buttonVariants({ variant, size, className }))}
+      disabled={disabled || isLoading}
       {...props}
-    />
+    >
+      {isLoading ? (
+        <>
+          <LoadingSpinner size={spinnerSize} color={getSpinnerColor()} />
+          {children}
+        </>
+      ) : (
+        children
+      )}
+    </Comp>
   );
 }
 
-export { Button, buttonVariants };
+export { Button, buttonVariants, type ButtonProps };

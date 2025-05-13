@@ -11,6 +11,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
+import { BalanceDisplay } from "./balance-display";
+import { Notifications } from "./notifications";
 
 export function Header() {
   const pathname = usePathname();
@@ -60,7 +62,7 @@ export function Header() {
                 href="/feed"
                 className={cn(
                   "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                  pathname.startsWith("/feed") && "text-[#00A8FF]"
+                  pathname.startsWith("/feed") && "text-[#00A8FF]",
                 )}
               >
                 Home
@@ -69,7 +71,7 @@ export function Header() {
                 href="/discover"
                 className={cn(
                   "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                  pathname.startsWith("/discover") && "text-[#00A8FF]"
+                  pathname.startsWith("/discover") && "text-[#00A8FF]",
                 )}
               >
                 Discover
@@ -80,6 +82,13 @@ export function Header() {
 
         <div className="flex items-center gap-2 md:gap-4">
           {isAuthenticated && <SearchBar />}
+
+          {isAuthenticated && (
+            <>
+              <BalanceDisplay />
+              <Notifications />
+            </>
+          )}
 
           {isAuthenticated && (
             <Button

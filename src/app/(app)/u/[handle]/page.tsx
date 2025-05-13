@@ -53,10 +53,8 @@ const MOCK_PROFILE: Profile = {
   handle: "gamerbuild",
   name: "Indie Game Studio",
   bio: "Creating the next generation of story-driven games. Building in public. Join our journey as we develop immersive experiences that challenge the status quo of gaming.",
-  avatar:
-    "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-  coverImage:
-    "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&auto=format",
+  avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+  coverImage: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&auto=format",
   location: "San Francisco, CA",
   website: "https://indie-games.example",
   verified: true,
@@ -75,8 +73,7 @@ const MOCK_POSTS: Post[] = [
     content:
       "My indie game studio is creating a new story-driven RPG. Early believers get alpha access and in-game recognition!",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-    image:
-      "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format",
+    image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format",
     collectible: {
       price: "10",
       currency: "GHO",
@@ -87,8 +84,7 @@ const MOCK_POSTS: Post[] = [
       id: "creator-2",
       handle: "gamerbuild",
       name: "Indie Game Studio",
-      avatar:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
   {
@@ -96,14 +92,12 @@ const MOCK_POSTS: Post[] = [
     content:
       "Just released a new demo of our character customization system. Check it out and let us know what you think!",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
-    image:
-      "https://images.unsplash.com/photo-1511882150382-421056c89033?w=800&auto=format",
+    image: "https://images.unsplash.com/photo-1511882150382-421056c89033?w=800&auto=format",
     creator: {
       id: "creator-2",
       handle: "gamerbuild",
       name: "Indie Game Studio",
-      avatar:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
   {
@@ -121,8 +115,7 @@ const MOCK_POSTS: Post[] = [
       id: "creator-2",
       handle: "gamerbuild",
       name: "Indie Game Studio",
-      avatar:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
 ];
@@ -157,10 +150,7 @@ function ProfileContent({ handle }: { handle: string }) {
     loadProfileData();
   }, [handle]);
 
-  const handleFollowChange = (
-    isFollowing: boolean,
-    newFollowerCount: number
-  ) => {
+  const handleFollowChange = (isFollowing: boolean, newFollowerCount: number) => {
     if (profile) {
       setProfile({
         ...profile,
@@ -188,9 +178,7 @@ function ProfileContent({ handle }: { handle: string }) {
         <p className="mb-4 text-muted-foreground">
           The profile you're looking for doesn't exist or has been removed.
         </p>
-        <Button onClick={() => router.push("/discover")}>
-          Discover Creators
-        </Button>
+        <Button onClick={() => router.push("/discover")}>Discover Creators</Button>
       </div>
     );
   }
@@ -200,11 +188,7 @@ function ProfileContent({ handle }: { handle: string }) {
       <ProfileHeader profile={profile} onFollowChange={handleFollowChange} />
 
       <div className="px-5">
-        <ProfileTabs
-          posts={posts}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
+        <ProfileTabs posts={posts} activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
     </div>
   );

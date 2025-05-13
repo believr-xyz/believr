@@ -17,6 +17,21 @@ const nextConfig: NextConfig = {
         hostname: "images.unsplash.com",
         pathname: "**",
       },
+      {
+        protocol: "https",
+        hostname: "raw.githubusercontent.com",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "assets.lenster.xyz",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "metamask.github.io",
+        pathname: "**",
+      },
     ],
   },
 };

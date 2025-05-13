@@ -23,9 +23,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex h-screen items-center justify-center">
         <div className="rounded-lg bg-background p-8 shadow-lg">
           <h2 className="mb-4 font-semibold text-xl">Loading...</h2>
-          <p className="text-muted-foreground">
-            Please wait while we authenticate you.
-          </p>
+          <p className="text-muted-foreground">Please wait while we authenticate you.</p>
         </div>
       </div>
     );
@@ -34,9 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="container mx-auto mt-8 flex-1 px-4 pt-0 pb-12 md:px-6">
-        {children}
-      </main>
+      <main className="container mx-auto mt-8 flex-1 px-4 pt-0 pb-12 md:px-6">{children}</main>
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { env } from "@/env";
 import { Account } from "@lens-protocol/client";
 import { useAccountsAvailable, useLogin } from "@lens-protocol/react";
 import { ConnectKitButton } from "connectkit";
@@ -45,14 +46,14 @@ export function AccountSelector({
         ? {
             accountOwner: {
               account: account.address,
-              app: process.env.NEXT_PUBLIC_APP_ADDRESS,
+              app: env.NEXT_PUBLIC_APP_ADDRESS,
               owner: walletClient.account.address,
             },
           }
         : {
             accountManager: {
               account: account.address,
-              app: process.env.NEXT_PUBLIC_APP_ADDRESS,
+              app: env.NEXT_PUBLIC_APP_ADDRESS,
               manager: walletClient.account.address,
             },
           };

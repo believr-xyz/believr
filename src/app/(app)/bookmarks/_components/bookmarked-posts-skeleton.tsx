@@ -5,7 +5,9 @@ export function BookmarkedPostsSkeleton() {
     <div className="space-y-6">
       {Array.from({ length: 5 }).map((_, i) => (
         <div
-          key={`bookmark-skeleton-${i}-${Math.random().toString(36).substring(2, 9)}`}
+          key={`bookmark-skeleton-${i}-${Math.random()
+            .toString(36)
+            .substring(2, 9)}`}
           className="space-y-2"
         >
           <div className="flex items-center gap-2">

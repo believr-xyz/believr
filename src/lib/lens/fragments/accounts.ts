@@ -20,7 +20,7 @@ export const AccountMetadataFragment = graphql(
         value
       }
     }
-  `,
+  `
 );
 
 export const AccountFragment = graphql(
@@ -36,5 +36,5 @@ export const AccountFragment = graphql(
       }
     }
   `,
-  [UsernameFragment, AccountMetadataFragment],
+  [UsernameFragment, AccountMetadataFragment]
 );

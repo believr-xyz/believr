@@ -1,5 +1,10 @@
 import { env } from "@/env";
-import { PublicClient, SessionClient, mainnet, testnet } from "@lens-protocol/client";
+import {
+  PublicClient,
+  SessionClient,
+  mainnet,
+  testnet,
+} from "@lens-protocol/client";
 import { fragments } from "./fragments";
 import { clientCookieStorage, cookieStorage } from "./storage";
 
@@ -27,7 +32,7 @@ export const getPublicClient = () => {
  */
 export const getBuilderClient = async (
   address: string,
-  signMessage: (message: string) => Promise<string>,
+  signMessage: (message: string) => Promise<string>
 ) => {
   if (!address) return null;
 
@@ -48,7 +53,9 @@ export const getBuilderClient = async (
 /**
  * Get or resume a session client
  */
-export const getLensClient = async (): Promise<PublicClient | SessionClient> => {
+export const getLensClient = async (): Promise<
+  PublicClient | SessionClient
+> => {
   const resumed = await publicClient.resumeSession();
   if (resumed.isErr()) {
     return publicClient;

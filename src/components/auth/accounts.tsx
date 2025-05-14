@@ -13,7 +13,13 @@ import { useAccount, useWalletClient } from "wagmi";
 
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "../ui/dialog";
 import { ScrollArea } from "../ui/scroll-area";
 
 interface AccountSelectorProps {
@@ -32,9 +38,10 @@ export function AccountSelector({
   trigger,
 }: AccountSelectorProps) {
   const { data: walletClient } = useWalletClient();
-  const { data: availableAccounts, loading: accountsLoading } = useAccountsAvailable({
-    managedBy: walletClient?.account.address,
-  });
+  const { data: availableAccounts, loading: accountsLoading } =
+    useAccountsAvailable({
+      managedBy: walletClient?.account.address,
+    });
   const { authenticate, isAuthenticating } = useLensAuth();
   const router = useRouter();
   const wallet = useAccount();
@@ -76,12 +83,16 @@ export function AccountSelector({
             )}
             {availableAccounts && availableAccounts.items.length === 0 && (
               <div className="col-span-3 text-muted-foreground">
-                <p className="text-sm">No Lens profiles found for this wallet.</p>
+                <p className="text-sm">
+                  No Lens profiles found for this wallet.
+                </p>
                 <div className="mt-4">
                   <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() => window.open("https://onboarding.lens.xyz/", "_blank")}
+                    onClick={() =>
+                      window.open("https://onboarding.lens.xyz/", "_blank")
+                    }
                   >
                     Create a Lens profile
                   </Button>
@@ -113,7 +124,9 @@ export function AccountSelector({
                     <span className="w-full truncate text-center text-xs">
                       {acc.account.username?.localName || acc.account.address}
                       {isCurrentAccount && (
-                        <span className="block text-muted-foreground text-xs">(current)</span>
+                        <span className="block text-muted-foreground text-xs">
+                          (current)
+                        </span>
                       )}
                     </span>
                     {isAuthenticating && (

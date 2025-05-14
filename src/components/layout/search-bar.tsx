@@ -3,6 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
 import { Loader2, SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
@@ -53,7 +54,11 @@ const MOCK_PROFILES = [
 
 type ProfileType = (typeof MOCK_PROFILES)[number];
 
-export function SearchBar() {
+interface SearchBarProps {
+  className?: string;
+}
+
+export function SearchBar({ className }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<ProfileType[]>([]);
   const [loading, setLoading] = useState(false);
@@ -177,7 +182,7 @@ export function SearchBar() {
   };
 
   return (
-    <div className="relative">
+    <div className={cn("relative", className)}>
       {/* Mobile search icon button */}
       <Button
         variant="ghost"

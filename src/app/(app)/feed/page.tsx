@@ -28,7 +28,7 @@ const MOCK_POSTS = [
     },
     creator: {
       id: "creator-1",
-      handle: "web3sarah",
+      username: "web3sarah",
       name: "Sarah Web3",
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     },
@@ -47,7 +47,7 @@ const MOCK_POSTS = [
     },
     creator: {
       id: "creator-2",
-      handle: "gamerbuild",
+      username: "gamerbuild",
       name: "Indie Game Studio",
       avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
@@ -59,7 +59,7 @@ const MOCK_POSTS = [
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 10), // 10 hours ago
     creator: {
       id: "creator-3",
-      handle: "techpodcaster",
+      username: "techpodcaster",
       name: "Tech Podcaster",
       avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
     },
@@ -71,7 +71,7 @@ const MOCK_TRENDING_CREATORS = [
   {
     id: "creator-1",
     name: "Sarah Web3",
-    handle: "web3sarah",
+    username: "web3sarah",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     stats: {
       followers: 1245,
@@ -81,7 +81,7 @@ const MOCK_TRENDING_CREATORS = [
   {
     id: "creator-2",
     name: "Indie Game Studio",
-    handle: "gamerbuild",
+    username: "gamerbuild",
     avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     stats: {
       followers: 876,
@@ -91,7 +91,7 @@ const MOCK_TRENDING_CREATORS = [
   {
     id: "creator-3",
     name: "Tech Podcaster",
-    handle: "techpodcaster",
+    username: "techpodcaster",
     avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
     stats: {
       followers: 3422,
@@ -108,7 +108,7 @@ const MOCK_TRENDING_CAMPAIGNS = [
     creator: {
       id: "creator-1",
       name: "Sarah Web3",
-      handle: "web3sarah",
+      username: "web3sarah",
       avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     },
     collectible: {
@@ -124,7 +124,7 @@ const MOCK_TRENDING_CAMPAIGNS = [
     creator: {
       id: "creator-2",
       name: "Indie Game Studio",
-      handle: "gamerbuild",
+      username: "gamerbuild",
       avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
     collectible: {
@@ -140,7 +140,7 @@ const MOCK_TRENDING_CAMPAIGNS = [
     creator: {
       id: "creator-2",
       name: "Indie Game Studio",
-      handle: "gamerbuild",
+      username: "gamerbuild",
       avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
     collectible: {
@@ -198,7 +198,7 @@ export default function FeedPage() {
                 </div>
               </div>
               <Button asChild className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">
-                <Link href="/create">
+                <Link href="/posts/create">
                   <PlusIcon className="mr-2 size-4" />
                   Create Campaign
                 </Link>

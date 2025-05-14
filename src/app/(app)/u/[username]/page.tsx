@@ -11,7 +11,7 @@ import { ProfileTabs } from "./_components/profile-tabs";
 // Types
 interface Profile {
   id: string;
-  handle: string;
+  username: string;
   name: string;
   bio?: string;
   avatar?: string;
@@ -41,7 +41,7 @@ interface Post {
   };
   creator: {
     id: string;
-    handle: string;
+    username: string;
     name: string;
     avatar?: string;
   };
@@ -50,7 +50,7 @@ interface Post {
 // Mock data for the MVP
 const MOCK_PROFILE: Profile = {
   id: "creator-2",
-  handle: "gamerbuild",
+  username: "gamerbuild",
   name: "Indie Game Studio",
   bio: "Creating the next generation of story-driven games. Building in public. Join our journey as we develop immersive experiences that challenge the status quo of gaming.",
   avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
@@ -82,7 +82,7 @@ const MOCK_POSTS: Post[] = [
     },
     creator: {
       id: "creator-2",
-      handle: "gamerbuild",
+      username: "gamerbuild",
       name: "Indie Game Studio",
       avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
@@ -95,7 +95,7 @@ const MOCK_POSTS: Post[] = [
     image: "https://images.unsplash.com/photo-1511882150382-421056c89033?w=800&auto=format",
     creator: {
       id: "creator-2",
-      handle: "gamerbuild",
+      username: "gamerbuild",
       name: "Indie Game Studio",
       avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
@@ -113,21 +113,21 @@ const MOCK_POSTS: Post[] = [
     },
     creator: {
       id: "creator-2",
-      handle: "gamerbuild",
+      username: "gamerbuild",
       name: "Indie Game Studio",
       avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
 ];
 
-function ProfileContent({ handle }: { handle: string }) {
+function ProfileContent({ username }: { username: string }) {
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<"posts" | "collectibles">("posts");
 
-  // In a real app, you would fetch the profile and posts data based on the handle
+  // In a real app, you would fetch the profile and posts data based on the username
   useEffect(() => {
     // Simulate API fetch
     const loadProfileData = async () => {
@@ -148,7 +148,7 @@ function ProfileContent({ handle }: { handle: string }) {
     };
 
     loadProfileData();
-  }, [handle]);
+  }, [username]);
 
   const handleFollowChange = (isFollowing: boolean, newFollowerCount: number) => {
     if (profile) {
@@ -196,12 +196,12 @@ function ProfileContent({ handle }: { handle: string }) {
 
 export default function ProfilePage() {
   const params = useParams();
-  const handle = params.handle as string;
+  const username = params.username as string;
 
   return (
     <div className="container mx-auto max-w-5xl pb-12">
       <Suspense fallback={<ProfileSkeleton />}>
-        <ProfileContent handle={handle} />
+        <ProfileContent username={username} />
       </Suspense>
     </div>
   );

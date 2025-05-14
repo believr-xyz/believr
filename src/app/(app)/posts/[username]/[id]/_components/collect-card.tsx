@@ -12,7 +12,7 @@ import { toast } from "sonner";
 
 interface Collector {
   id: string;
-  handle: string;
+  username: string;
   name: string;
   avatar?: string;
   collectedAt: Date;
@@ -21,7 +21,7 @@ interface Collector {
 
 interface CreatorInfo {
   id: string;
-  handle: string;
+  username: string;
   name: string;
   avatar?: string;
   bio?: string;
@@ -60,7 +60,7 @@ export function CollectCard({
 
   const handleCollect = async () => {
     if (hasCollected) {
-      router.push(`/u/${creator.handle}`);
+      router.push(`/u/${creator.username}`);
       return;
     }
 
@@ -113,7 +113,7 @@ export function CollectCard({
         <div className="mb-4">
           <div
             className="flex cursor-pointer items-center gap-2"
-            onClick={() => router.push(`/u/${creator.handle}`)}
+            onClick={() => router.push(`/u/${creator.username}`)}
           >
             <Avatar className="size-8">
               <AvatarImage src={creator.avatar} alt={creator.name} />
@@ -124,7 +124,7 @@ export function CollectCard({
                 <p className="font-semibold">{creator.name}</p>
                 {creator.verified && <BadgeCheck className="size-3 text-[#00A8FF]" />}
               </div>
-              <p className="text-muted-foreground text-xs">@{creator.handle}</p>
+              <p className="text-muted-foreground text-xs">@{creator.username}</p>
             </div>
           </div>
 

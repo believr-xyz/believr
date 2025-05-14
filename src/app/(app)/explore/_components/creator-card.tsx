@@ -11,7 +11,7 @@ import { toast } from "sonner";
 interface CreatorCardProps {
   creator: {
     id: string;
-    handle: string;
+    username: string;
     name: string;
     avatar?: string;
     bio?: string;
@@ -50,7 +50,7 @@ export function CreatorCard({ creator }: CreatorCardProps) {
   };
 
   const navigateToProfile = () => {
-    router.push(`/u/${creator.handle}`);
+    router.push(`/u/${creator.username}`);
   };
 
   return (
@@ -84,7 +84,7 @@ export function CreatorCard({ creator }: CreatorCardProps) {
           {creator.verified && <BadgeCheck className="size-4 text-[#00A8FF]" />}
         </div>
 
-        <p className="mb-2 text-muted-foreground text-sm">@{creator.handle}</p>
+        <p className="mb-2 text-muted-foreground text-sm">@{creator.username}</p>
 
         {creator.bio && <p className="mb-4 line-clamp-2 text-sm">{creator.bio}</p>}
 

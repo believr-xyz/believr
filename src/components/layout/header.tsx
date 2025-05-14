@@ -12,7 +12,7 @@ import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
 import { BalanceDisplay } from "./balance-display";
-import { Notifications } from "./notifications";
+import { NotificationsButton } from "./notifications-button";
 
 export function Header() {
   const pathname = usePathname();
@@ -57,7 +57,7 @@ export function Header() {
         <div className="flex items-center">
           <Logo className="mr-6" />
           {isAuthenticated && (
-            <nav className="flex items-center gap-4 md:gap-8">
+            <nav className="hidden items-center gap-4 md:flex md:gap-8">
               <Link
                 href="/feed"
                 className={cn(
@@ -68,25 +68,43 @@ export function Header() {
                 Home
               </Link>
               <Link
-                href="/discover"
+                href="/explore"
                 className={cn(
                   "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                  pathname.startsWith("/discover") && "text-[#00A8FF]",
+                  pathname.startsWith("/explore") && "text-[#00A8FF]",
                 )}
               >
-                Discover
+                Explore
+              </Link>
+              <Link
+                href="/groups"
+                className={cn(
+                  "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
+                  pathname.startsWith("/groups") && "text-[#00A8FF]",
+                )}
+              >
+                Believers
+              </Link>
+              <Link
+                href="/bookmarks"
+                className={cn(
+                  "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
+                  pathname.startsWith("/bookmarks") && "text-[#00A8FF]",
+                )}
+              >
+                Bookmarks
               </Link>
             </nav>
           )}
         </div>
 
         <div className="flex items-center gap-2 md:gap-4">
-          {isAuthenticated && <SearchBar />}
+          {isAuthenticated && <SearchBar className="hidden md:flex" />}
 
           {isAuthenticated && (
             <>
-              <BalanceDisplay />
-              <Notifications />
+              <BalanceDisplay className="hidden md:flex" />
+              <NotificationsButton className="hidden md:flex" />
             </>
           )}
 
@@ -96,7 +114,7 @@ export function Header() {
               className="hidden bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90 sm:flex"
               size="sm"
             >
-              <Link href="/create">
+              <Link href="/posts/create">
                 <PlusIcon className="mr-1.5 size-3.5" />
                 Create
               </Link>
@@ -104,7 +122,7 @@ export function Header() {
           )}
 
           {isAuthenticated ? (
-            <ProfileMenu key={`profile-${authKey}`} />
+            <ProfileMenu key={`profile-${authKey}`} className="hidden md:flex" />
           ) : (
             <Login variant="header" key={`login-${authKey}`} />
           )}

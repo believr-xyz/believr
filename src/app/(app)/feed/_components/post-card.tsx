@@ -1,5 +1,6 @@
 "use client";
 
+import { BookmarkButton } from "@/app/(app)/bookmarks/_components/bookmark-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,7 @@ interface PostCardProps {
     };
     creator: {
       id: string;
-      handle: string;
+      username: string;
       name: string;
       avatar?: string;
     };
@@ -42,21 +43,21 @@ export function PostCard({ post }: PostCardProps) {
       <CardHeader className="flex flex-row gap-4 pt-4 pb-2">
         <Avatar
           className="size-10 cursor-pointer"
-          onClick={() => router.push(`/u/${post.creator.handle}`)}
+          onClick={() => router.push(`/u/${post.creator.username}`)}
         >
           <AvatarImage src={post.creator.avatar} alt={post.creator.name} />
-          <AvatarFallback>{post.creator.handle[0]?.toUpperCase()}</AvatarFallback>
+          <AvatarFallback>{post.creator.username[0]?.toUpperCase()}</AvatarFallback>
         </Avatar>
         <div className="flex flex-1 flex-col">
           <div className="flex items-center justify-between">
             <div>
               <h3
                 className="font-semibold hover:underline"
-                onClick={() => router.push(`/u/${post.creator.handle}`)}
+                onClick={() => router.push(`/u/${post.creator.username}`)}
               >
                 {post.creator.name}
               </h3>
-              <p className="text-muted-foreground text-sm">@{post.creator.handle}</p>
+              <p className="text-muted-foreground text-sm">@{post.creator.username}</p>
             </div>
             <span className="text-muted-foreground text-xs">{timeAgo}</span>
           </div>
@@ -65,7 +66,7 @@ export function PostCard({ post }: PostCardProps) {
 
       <CardContent
         className="cursor-pointer pt-0 pb-2"
-        onClick={() => router.push(`/p/${post.creator.handle}/${post.id}`)}
+        onClick={() => router.push(`/posts/${post.creator.username}/${post.id}`)}
       >
         <p className="mb-3 whitespace-pre-line">{post.content}</p>
         {post.image && (
@@ -107,10 +108,11 @@ export function PostCard({ post }: PostCardProps) {
         <Button variant="ghost" size="icon" className="text-muted-foreground">
           <ShareIcon className="size-4" />
         </Button>
+        <BookmarkButton postId={post.id} />
         <Button
           variant="default"
           className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
-          onClick={() => router.push(`/p/${post.creator.handle}/${post.id}`)}
+          onClick={() => router.push(`/posts/${post.creator.username}/${post.id}`)}
         >
           Believe
         </Button>

@@ -13,7 +13,7 @@ const MOCK_FEATURED_CREATORS = [
   {
     id: "creator-1",
     name: "Sarah Web3",
-    handle: "web3sarah",
+    username: "web3sarah",
     avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     bio: "Web3 educator and podcast host. Helping people understand blockchain and crypto.",
     followers: 1245,
@@ -24,7 +24,7 @@ const MOCK_FEATURED_CREATORS = [
   {
     id: "creator-2",
     name: "Indie Game Studio",
-    handle: "gamerbuild",
+    username: "gamerbuild",
     avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     bio: "Creating the next generation of story-driven games. Building in public.",
     followers: 876,
@@ -35,7 +35,7 @@ const MOCK_FEATURED_CREATORS = [
   {
     id: "creator-3",
     name: "Digital Artist",
-    handle: "artcreator",
+    username: "artcreator",
     avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format",
     bio: "Digital NFT artist specializing in surreal landscapes and futuristic themes.",
     followers: 954,
@@ -46,7 +46,7 @@ const MOCK_FEATURED_CREATORS = [
   {
     id: "creator-4",
     name: "Tech Builder",
-    handle: "techbuild",
+    username: "techbuild",
     avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&auto=format",
     bio: "Building tools for the decentralized future. Open source advocate.",
     followers: 1154,
@@ -57,7 +57,7 @@ const MOCK_FEATURED_CREATORS = [
   {
     id: "creator-5",
     name: "Crypto Artist",
-    handle: "cryptoart",
+    username: "cryptoart",
     avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&auto=format",
     bio: "Creating digital art on the blockchain. Exploring new frontiers of ownership.",
     followers: 876,
@@ -68,7 +68,7 @@ const MOCK_FEATURED_CREATORS = [
   {
     id: "creator-6",
     name: "Decentralized Finance",
-    handle: "defi.lens",
+    username: "defi.lens",
     avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format",
     bio: "Exploring the world of DeFi. Teaching others how to navigate the financial revolution.",
     followers: 1587,
@@ -85,7 +85,7 @@ const MOCK_TRENDING_CREATORS = [...MOCK_FEATURED_CREATORS]
 const MOCK_MUSIC_CREATORS = MOCK_FEATURED_CREATORS.filter((_, i) => i % 2 === 0);
 const MOCK_TECH_CREATORS = MOCK_FEATURED_CREATORS.filter((_, i) => i % 2 === 1);
 
-function DiscoverContent({ category }: { category: string }) {
+function ExploreContent({ category }: { category: string }) {
   let creators = MOCK_FEATURED_CREATORS;
 
   if (category === "trending") {
@@ -105,7 +105,7 @@ function DiscoverContent({ category }: { category: string }) {
   );
 }
 
-export default function DiscoverPage() {
+export default function ExplorePage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const category = searchParams.get("category") || "featured";
@@ -122,7 +122,7 @@ export default function DiscoverPage() {
   return (
     <div className="container mx-auto max-w-5xl pb-12">
       <div className="mb-8 flex items-center justify-between">
-        <h1 className="font-bold text-2xl">Discover Creators</h1>
+        <h1 className="font-bold text-2xl">Explore Creators</h1>
         <div className="flex items-center text-muted-foreground text-sm">
           <TrendingUp className="mr-1 size-4" />
           <span>Trending categories</span>
@@ -132,7 +132,7 @@ export default function DiscoverPage() {
       <Tabs
         defaultValue={category}
         onValueChange={(value) => {
-          router.push(`/discover?${createQueryString("category", value)}`);
+          router.push(`/explore?${createQueryString("category", value)}`);
         }}
         className="mb-8"
       >
@@ -154,7 +154,7 @@ export default function DiscoverPage() {
             </div>
           }
         >
-          <DiscoverContent category={category} />
+          <ExploreContent category={category} />
         </Suspense>
       </Tabs>
     </div>

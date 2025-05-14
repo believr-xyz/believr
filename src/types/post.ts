@@ -1,6 +1,6 @@
 export interface Creator {
   id: string;
-  handle: string;
+  username: string;
   name: string;
   avatar?: string;
   bio?: string;
@@ -13,7 +13,7 @@ export interface Creator {
 
 export interface Collector {
   id: string;
-  handle: string;
+  username: string;
   name: string;
   avatar?: string;
   verified?: boolean;

@@ -9,8 +9,8 @@ import { ArrowLeftIcon, UsersIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-// Define the community interface
-interface Community {
+// Define the group interface
+interface Group {
   id: string;
   name: string;
   description: string;
@@ -55,10 +55,10 @@ interface Community {
   isPrivate?: boolean;
 }
 
-// Mock communities data - in a real app, this would be fetched from Lens API
-const MOCK_COMMUNITIES: Record<string, Community> = {
-  "community-1": {
-    id: "community-1",
+// Mock groups data - in a real app, this would be fetched from Lens API
+const MOCK_GROUPS: Record<string, Group> = {
+  "group-1": {
+    id: "group-1",
     name: "SaaS Believers",
     description:
       "A community for believers in SaaS startups and projects. We focus on supporting early-stage SaaS founders and projects that are building innovative solutions to real problems.",
@@ -116,8 +116,8 @@ const MOCK_COMMUNITIES: Record<string, Community> = {
     ],
     isMember: false,
   },
-  "community-2": {
-    id: "community-2",
+  "group-2": {
+    id: "group-2",
     name: "Game Developers",
     description:
       "Support indie game developers and studios building the next generation of games. Join to discover and back promising game projects early.",
@@ -171,11 +171,11 @@ const MOCK_COMMUNITIES: Record<string, Community> = {
     ],
     isMember: true,
   },
-  "community-3": {
-    id: "community-3",
+  "group-3": {
+    id: "group-3",
     name: "Web3 Founders",
     description:
-      "Early-stage Web3 startups looking for support and funding. This is a private community for serious believers in Web3 technology.",
+      "Early-stage Web3 startups looking for support and funding. This is a private group for serious believers in Web3 technology.",
     members: 94,
     image: "https://images.unsplash.com/photo-1639322537504-6427a16b0a28?w=1200&auto=format",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 30), // 30 days ago
@@ -192,28 +192,28 @@ const MOCK_COMMUNITIES: Record<string, Community> = {
   },
 };
 
-export default function CommunityPage({ params }: { params: { id: string } }) {
-  const communityId = params.id;
+export default function GroupPage({ params }: { params: { id: string } }) {
+  const groupId = params.id;
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("posts");
 
-  // Get community data - in a real app, this would be fetched from Lens API
-  const community = MOCK_COMMUNITIES[communityId];
+  // Get group data - in a real app, this would be fetched from Lens API
+  const group = MOCK_GROUPS[groupId];
 
-  if (!community) {
+  if (!group) {
     return (
       <div className="container mx-auto max-w-5xl pb-12">
-        <Button variant="ghost" className="mb-6" onClick={() => router.push("/communities")}>
+        <Button variant="ghost" className="mb-6" onClick={() => router.push("/groups")}>
           <ArrowLeftIcon className="mr-2 size-4" />
-          Back to Communities
+          Back to Groups
         </Button>
 
         <div className="flex flex-col items-center justify-center rounded-lg border p-12 text-center">
-          <h1 className="mb-2 font-bold text-2xl">Community Not Found</h1>
+          <h1 className="mb-2 font-bold text-2xl">Group Not Found</h1>
           <p className="mb-6 text-muted-foreground">
-            The community you're looking for doesn't exist or has been removed.
+            The group you're looking for doesn't exist or has been removed.
           </p>
-          <Button onClick={() => router.push("/communities")}>Browse Communities</Button>
+          <Button onClick={() => router.push("/groups")}>Browse Groups</Button>
         </div>
       </div>
     );
@@ -221,31 +221,27 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
 
   return (
     <div className="container mx-auto max-w-5xl pb-12">
-      <Button variant="ghost" className="mb-6" onClick={() => router.push("/communities")}>
+      <Button variant="ghost" className="mb-6" onClick={() => router.push("/groups")}>
         <ArrowLeftIcon className="mr-2 size-4" />
-        Back to Communities
+        Back to Groups
       </Button>
 
-      {/* Hero section with community image */}
+      {/* Hero section with group image */}
       <div className="relative mb-6 overflow-hidden rounded-xl">
-        {community.image && (
+        {group.image && (
           <div className="relative h-[200px] w-full overflow-hidden md:h-[300px]">
-            <img
-              src={community.image}
-              alt={community.name}
-              className="h-full w-full object-cover"
-            />
+            <img src={group.image} alt={group.name} className="h-full w-full object-cover" />
             {/* Overlay for text readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           </div>
         )}
 
         <div className="absolute bottom-0 left-0 p-6 text-white">
-          <h1 className="font-bold text-3xl">{community.name}</h1>
+          <h1 className="font-bold text-3xl">{group.name}</h1>
           <div className="mt-2 flex items-center">
             <UsersIcon className="mr-2 size-4" />
-            <span>{community.members} members</span>
-            {community.isPrivate && (
+            <span>{group.members} members</span>
+            {group.isPrivate && (
               <div className="ml-3 rounded-full bg-amber-100 px-2 py-1 font-medium text-amber-800 text-xs">
                 Private
               </div>
@@ -254,7 +250,7 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      {/* Community details */}
+      {/* Group details */}
       <div className="mb-6 grid gap-6 md:grid-cols-3">
         <div className="md:col-span-2">
           <Card>
@@ -262,15 +258,15 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
               <CardTitle className="text-lg">About</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">{community.description}</p>
+              <p className="text-muted-foreground">{group.description}</p>
               <div className="mt-4">
                 <p className="text-muted-foreground text-sm">
                   Created by{" "}
                   <span
                     className="cursor-pointer font-medium text-[#00A8FF]"
-                    onClick={() => router.push(`/u/${community.creator.handle}`)}
+                    onClick={() => router.push(`/u/${group.creator.handle}`)}
                   >
-                    @{community.creator.handle}
+                    @{group.creator.handle}
                   </span>
                 </p>
               </div>
@@ -281,16 +277,16 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
         <div>
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Join Community</CardTitle>
+              <CardTitle className="text-lg">Join Group</CardTitle>
             </CardHeader>
             <CardContent>
-              {community.isMember ? (
+              {group.isMember ? (
                 <Button className="w-full" variant="outline">
-                  Leave Community
+                  Leave Group
                 </Button>
               ) : (
                 <Button className="w-full bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">
-                  Join Community
+                  Join Group
                 </Button>
               )}
             </CardContent>
@@ -298,7 +294,7 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
         </div>
       </div>
 
-      {/* Community content tabs */}
+      {/* Group content tabs */}
       <Tabs defaultValue="posts" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-6 grid w-full grid-cols-2">
           <TabsTrigger value="posts">Posts</TabsTrigger>
@@ -306,16 +302,25 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
         </TabsList>
 
         <TabsContent value="posts">
-          {community.posts.length === 0 ? (
+          {group.posts.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border p-12 text-center">
               <h3 className="mb-1 font-semibold text-xl">No posts yet</h3>
-              <p className="mb-4 text-muted-foreground">Be the first to post in this community</p>
+              <p className="mb-4 text-muted-foreground">Be the first to post in this group</p>
               <Button className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">Create Post</Button>
             </div>
           ) : (
             <div className="space-y-6">
-              {community.posts.map((post) => (
-                <PostCard key={post.id} post={post} />
+              {group.posts.map((post) => (
+                <PostCard
+                  key={post.id}
+                  post={{
+                    ...post,
+                    creator: {
+                      ...post.creator,
+                      username: post.creator.handle,
+                    },
+                  }}
+                />
               ))}
             </div>
           )}
@@ -323,13 +328,13 @@ export default function CommunityPage({ params }: { params: { id: string } }) {
 
         <TabsContent value="members">
           <div className="space-y-4">
-            {community.members_list.length === 0 ? (
+            {group.members_list.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-lg border p-12 text-center">
                 <h3 className="mb-1 font-semibold text-xl">No members yet</h3>
-                <p className="mb-4 text-muted-foreground">Be the first to join this community</p>
+                <p className="mb-4 text-muted-foreground">Be the first to join this group</p>
               </div>
             ) : (
-              community.members_list.map((member) => (
+              group.members_list.map((member) => (
                 <div
                   key={member.id}
                   className="flex items-center gap-3 rounded-lg border p-4"

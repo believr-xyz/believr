@@ -1,5 +1,6 @@
 "use client";
 
+import { BookmarkButton } from "@/app/(app)/bookmarks/_components/bookmark-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,7 @@ interface Comment {
   createdAt: Date;
   author: {
     id: string;
-    handle: string;
+    username: string;
     name: string;
     avatar?: string;
     verified?: boolean;
@@ -39,7 +40,7 @@ interface Comment {
 
 interface Collector {
   id: string;
-  handle: string;
+  username: string;
   name: string;
   avatar?: string;
   collectedAt: Date;
@@ -61,7 +62,7 @@ interface PostDetail {
   };
   creator: {
     id: string;
-    handle: string;
+    username: string;
     name: string;
     avatar?: string;
     bio?: string;
@@ -90,7 +91,7 @@ const MOCK_POST: PostDetail = {
     collectors: [
       {
         id: "user-1",
-        handle: "cryptofan",
+        username: "cryptofan",
         name: "Crypto Fan",
         avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format",
         collectedAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
@@ -98,14 +99,14 @@ const MOCK_POST: PostDetail = {
       },
       {
         id: "user-2",
-        handle: "gamerlover",
+        username: "gamerlover",
         name: "Gamer Enthusiast",
         avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format",
         collectedAt: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
       },
       {
         id: "user-3",
-        handle: "techbuilder",
+        username: "techbuilder",
         name: "Tech Builder",
         avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format",
         collectedAt: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
@@ -115,7 +116,7 @@ const MOCK_POST: PostDetail = {
   },
   creator: {
     id: "creator-2",
-    handle: "gamerbuild",
+    username: "gamerbuild",
     name: "Indie Game Studio",
     avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     bio: "Creating the next generation of story-driven games. Building in public.",
@@ -132,7 +133,7 @@ const MOCK_POST: PostDetail = {
       createdAt: new Date(Date.now() - 1000 * 60 * 120), // 2 hours ago
       author: {
         id: "user-1",
-        handle: "cryptofan",
+        username: "cryptofan",
         name: "Crypto Fan",
         avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format",
         verified: true,
@@ -144,7 +145,7 @@ const MOCK_POST: PostDetail = {
       createdAt: new Date(Date.now() - 1000 * 60 * 180), // 3 hours ago
       author: {
         id: "user-2",
-        handle: "gamerlover",
+        username: "gamerlover",
         name: "Gamer Enthusiast",
         avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format",
       },
@@ -156,13 +157,13 @@ export default function PostPage() {
   const router = useRouter();
   const params = useParams();
   const postId = params.id as string;
-  const creatorHandle = params.handle as string;
+  const creatorUsername = params.username as string;
 
   const [post, setPost] = useState<PostDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasCollected, setHasCollected] = useState(false);
 
-  // In a real app, you would fetch the post data based on the ID and creator handle
+  // In a real app, you would fetch the post data based on the ID and creator username
   useEffect(() => {
     // Simulate API fetch
     const loadPost = async () => {
@@ -186,7 +187,7 @@ export default function PostPage() {
     };
 
     loadPost();
-  }, [postId, creatorHandle]);
+  }, [postId, creatorUsername]);
 
   const handleCollect = () => {
     if (post) {
@@ -243,94 +244,91 @@ export default function PostPage() {
         Back
       </Button>
 
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-        {/* Main post content */}
-        <div className="md:col-span-2">
-          {/* Post header */}
-          <div className="mb-4 flex items-start gap-4">
-            <Avatar
-              className="size-12 cursor-pointer"
-              onClick={() => router.push(`/u/${post.creator.handle}`)}
-            >
-              <AvatarImage src={post.creator.avatar} alt={post.creator.name} />
-              <AvatarFallback>{post.creator.name[0]}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <div className="flex items-center gap-1">
-                <h2
-                  className="cursor-pointer font-bold text-xl hover:underline"
-                  onClick={() => router.push(`/u/${post.creator.handle}`)}
-                >
-                  {post.creator.name}
-                </h2>
-                {post.creator.verified && <BadgeCheck className="size-5 text-[#00A8FF]" />}
-              </div>
-              <p className="text-muted-foreground">@{post.creator.handle}</p>
-              <p className="mt-1 text-muted-foreground text-sm">{timeAgo}</p>
-            </div>
-          </div>
-
-          {/* Post content */}
-          <Card className="mb-6 overflow-hidden">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2">
+          <Card className="overflow-hidden">
             {post.image && (
-              <div className="aspect-video w-full overflow-hidden">
-                <img src={post.image} alt={post.title} className="w-full object-cover" />
+              <div className="w-full overflow-hidden">
+                <img src={post.image} alt={post.title} className="h-auto w-full object-cover" />
               </div>
             )}
+
             <div className="p-6">
-              <h1 className="mb-4 font-bold text-2xl">{post.title}</h1>
-              <div className="whitespace-pre-line text-lg">
-                {post.content.split("\n").map((paragraph, i) => (
-                  <p key={`paragraph-${i}-${paragraph.substring(0, 10)}`} className="mb-4">
-                    {paragraph}
-                  </p>
-                ))}
+              <div className="mb-4 flex items-start justify-between">
+                <div className="flex items-start gap-3">
+                  <Avatar
+                    className="size-10 cursor-pointer"
+                    onClick={() => router.push(`/u/${post.creator.username}`)}
+                  >
+                    <AvatarImage src={post.creator.avatar} alt={post.creator.name} />
+                    <AvatarFallback>{post.creator.name[0].toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <h3
+                        className="font-semibold hover:underline"
+                        onClick={() => router.push(`/u/${post.creator.username}`)}
+                      >
+                        {post.creator.name}
+                      </h3>
+                      {post.creator.verified && <BadgeCheck className="size-4 text-[#00A8FF]" />}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <p className="text-muted-foreground text-sm">@{post.creator.username}</p>
+                      <span className="text-muted-foreground text-xs">•</span>
+                      <span className="text-muted-foreground text-xs">{timeAgo}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" size="icon" className="text-muted-foreground">
+                    <HeartIcon className="size-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="text-muted-foreground">
+                    <RefreshCwIcon className="size-4" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="text-muted-foreground">
+                    <ShareIcon className="size-4" />
+                  </Button>
+                  <BookmarkButton postId={post.id} />
+                </div>
               </div>
 
-              <div className="mt-6 flex flex-wrap gap-3">
-                <Button variant="ghost" size="sm" className="text-muted-foreground">
-                  <HeartIcon className="mr-1 size-4" />
-                  Like
-                </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground">
-                  <RefreshCwIcon className="mr-1 size-4" />
-                  Mirror
-                </Button>
-                <Button variant="ghost" size="sm" className="text-muted-foreground">
-                  <ShareIcon className="mr-1 size-4" />
-                  Share
-                </Button>
+              <h1 className="mb-4 font-bold text-2xl">{post.title}</h1>
+              <div className="whitespace-pre-line text-base">{post.content}</div>
+
+              <div className="mt-8">
+                <Tabs defaultValue="comments">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="comments">
+                      <MessageCircleIcon className="mr-2 size-4" />
+                      Comments ({post.comments.length})
+                    </TabsTrigger>
+                    <TabsTrigger value="collectors">
+                      <Badge className="mr-2 bg-[#00A8FF]">
+                        {post.collectible.collectors.length}
+                      </Badge>
+                      Collectors
+                    </TabsTrigger>
+                  </TabsList>
+                  <Separator className="my-4" />
+                  <TabsContent value="comments" className="mt-0 pt-4">
+                    <CommentSection
+                      postId={post.id}
+                      comments={post.comments}
+                      onCommentAdded={handleCommentAdded}
+                    />
+                  </TabsContent>
+                  <TabsContent value="collectors" className="mt-0 pt-4">
+                    <CollectorsList collectors={post.collectible.collectors} />
+                  </TabsContent>
+                </Tabs>
               </div>
             </div>
           </Card>
-
-          {/* Tabs for comments and collectors */}
-          <Tabs defaultValue="comments" className="mb-6">
-            <TabsList className="mb-4 w-full">
-              <TabsTrigger value="comments" className="flex-1">
-                <MessageCircleIcon className="mr-2 size-4" />
-                Comments ({post.comments.length})
-              </TabsTrigger>
-              <TabsTrigger value="collectors" className="flex-1">
-                Collectors ({post.collectible.collectors.length})
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="comments">
-              <CommentSection
-                postId={post.id}
-                comments={post.comments}
-                onCommentAdded={handleCommentAdded}
-              />
-            </TabsContent>
-
-            <TabsContent value="collectors">
-              <CollectorsList collectors={post.collectible.collectors} />
-            </TabsContent>
-          </Tabs>
         </div>
 
-        {/* Right sidebar */}
         <div>
           <CollectCard
             postId={post.id}

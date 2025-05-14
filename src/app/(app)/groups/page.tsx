@@ -16,7 +16,7 @@ import { PlusIcon, UsersIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-interface Community {
+interface Group {
   id: string;
   name: string;
   description: string;
@@ -25,24 +25,24 @@ interface Community {
   isPrivate?: boolean;
 }
 
-// Mock communities for the MVP demo
-const MOCK_COMMUNITIES: Community[] = [
+// Mock groups for the MVP demo
+const MOCK_GROUPS: Group[] = [
   {
-    id: "community-1",
+    id: "group-1",
     name: "SaaS Believers",
     description: "A community for believers in SaaS startups and projects",
     members: 156,
     image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&auto=format",
   },
   {
-    id: "community-2",
+    id: "group-2",
     name: "Game Developers",
     description: "Support indie game developers and studios",
     members: 237,
     image: "https://images.unsplash.com/photo-1536746803623-cef87080bfc8?w=300&auto=format",
   },
   {
-    id: "community-3",
+    id: "group-3",
     name: "Web3 Founders",
     description: "Early-stage Web3 startups looking for support",
     members: 94,
@@ -51,16 +51,16 @@ const MOCK_COMMUNITIES: Community[] = [
   },
 ];
 
-export default function CommunitiesPage() {
+export default function GroupsPage() {
   const isMobile = useIsMobile();
   const [activeTab, setActiveTab] = useState("all");
   const router = useRouter();
 
-  // Filter communities based on active tab
-  const filteredCommunities = MOCK_COMMUNITIES.filter((community) => {
+  // Filter groups based on active tab
+  const filteredGroups = MOCK_GROUPS.filter((group) => {
     if (activeTab === "all") return true;
-    if (activeTab === "private") return community.isPrivate;
-    if (activeTab === "public") return !community.isPrivate;
+    if (activeTab === "private") return group.isPrivate;
+    if (activeTab === "public") return !group.isPrivate;
     return true;
   });
 
@@ -68,12 +68,12 @@ export default function CommunitiesPage() {
     <div className="container mx-auto max-w-5xl pb-12">
       <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="mb-2 font-bold text-3xl">Communities</h1>
+          <h1 className="mb-2 font-bold text-3xl">Believers</h1>
           <p className="text-muted-foreground">Join groups of believers with shared interests</p>
         </div>
         <Button className="mt-4 bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90 md:mt-0">
           <PlusIcon className="mr-2 size-4" />
-          Create Community
+          Create Group
         </Button>
       </div>
 
@@ -86,42 +86,37 @@ export default function CommunitiesPage() {
 
         <TabsContent value={activeTab}>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {filteredCommunities.map((community) => (
-              <Card key={community.id} className="overflow-hidden">
-                {community.image && (
+            {filteredGroups.map((group) => (
+              <Card key={group.id} className="overflow-hidden">
+                {group.image && (
                   <div className="aspect-video w-full overflow-hidden">
                     <img
-                      src={community.image}
-                      alt={community.name}
+                      src={group.image}
+                      alt={group.name}
                       className="h-full w-full object-cover"
                     />
                   </div>
                 )}
                 <CardHeader>
                   <div className="flex items-center justify-between">
-                    <CardTitle>{community.name}</CardTitle>
-                    {community.isPrivate && (
+                    <CardTitle>{group.name}</CardTitle>
+                    {group.isPrivate && (
                       <div className="rounded-full bg-amber-100 px-2 py-1 font-medium text-amber-800 text-xs">
                         Private
                       </div>
                     )}
                   </div>
-                  <CardDescription>{community.description}</CardDescription>
+                  <CardDescription>{group.description}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center">
                     <UsersIcon className="mr-2 size-4 text-muted-foreground" />
-                    <span className="text-muted-foreground text-sm">
-                      {community.members} members
-                    </span>
+                    <span className="text-muted-foreground text-sm">{group.members} members</span>
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button
-                    className="w-full"
-                    onClick={() => router.push(`/communities/${community.id}`)}
-                  >
-                    Join Community
+                  <Button className="w-full" onClick={() => router.push(`/groups/${group.id}`)}>
+                    Join Group
                   </Button>
                 </CardFooter>
               </Card>

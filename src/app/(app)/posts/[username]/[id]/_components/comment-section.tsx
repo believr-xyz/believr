@@ -14,7 +14,7 @@ interface Comment {
   createdAt: Date;
   author: {
     id: string;
-    handle: string;
+    username: string;
     name: string;
     avatar?: string;
     verified?: boolean;
@@ -47,7 +47,7 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
         author: {
           // This would be the current user in production
           id: "current-user",
-          handle: "current.lens",
+          username: "current.lens",
           name: "Current User",
           avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&auto=format",
         },
@@ -111,7 +111,7 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
               <div className="mb-2 flex items-center gap-2">
                 <Avatar
                   className="size-8 cursor-pointer"
-                  onClick={() => router.push(`/u/${comment.author.handle}`)}
+                  onClick={() => router.push(`/u/${comment.author.username}`)}
                 >
                   <AvatarImage src={comment.author.avatar} alt={comment.author.name} />
                   <AvatarFallback>{comment.author.name[0]}</AvatarFallback>
@@ -120,14 +120,14 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
                   <div className="flex items-center gap-1">
                     <span
                       className="cursor-pointer font-semibold hover:underline"
-                      onClick={() => router.push(`/u/${comment.author.handle}`)}
+                      onClick={() => router.push(`/u/${comment.author.username}`)}
                     >
                       {comment.author.name}
                     </span>
                     {comment.author.verified && <BadgeCheck className="size-3 text-[#00A8FF]" />}
                   </div>
                   <div className="flex items-center gap-1 text-muted-foreground text-xs">
-                    <span>@{comment.author.handle}</span>
+                    <span>@{comment.author.username}</span>
                     <span>•</span>
                     <span>
                       {formatDistanceToNow(comment.createdAt, {

@@ -10,7 +10,7 @@ import { toast } from "sonner";
 interface ProfileHeaderProps {
   profile: {
     id: string;
-    handle: string;
+    username: string;
     name: string;
     bio?: string;
     avatar?: string;
@@ -102,7 +102,7 @@ export function ProfileHeader({ profile, onFollowChange }: ProfileHeaderProps) {
               <h1 className="font-bold text-2xl">{profile.name}</h1>
               {profile.verified && <BadgeCheck className="size-5 text-[#00A8FF]" />}
             </div>
-            <p className="text-muted-foreground">@{profile.handle}</p>
+            <p className="text-muted-foreground">@{profile.username}</p>
           </div>
 
           <div className="mt-4 flex flex-wrap gap-8 text-sm md:mt-0">

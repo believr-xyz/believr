@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { getLensClient } from "@/lib/lens/client";
+import { cn } from "@/lib/utils";
 import { fetchAccount } from "@lens-protocol/client/actions";
 import { useAuthenticatedUser, useLogout } from "@lens-protocol/react";
 import { LogOut, UserRound } from "lucide-react";
@@ -18,7 +19,11 @@ import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export function ProfileMenu() {
+interface ProfileMenuProps {
+  className?: string;
+}
+
+export function ProfileMenu({ className }: ProfileMenuProps) {
   const { execute: executeLogout } = useLogout();
   const { data: user } = useAuthenticatedUser();
   const router = useRouter();
@@ -70,12 +75,12 @@ export function ProfileMenu() {
   };
 
   const handleProfileClick = () => {
-    if (accountData?.ownedBy?.defaultProfile?.handle) {
-      router.push(`/u/${accountData.ownedBy.defaultProfile.handle}`);
-    } else if (accountData?.ownedBy?.handle) {
-      router.push(`/u/${accountData.ownedBy.handle}`);
+    if (accountData?.ownedBy?.defaultProfile?.username) {
+      router.push(`/u/${accountData.ownedBy.defaultProfile.username}`);
+    } else if (accountData?.ownedBy?.username) {
+      router.push(`/u/${accountData.ownedBy.username}`);
     } else {
-      // Fallback if we don't have a handle
+      // Fallback if we don't have a username
       router.push(`/u/default`); // This would be replaced with proper handling in production
     }
   };
@@ -86,33 +91,39 @@ export function ProfileMenu() {
   const displayAddress = user.address.substring(0, 2).toUpperCase();
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" size="icon" className="rounded-full">
-          <Avatar className="h-8 w-8">
-            {accountData?.metadata?.picture ? (
-              <AvatarImage src={accountData.metadata.picture} alt="Profile" />
+    <div className={cn(className)}>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" size="icon" className="rounded-full">
+            <Avatar className="h-8 w-8">
+              {accountData?.metadata?.picture ? (
+                <AvatarImage src={accountData.metadata.picture} alt="Profile" />
+              ) : (
+                <AvatarFallback>{displayAddress}</AvatarFallback>
+              )}
+            </Avatar>
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56" align="end" forceMount>
+          <DropdownMenuItem onClick={handleProfileClick}>
+            <UserRound className="mr-2 h-4 w-4" />
+            <span>Profile</span>
+          </DropdownMenuItem>
+          <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+            {theme === "dark" ? (
+              <Sun className="mr-2 h-4 w-4" />
             ) : (
-              <AvatarFallback>{displayAddress}</AvatarFallback>
+              <Moon className="mr-2 h-4 w-4" />
             )}
-          </Avatar>
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
-        <DropdownMenuItem onClick={handleProfileClick}>
-          <UserRound className="mr-2 h-4 w-4" />
-          <span>Profile</span>
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
-          {theme === "dark" ? <Sun className="mr-2 h-4 w-4" /> : <Moon className="mr-2 h-4 w-4" />}
-          <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
-          <LogOut className="mr-2 h-4 w-4" />
-          <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+            <span>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
+            <LogOut className="mr-2 h-4 w-4" />
+            <span>{isLoggingOut ? "Logging out..." : "Logout"}</span>
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 }

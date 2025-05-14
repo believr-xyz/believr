@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 interface Creator {
   id: string;
   name: string;
-  handle: string;
+  username: string;
   avatar?: string;
   stats: {
     followers: number;
@@ -22,7 +22,7 @@ interface Campaign {
   creator: {
     id: string;
     name: string;
-    handle: string;
+    username: string;
     avatar?: string;
   };
   collectible: {
@@ -58,7 +58,7 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
               <div key={creator.id} className="flex items-center justify-between">
                 <div
                   className="flex cursor-pointer items-center gap-2"
-                  onClick={() => router.push(`/u/${creator.handle}`)}
+                  onClick={() => router.push(`/u/${creator.username}`)}
                 >
                   <Avatar className="size-10">
                     <AvatarImage src={creator.avatar} alt={creator.name} />
@@ -66,13 +66,13 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
                   </Avatar>
                   <div>
                     <h4 className="font-semibold">{creator.name}</h4>
-                    <p className="text-muted-foreground text-xs">@{creator.handle}</p>
+                    <p className="text-muted-foreground text-xs">@{creator.username}</p>
                   </div>
                 </div>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => router.push(`/u/${creator.handle}`)}
+                  onClick={() => router.push(`/u/${creator.username}`)}
                 >
                   Follow
                 </Button>
@@ -84,7 +84,7 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
             <Button
               variant="ghost"
               className="w-full text-sm"
-              onClick={() => router.push("/discover")}
+              onClick={() => router.push("/explore")}
             >
               View more
             </Button>
@@ -107,7 +107,7 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
               <div
                 key={campaign.id}
                 className="cursor-pointer space-y-2 rounded-lg p-2 hover:bg-muted/50"
-                onClick={() => router.push(`/p/${campaign.creator.handle}/${campaign.id}`)}
+                onClick={() => router.push(`/posts/${campaign.creator.username}/${campaign.id}`)}
               >
                 <h4 className="font-semibold">{campaign.title}</h4>
                 <div className="flex items-center gap-2">
@@ -146,7 +146,7 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
             <Button
               variant="ghost"
               className="w-full text-sm"
-              onClick={() => router.push("/discover")}
+              onClick={() => router.push("/explore")}
             >
               Discover more
             </Button>

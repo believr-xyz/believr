@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 
 interface Collector {
   id: string;
-  handle: string;
+  username: string;
   name: string;
   avatar?: string;
   collectedAt: Date;
@@ -36,7 +36,7 @@ export function CollectorsList({ collectors }: CollectorsListProps) {
           <div className="flex items-center gap-3">
             <Avatar
               className="size-10 cursor-pointer"
-              onClick={() => router.push(`/u/${collector.handle}`)}
+              onClick={() => router.push(`/u/${collector.username}`)}
             >
               <AvatarImage src={collector.avatar} alt={collector.name} />
               <AvatarFallback>{collector.name[0]}</AvatarFallback>
@@ -45,13 +45,13 @@ export function CollectorsList({ collectors }: CollectorsListProps) {
               <div className="flex items-center gap-1">
                 <span
                   className="cursor-pointer font-semibold hover:underline"
-                  onClick={() => router.push(`/u/${collector.handle}`)}
+                  onClick={() => router.push(`/u/${collector.username}`)}
                 >
                   {collector.name}
                 </span>
                 {collector.verified && <BadgeCheck className="size-4 text-[#00A8FF]" />}
               </div>
-              <p className="text-muted-foreground text-sm">@{collector.handle}</p>
+              <p className="text-muted-foreground text-sm">@{collector.username}</p>
             </div>
           </div>
           <span className="text-muted-foreground text-xs">

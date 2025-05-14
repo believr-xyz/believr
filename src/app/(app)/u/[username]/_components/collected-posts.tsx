@@ -9,11 +9,11 @@ import { AlertCircleIcon } from "lucide-react";
 import { useState } from "react";
 
 interface CollectedPostsProps {
-  handle: string;
+  username: string;
   isOwnProfile?: boolean;
 }
 
-export function CollectedPosts({ handle, isOwnProfile = false }: CollectedPostsProps) {
+export function CollectedPosts({ username, isOwnProfile = false }: CollectedPostsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [posts, setPosts] = useState<Post[]>([]);
   const [hasError, setHasError] = useState(false);
@@ -27,7 +27,7 @@ export function CollectedPosts({ handle, isOwnProfile = false }: CollectedPostsP
     setTimeout(() => {
       try {
         // Test data - in real implementation this would be populated from Lens API call
-        if (handle === "gamerbuild") {
+        if (username === "gamerbuild") {
           // Some mock data for our demo user
           setPosts([
             {
@@ -42,7 +42,7 @@ export function CollectedPosts({ handle, isOwnProfile = false }: CollectedPostsP
               },
               creator: {
                 id: "creator-1",
-                handle: "web3sarah",
+                username: "web3sarah",
                 name: "Sarah Web3",
                 avatar:
                   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
@@ -93,7 +93,7 @@ export function CollectedPosts({ handle, isOwnProfile = false }: CollectedPostsP
         <h3 className="mb-1 font-semibold text-xl">
           {isOwnProfile
             ? "You haven't collected any posts yet"
-            : `${handle} hasn't collected any posts yet`}
+            : `${username} hasn't collected any posts yet`}
         </h3>
         <p className="mb-4 text-muted-foreground">
           {isOwnProfile

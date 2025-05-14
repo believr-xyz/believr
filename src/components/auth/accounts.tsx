@@ -1,8 +1,9 @@
 "use client";
 
 import { env } from "@/env";
+import { useLensAuth } from "@/hooks/use-lens-auth";
 import { Account } from "@lens-protocol/client";
-import { useAccountsAvailable, useLogin } from "@lens-protocol/react";
+import { useAccountsAvailable } from "@lens-protocol/react";
 import { ConnectKitButton } from "connectkit";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -34,7 +35,7 @@ export function AccountSelector({
   const { data: availableAccounts, loading: accountsLoading } = useAccountsAvailable({
     managedBy: walletClient?.account.address,
   });
-  const { execute: authenticate, loading: authenticateLoading } = useLogin();
+  const { authenticate, isAuthenticating } = useLensAuth();
   const router = useRouter();
   const wallet = useAccount();
 
@@ -42,36 +43,17 @@ export function AccountSelector({
     if (!walletClient) return;
     try {
       const isOwner = wallet.address === account.owner;
-      const authRequest = isOwner
-        ? {
-            accountOwner: {
-              account: account.address,
-              app: env.NEXT_PUBLIC_APP_ADDRESS,
-              owner: walletClient.account.address,
-            },
-          }
-        : {
-            accountManager: {
-              account: account.address,
-              app: env.NEXT_PUBLIC_APP_ADDRESS,
-              manager: walletClient.account.address,
-            },
-          };
+      const result = await authenticate(account.address, isOwner);
 
-      await authenticate({
-        ...authRequest,
-        signMessage: async (message: string) => {
-          return await walletClient.signMessage({ message });
-        },
-      });
+      if (result) {
+        onOpenChange(false);
 
-      onOpenChange(false);
+        if (onSuccess) {
+          onSuccess(account);
+        }
 
-      if (onSuccess) {
-        onSuccess(account);
+        router.push("/feed");
       }
-
-      router.push("/feed");
     } catch (error) {
       console.error("Lens authentication failed:", error);
       toast.error("Authentication failed. Please try again.");
@@ -117,7 +99,7 @@ export function AccountSelector({
                   <Button
                     key={acc.account.address}
                     variant="outline"
-                    disabled={authenticateLoading || isCurrentAccount}
+                    disabled={isAuthenticating || isCurrentAccount}
                     onClick={() => handleSelectAccount(acc.account)}
                     className="flex h-auto flex-col items-center px-2 py-3"
                   >
@@ -134,7 +116,7 @@ export function AccountSelector({
                         <span className="block text-muted-foreground text-xs">(current)</span>
                       )}
                     </span>
-                    {authenticateLoading && (
+                    {isAuthenticating && (
                       <Loader2 className="mt-1 size-3 animate-spin text-muted-foreground" />
                     )}
                   </Button>

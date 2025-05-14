@@ -47,3 +47,5 @@ next-env.d.ts
 /MISSING-FILES.md
 /LENS-INTEGRATION-PLAN.md
 /lens-template
+/lens-sdk
+/lens-v3

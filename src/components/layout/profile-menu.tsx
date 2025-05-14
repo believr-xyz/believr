@@ -9,10 +9,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLensAuth } from "@/hooks/use-lens-auth";
 import { getLensClient } from "@/lib/lens/client";
 import { cn } from "@/lib/utils";
 import { fetchAccount } from "@lens-protocol/client/actions";
-import { useAuthenticatedUser, useLogout } from "@lens-protocol/react";
+import { useAuthenticatedUser } from "@lens-protocol/react";
 import { LogOut, UserRound } from "lucide-react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
@@ -24,12 +25,11 @@ interface ProfileMenuProps {
 }
 
 export function ProfileMenu({ className }: ProfileMenuProps) {
-  const { execute: executeLogout } = useLogout();
+  const { signOut, isLoggingOut } = useLensAuth();
   const { data: user } = useAuthenticatedUser();
   const router = useRouter();
   const [accountData, setAccountData] = useState<any>(null);
   const { setTheme, resolvedTheme: theme } = useTheme();
-  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   useEffect(() => {
     async function fetchUserAccount() {
@@ -53,24 +53,24 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
     if (!user || isLoggingOut) return;
 
     try {
-      setIsLoggingOut(true);
-      await executeLogout();
+      const success = await signOut();
 
-      // Trigger a storage event to notify other tabs
-      window.localStorage.setItem("lens.auth.logout", Date.now().toString());
+      if (success) {
+        // Trigger a storage event to notify other tabs
+        window.localStorage.setItem("lens.auth.logout", Date.now().toString());
 
-      // Clear any local storage or session data
-      localStorage.removeItem("lens.auth.storage");
-      sessionStorage.clear();
+        // Clear any local storage or session data
+        localStorage.removeItem("lens.auth.storage");
+        sessionStorage.clear();
 
-      // Refresh the page to reset the app state
-      router.push("/");
+        // Refresh the page to reset the app state
+        router.push("/");
 
-      // We need to force a full page refresh
-      window.location.reload();
+        // We need to force a full page refresh
+        window.location.reload();
+      }
     } catch (error) {
       console.error("Failed to logout:", error);
-      setIsLoggingOut(false);
     }
   };
 
@@ -90,14 +90,19 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
   // Get the first few characters of the address for display
   const displayAddress = user.address.substring(0, 2).toUpperCase();
 
+  // Get profile picture URL from the nested structure
+  const profilePictureUrl =
+    accountData?.metadata?.picture?.optimized?.uri ||
+    accountData?.metadata?.picture?.raw?.uri;
+
   return (
     <div className={cn(className)}>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="ghost" size="icon" className="rounded-full">
             <Avatar className="h-8 w-8">
-              {accountData?.metadata?.picture ? (
-                <AvatarImage src={accountData.metadata.picture} alt="Profile" />
+              {profilePictureUrl ? (
+                <AvatarImage src={profilePictureUrl} alt="Profile" />
               ) : (
                 <AvatarFallback>{displayAddress}</AvatarFallback>
               )}
@@ -109,7 +114,9 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
             <UserRound className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
+          <DropdownMenuItem
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
             {theme === "dark" ? (
               <Sun className="mr-2 h-4 w-4" />
             ) : (

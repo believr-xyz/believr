@@ -9,22 +9,11 @@ import { useAccount, useWalletClient } from "wagmi";
 export function useLensAuth() {
   const { address } = useAccount();
   const { data: walletClient } = useWalletClient();
-  const {
-    execute: login,
-    loading: isLoggingIn,
-    error: loginError,
-  } = useLogin();
-  const {
-    execute: logout,
-    loading: isLoggingOut,
-    error: logoutError,
-  } = useLogout();
+  const { execute: login, loading: isLoggingIn, error: loginError } = useLogin();
+  const { execute: logout, loading: isLoggingOut, error: logoutError } = useLogout();
 
   // Handle Lens authentication with proper error handling
-  const authenticate = async (
-    accountAddress: string,
-    isAccountOwner = true
-  ) => {
+  const authenticate = async (accountAddress: string, isAccountOwner = true) => {
     if (!walletClient || !address) {
       toast.error("Please connect your wallet first");
       return null;
@@ -77,10 +66,7 @@ export function useLensAuth() {
   };
 
   // Get challenge for the client
-  const getChallenge = async (
-    accountAddress: string,
-    isAccountOwner = true
-  ) => {
+  const getChallenge = async (accountAddress: string, isAccountOwner = true) => {
     if (!address) {
       return null;
     }

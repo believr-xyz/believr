@@ -92,8 +92,7 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
 
   // Get profile picture URL from the nested structure
   const profilePictureUrl =
-    accountData?.metadata?.picture?.optimized?.uri ||
-    accountData?.metadata?.picture?.raw?.uri;
+    accountData?.metadata?.picture?.optimized?.uri || accountData?.metadata?.picture?.raw?.uri;
 
   return (
     <div className={cn(className)}>
@@ -114,9 +113,7 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
             <UserRound className="mr-2 h-4 w-4" />
             <span>Profile</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
+          <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
             {theme === "dark" ? (
               <Sun className="mr-2 h-4 w-4" />
             ) : (

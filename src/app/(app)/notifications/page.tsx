@@ -2,13 +2,7 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNotifications } from "@/hooks/use-notifications";
 import { formatDistanceToNow } from "date-fns";
@@ -28,8 +22,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 export default function NotificationsPage() {
-  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } =
-    useNotifications();
+  const { notifications, unreadCount, isLoading, markAsRead, markAllAsRead } = useNotifications();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("all");
 
@@ -64,9 +57,7 @@ export default function NotificationsPage() {
     if (notification.type === "FOLLOW" && notification.data.profileUsername) {
       router.push(`/u/${notification.data.profileUsername}`);
     } else if (notification.data.postId && notification.data.profileUsername) {
-      router.push(
-        `/posts/${notification.data.profileUsername}/${notification.data.postId}`
-      );
+      router.push(`/posts/${notification.data.profileUsername}/${notification.data.postId}`);
     }
   };
 
@@ -83,33 +74,19 @@ export default function NotificationsPage() {
         <div className="flex items-center justify-between">
           <h1 className="font-bold text-3xl">Notifications</h1>
           {unreadCount > 0 && (
-            <Button
-              variant="outline"
-              size="sm"
-              className="gap-1"
-              onClick={() => markAllAsRead()}
-            >
+            <Button variant="outline" size="sm" className="gap-1" onClick={() => markAllAsRead()}>
               <CheckCheck className="size-4" />
               Mark all as read
             </Button>
           )}
         </div>
-        <p className="mt-2 text-muted-foreground">
-          Stay updated with your latest interactions
-        </p>
+        <p className="mt-2 text-muted-foreground">Stay updated with your latest interactions</p>
       </div>
 
-      <Tabs
-        defaultValue="all"
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="w-full"
-      >
+      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="mb-6 grid w-full grid-cols-5">
           <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="unread">
-            Unread {unreadCount > 0 && `(${unreadCount})`}
-          </TabsTrigger>
+          <TabsTrigger value="unread">Unread {unreadCount > 0 && `(${unreadCount})`}</TabsTrigger>
           <TabsTrigger value="follow">Follows</TabsTrigger>
           <TabsTrigger value="comment">Comments</TabsTrigger>
           <TabsTrigger value="collect">Collects</TabsTrigger>
@@ -154,10 +131,7 @@ export default function NotificationsPage() {
                       <div className="flex-shrink-0">
                         <Avatar className="size-10">
                           {notification.data.profileImage ? (
-                            <AvatarImage
-                              src={notification.data.profileImage}
-                              alt="Profile"
-                            />
+                            <AvatarImage src={notification.data.profileImage} alt="Profile" />
                           ) : (
                             <AvatarFallback>
                               {notification.data.profileName?.[0] || "U"}

@@ -1,7 +1,5 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { Bell, Bookmark, Home, PlusCircle, Search, Trophy } from "lucide-react";
@@ -29,7 +27,9 @@ export function MobileNavigation() {
           href="/feed"
           className={cn(
             "flex flex-col items-center justify-center text-center transition-colors",
-            pathname.startsWith("/feed") ? "text-[#00A8FF]" : "text-muted-foreground",
+            pathname.startsWith("/feed")
+              ? "text-[#00A8FF]"
+              : "text-muted-foreground"
           )}
         >
           <Home className="size-5" />
@@ -40,7 +40,9 @@ export function MobileNavigation() {
           href="/explore"
           className={cn(
             "flex flex-col items-center justify-center text-center transition-colors",
-            pathname.startsWith("/explore") ? "text-[#00A8FF]" : "text-muted-foreground",
+            pathname.startsWith("/explore")
+              ? "text-[#00A8FF]"
+              : "text-muted-foreground"
           )}
         >
           <Search className="size-5" />
@@ -60,7 +62,9 @@ export function MobileNavigation() {
           href="/bookmarks"
           className={cn(
             "flex flex-col items-center justify-center text-center transition-colors",
-            pathname.startsWith("/bookmarks") ? "text-[#00A8FF]" : "text-muted-foreground",
+            pathname.startsWith("/bookmarks")
+              ? "text-[#00A8FF]"
+              : "text-muted-foreground"
           )}
         >
           <Bookmark className="size-5" />
@@ -71,7 +75,9 @@ export function MobileNavigation() {
           href="/notifications"
           className={cn(
             "relative flex flex-col items-center justify-center text-center transition-colors",
-            pathname.startsWith("/notifications") ? "text-[#00A8FF]" : "text-muted-foreground",
+            pathname.startsWith("/notifications")
+              ? "text-[#00A8FF]"
+              : "text-muted-foreground"
           )}
         >
           <div className="relative">

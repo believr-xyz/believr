@@ -15,7 +15,7 @@ export const AccountMetadataFragment = graphql(
         value
       }
     }
-  `
+  `,
 );
 
 export const AccountStatsFragment = graphql(
@@ -29,12 +29,12 @@ export const AccountStatsFragment = graphql(
       quotes
       publications
     }
-  `
+  `,
 );
 
-export const CustomAccountFragment = graphql(
+export const AccountFragment = graphql(
   `
-    fragment CustomAccount on Account {
+    fragment Account on Account {
       __typename
       address
       username {
@@ -53,5 +53,5 @@ export const CustomAccountFragment = graphql(
       }
     }
   `,
-  [UsernameFragment, AccountMetadataFragment, AccountStatsFragment]
+  [UsernameFragment, AccountMetadataFragment, AccountStatsFragment],
 );

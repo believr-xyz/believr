@@ -1,20 +1,17 @@
 "use client";
 
-import { env } from "@/env";
-import { useLensAuth } from "@/hooks/use-lens-auth";
 import { Account } from "@lens-protocol/client";
-import { useAccountsAvailable } from "@lens-protocol/react";
+import { useAccountsAvailable, useLogin } from "@lens-protocol/react";
 import { ConnectKitButton } from "connectkit";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import { useAccount, useWalletClient } from "wagmi";
-
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { ScrollArea } from "./ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 
 interface AccountSelectorProps {
   open: boolean;
@@ -35,7 +32,7 @@ export function AccountSelector({
   const { data: availableAccounts, loading: accountsLoading } = useAccountsAvailable({
     managedBy: walletClient?.account.address,
   });
-  const { authenticate, isAuthenticating } = useLensAuth();
+  const { execute: authenticate, loading: authenticateLoading } = useLogin();
   const router = useRouter();
   const wallet = useAccount();
 
@@ -43,17 +40,36 @@ export function AccountSelector({
     if (!walletClient) return;
     try {
       const isOwner = wallet.address === account.owner;
-      const result = await authenticate(account.address, isOwner);
+      const authRequest = isOwner
+        ? {
+            accountOwner: {
+              account: account.address,
+              app: process.env.NEXT_PUBLIC_APP_ADDRESS,
+              owner: walletClient.account.address,
+            },
+          }
+        : {
+            accountManager: {
+              account: account.address,
+              app: process.env.NEXT_PUBLIC_APP_ADDRESS,
+              manager: walletClient.account.address,
+            },
+          };
 
-      if (result) {
-        onOpenChange(false);
+      await authenticate({
+        ...authRequest,
+        signMessage: async (message: string) => {
+          return await walletClient.signMessage({ message });
+        },
+      });
 
-        if (onSuccess) {
-          onSuccess(account);
-        }
+      onOpenChange(false);
 
-        router.push("/feed");
+      if (onSuccess) {
+        onSuccess(account);
       }
+
+      router.push("/feed");
     } catch (error) {
       console.error("Lens authentication failed:", error);
       toast.error("Authentication failed. Please try again.");
@@ -99,7 +115,7 @@ export function AccountSelector({
                   <Button
                     key={acc.account.address}
                     variant="outline"
-                    disabled={isAuthenticating || isCurrentAccount}
+                    disabled={authenticateLoading || isCurrentAccount}
                     onClick={() => handleSelectAccount(acc.account)}
                     className="flex h-auto flex-col items-center px-2 py-3"
                   >
@@ -116,7 +132,7 @@ export function AccountSelector({
                         <span className="block text-muted-foreground text-xs">(current)</span>
                       )}
                     </span>
-                    {isAuthenticating && (
+                    {authenticateLoading && (
                       <Loader2 className="mt-1 size-3 animate-spin text-muted-foreground" />
                     )}
                   </Button>

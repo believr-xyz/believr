@@ -1,5 +1,7 @@
 "use client";
 
+import { Footer } from "@/components/footer";
+import { Header } from "@/components/header";
 import { Login } from "@/components/login";
 import { Badge } from "@/components/ui/badge";
 import { useAuthenticatedUser } from "@lens-protocol/react";
@@ -7,8 +9,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Header } from "@/components/header";
-import { Footer } from "@/components/footer";
 
 // Placeholder creator data with curated human photos
 const leftColumnCreators = [

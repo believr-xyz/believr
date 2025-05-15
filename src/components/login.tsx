@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DialogTrigger } from "@/components/ui/dialog";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { ConnectKitButton } from "connectkit";
-import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { AccountSelector } from "./accounts";
 
 interface LoginProps {
@@ -15,80 +14,46 @@ interface LoginProps {
 export function Login({ variant = "default" }: LoginProps) {
   const [showAccountSelector, setShowAccountSelector] = useState(false);
   const { data: authenticatedUser, loading: authUserLoading } = useAuthenticatedUser();
-  const isHeader = variant === "header";
 
-  // Handle account selector open/close
-  const handleOpenChange = (open: boolean) => {
-    setShowAccountSelector(open);
-  };
+  // Apply different styles based on variant
+  const containerClasses = variant === "header" ? "" : "mb-2 space-y-2 p-2";
+
+  const buttonClasses = variant === "header" ? "" : "w-full";
 
   return (
-    <div className={isHeader ? "" : "mb-2 space-y-2 p-2"}>
+    <div className={containerClasses}>
       <ConnectKitButton.Custom>
-        {({
-          isConnected: isWalletConnected,
-          show: showWalletConnect,
-          truncatedAddress,
-          ensName,
-          chain,
-          isConnecting,
-        }) => {
+        {({ isConnected: isWalletConnected, show, truncatedAddress, ensName, chain }) => {
           const connectKitDisplayName = ensName ?? truncatedAddress;
 
-          // If not connected to wallet, show login button
           if (!isWalletConnected) {
             return (
-              <Button
-                onClick={showWalletConnect}
-                className={isHeader ? "px-5 font-semibold text-sm" : "w-full font-semibold text-sm"}
-                size={isHeader ? "sm" : "default"}
-                disabled={isConnecting}
-                variant="default"
-              >
-                {isConnecting ? (
-                  <Loader2 className="mr-1 size-4 animate-spin" />
-                ) : isHeader ? (
-                  "Login"
-                ) : (
-                  "Get Started"
-                )}
-              </Button>
+              <>
+                <Button onClick={show} className={buttonClasses}>
+                  Connect Wallet
+                </Button>
+              </>
             );
           }
 
-          // If connected to wallet but not authenticated with Lens
           if (isWalletConnected && !authenticatedUser) {
             return (
               <AccountSelector
                 open={showAccountSelector}
-                onOpenChange={handleOpenChange}
+                onOpenChange={setShowAccountSelector}
                 trigger={
                   <DialogTrigger asChild>
-                    <Button
-                      className={
-                        isHeader ? "px-5 font-semibold text-base" : "w-full font-semibold text-base"
-                      }
-                      size={isHeader ? "sm" : "default"}
-                      disabled={authUserLoading}
-                      variant="default"
-                    >
-                      {authUserLoading ? (
-                        <Loader2 className="mr-1 size-4 animate-spin" />
-                      ) : (
-                        "Sign in with Lens"
-                      )}
-                    </Button>
+                    <Button className={buttonClasses}>Sign in with Lens</Button>
                   </DialogTrigger>
                 }
               />
             );
           }
 
-          // If connected and authenticated
           if (isWalletConnected && authenticatedUser) {
             const displayIdentity = connectKitDisplayName ?? "...";
             return (
-              <div className="flex w-full items-center justify-between gap-2 text-sm">
+              <div className={`flex items-center justify-between gap-2 text-sm ${buttonClasses}`}>
                 <span className="truncate text-muted-foreground" title={authenticatedUser.address}>
                   Signed in as:{" "}
                   <span className="font-semibold text-primary">{displayIdentity}</span>
@@ -97,11 +62,7 @@ export function Login({ variant = "default" }: LoginProps) {
             );
           }
 
-          return (
-            <div className="flex items-center text-muted-foreground text-xs">
-              <Loader2 className="size-3 animate-spin" />
-            </div>
-          );
+          return <p className="text-muted-foreground text-xs">Checking status...</p>;
         }}
       </ConnectKitButton.Custom>
     </div>

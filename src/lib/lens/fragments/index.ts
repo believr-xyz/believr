@@ -1,13 +1,18 @@
 import type { FragmentOf } from "@lens-protocol/client";
-import { AccountFragment, AccountMetadataFragment } from "./accounts";
+import { CustomAccountFragment, AccountMetadataFragment } from "./accounts";
+import { MediaImageFragment } from "./media";
+import { PostFragment } from "./posts";
 
-// Extend the Lens SDK types for better TypeScript support
+// Extend the Lens SDK types with our fragments
 declare module "@lens-protocol/client" {
-  export interface Account extends FragmentOf<typeof AccountFragment> {}
-  export interface AccountMetadata extends FragmentOf<typeof AccountMetadataFragment> {}
+  export interface Account extends FragmentOf<typeof CustomAccountFragment> {}
+  export interface AccountMetadata
+    extends FragmentOf<typeof AccountMetadataFragment> {}
 }
 
-// Export all fragments to be used with the client
-export const fragments = [AccountFragment];
-
-export * from "./accounts";
+// Export all fragments for use in the client
+export const fragments = [
+  CustomAccountFragment,
+  PostFragment,
+  MediaImageFragment,
+];

@@ -1,9 +1,23 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Creator } from "@/types/post";
 import { Award, DollarSignIcon, TrendingUp, Users } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+
+// Temporary type definition
+interface Creator {
+  id: string;
+  username: string;
+  name: string;
+  bio?: string;
+  avatar?: string;
+  stats?: {
+    posts: number;
+    followers: number;
+    following: number;
+    believers: number;
+  };
+}
 
 interface CreatorStatsProps {
   creator: Creator;

@@ -1,7 +1,7 @@
 "use client";
 
-import { Header } from "@/components/layout/header";
-import { MobileNavigation } from "@/components/layout/mobile-navigation";
+import { AppHeader } from "@/components/app-header";
+import { MobileNavigation } from "@/components/mobile-navigation";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -32,7 +32,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header />
+      <AppHeader />
       <main className="container mx-auto mt-8 flex-1 px-4 pt-0 pb-16 md:px-6 md:pb-12">
         {children}
       </main>

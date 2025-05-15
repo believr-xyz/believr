@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useNotifications } from "@/hooks/use-notifications";
 import { cn } from "@/lib/utils";
 import { Bell } from "lucide-react";
 import Link from "next/link";
@@ -13,9 +12,11 @@ interface NotificationsButtonProps {
 }
 
 export function NotificationsButton({ className }: NotificationsButtonProps) {
-  const { unreadCount } = useNotifications();
   const pathname = usePathname();
   const isActive = pathname.startsWith("/notifications");
+
+  // Static UI without actual notifications functionality
+  const unreadCount = 0;
 
   return (
     <div className={cn(className)}>

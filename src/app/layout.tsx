@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Urbanist } from "next/font/google";
 import "@/styles/globals.css";
-import MainLayout from "@/components/layout";
 import { Providers } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -26,9 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={urbanist.className}>
       <body className="min-h-screen bg-background antialiased">
-        <Providers>
-          <MainLayout>{children}</MainLayout>
-        </Providers>
+        <Providers>{children}</Providers>
         <Toaster />
       </body>
     </html>

@@ -1,3 +1,7 @@
+// NOTE: Temporarily not using custom fragments - using Lens default fragments
+// Will uncomment and optimize when we know exactly which fields we need
+
+/*
 import { UsernameFragment, graphql } from "@lens-protocol/client";
 
 export const AccountMetadataFragment = graphql(
@@ -15,7 +19,7 @@ export const AccountMetadataFragment = graphql(
         value
       }
     }
-  `,
+  `
 );
 
 export const AccountStatsFragment = graphql(
@@ -27,9 +31,14 @@ export const AccountStatsFragment = graphql(
       comments
       mirrors
       quotes
+      reposts
       publications
+      reacts
+      reactions
+      collects
+      tips
     }
-  `,
+  `
 );
 
 export const AccountFragment = graphql(
@@ -53,5 +62,6 @@ export const AccountFragment = graphql(
       }
     }
   `,
-  [UsernameFragment, AccountMetadataFragment, AccountStatsFragment],
+  [UsernameFragment, AccountMetadataFragment, AccountStatsFragment]
 );
+*/

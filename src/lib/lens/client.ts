@@ -1,7 +1,6 @@
 import { env } from "@/env";
 import { PublicClient, mainnet } from "@lens-protocol/client";
-import { fragments } from "./fragments";
-import { clientCookieStorage, cookieStorage } from "./storage";
+import { clientCookieStorage, cookieStorage } from "./cookie-storage";
 
 const isServer = typeof window === "undefined";
 
@@ -9,7 +8,6 @@ const publicClient = PublicClient.create({
   environment: mainnet,
   origin: env.NEXT_PUBLIC_APP_URL,
   storage: isServer ? cookieStorage : clientCookieStorage,
-  fragments,
 });
 
 export const getPublicClient = () => {

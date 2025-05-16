@@ -2,16 +2,16 @@
 
 import { Account } from "@lens-protocol/client";
 import { useAccountsAvailable, useLogin } from "@lens-protocol/react";
-import { ConnectKitButton } from "connectkit";
-import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
-import { toast } from "sonner";
 import { useAccount, useWalletClient } from "wagmi";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 import { ScrollArea } from "./ui/scroll-area";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+
+import { ConnectKitButton } from "connectkit";
+import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 interface AccountSelectorProps {
   open: boolean;
@@ -20,6 +20,14 @@ interface AccountSelectorProps {
   onSuccess?: (account?: Account) => void;
   trigger?: React.ReactNode;
 }
+
+// Helper function to add handle property to accounts
+const mapToClientAccount = (account: any): Account => {
+  return {
+    ...account,
+    handle: account.username?.localName || "",
+  };
+};
 
 export function AccountSelector({
   open,
@@ -65,8 +73,14 @@ export function AccountSelector({
 
       onOpenChange(false);
 
+      const foundAccount = availableAccounts?.items.find(
+        (acc) => acc.account.address === account.address,
+      )?.account;
+
+      const clientAccount = foundAccount ? mapToClientAccount(foundAccount) : undefined;
+
       if (onSuccess) {
-        onSuccess(account);
+        onSuccess(clientAccount);
       }
 
       router.push("/feed");
@@ -116,7 +130,7 @@ export function AccountSelector({
                     key={acc.account.address}
                     variant="outline"
                     disabled={authenticateLoading || isCurrentAccount}
-                    onClick={() => handleSelectAccount(acc.account)}
+                    onClick={() => handleSelectAccount(mapToClientAccount(acc.account))}
                     className="flex h-auto flex-col items-center px-2 py-3"
                   >
                     <Avatar className="mb-2 h-10 w-10">

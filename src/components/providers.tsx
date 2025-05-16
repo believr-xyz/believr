@@ -6,7 +6,7 @@ import { chains } from "@lens-chain/sdk/viem";
 import { LensProvider } from "@lens-protocol/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
-import { ReactNode } from "react";
+import { JSX } from "react";
 import { http, WagmiProvider, createConfig } from "wagmi";
 
 const wagmiConfig = createConfig(
@@ -24,9 +24,8 @@ const wagmiConfig = createConfig(
   }),
 );
 
-const queryClient = new QueryClient();
-
-export const Web3Provider = ({ children }: { children: ReactNode }) => {
+export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
+  const queryClient = new QueryClient();
   const publicClient = getPublicClient();
 
   return (

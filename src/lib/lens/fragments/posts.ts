@@ -1,3 +1,7 @@
+// NOTE: Temporarily not using custom fragments - using Lens default fragments
+// Will uncomment and optimize when we know exactly which fields we need
+
+/*
 import { graphql } from "@lens-protocol/client";
 import { AccountFragment } from "./accounts";
 import { MediaImageFragment } from "./media";
@@ -107,3 +111,4 @@ export const PostFragment = graphql(
   `,
   [AccountFragment, PostMetadataFragment, PostStatsFragment, SimpleCollectActionFragment],
 );
+*/

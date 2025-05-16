@@ -1,7 +1,7 @@
 "use client";
 
 import { Login } from "@/components/login";
-import { Logo } from "@/components/logo";
+import { Logo } from "@/components/layout/logo";
 import { SearchBar } from "@/components/search-bar";
 import { Button } from "@/components/ui/button";
 import { ProfileMenu } from "@/components/user-menu";
@@ -11,7 +11,7 @@ import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { NotificationsButton } from "./notifications-button";
+import { NotificationsButton } from "../notifications-button";
 
 export function Header() {
   const pathname = usePathname();
@@ -32,7 +32,7 @@ export function Header() {
   // Simple conditional rendering based on auth state
   return user ? (
     <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-3 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-5">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-5">
         <div className="flex items-center">
           <Logo className="mr-6" />
           <nav className="hidden items-center gap-4 md:flex md:gap-8">
@@ -40,7 +40,7 @@ export function Header() {
               href="/feed"
               className={cn(
                 "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                pathname.startsWith("/feed") && "text-[#00A8FF]",
+                pathname.startsWith("/feed") && "text-[#00A8FF]"
               )}
             >
               Home
@@ -49,7 +49,7 @@ export function Header() {
               href="/explore"
               className={cn(
                 "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                pathname.startsWith("/explore") && "text-[#00A8FF]",
+                pathname.startsWith("/explore") && "text-[#00A8FF]"
               )}
             >
               Explore
@@ -58,7 +58,7 @@ export function Header() {
               href="/groups"
               className={cn(
                 "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                pathname.startsWith("/groups") && "text-[#00A8FF]",
+                pathname.startsWith("/groups") && "text-[#00A8FF]"
               )}
             >
               Believers
@@ -67,7 +67,7 @@ export function Header() {
               href="/bookmarks"
               className={cn(
                 "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                pathname.startsWith("/bookmarks") && "text-[#00A8FF]",
+                pathname.startsWith("/bookmarks") && "text-[#00A8FF]"
               )}
             >
               Bookmarks
@@ -94,9 +94,9 @@ export function Header() {
     </header>
   ) : (
     <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-3 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-5">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-5">
         <Logo className="mr-6" />
-        <Login variant="header" />
+        <Login variant="header" label="Sign in" />
       </div>
     </header>
   );

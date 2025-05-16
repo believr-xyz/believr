@@ -20,7 +20,7 @@ export function Logo({ className = "" }: LogoProps) {
         width={114}
         height={25.1}
         priority
-        className="h-6 w-auto"
+        className="h-6.5 w-auto"
       />
     </Link>
   );

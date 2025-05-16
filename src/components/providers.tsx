@@ -6,7 +6,6 @@ import { chains } from "@lens-chain/sdk/viem";
 import { LensProvider } from "@lens-protocol/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ConnectKitProvider, getDefaultConfig } from "connectkit";
-import { ThemeProvider } from "next-themes";
 import { JSX } from "react";
 import { http, WagmiProvider, createConfig } from "wagmi";
 
@@ -15,8 +14,8 @@ const wagmiConfig = createConfig(
     walletConnectProjectId: env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "",
     chains: [chains.mainnet],
     transports: {
-      [chains.mainnet.id]: http(),
-      [chains.testnet.id]: http(),
+      [chains.mainnet.id]: http(`https://rpc.lens.xyz`),
+      [chains.testnet.id]: http(`https://rpc.testnet.lens.dev`),
     },
     appName: "Believr",
     appDescription: "Where early believers co-invest in creators' success and share in the rise",
@@ -25,19 +24,17 @@ const wagmiConfig = createConfig(
   }),
 );
 
-export const Providers = ({ children }: { children: JSX.Element }) => {
+export const Web3Provider = ({ children }: { children: React.ReactNode }) => {
   const queryClient = new QueryClient();
   const publicClient = getPublicClient();
 
   return (
-    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-      <WagmiProvider config={wagmiConfig}>
-        <QueryClientProvider client={queryClient}>
-          <ConnectKitProvider>
-            <LensProvider client={publicClient}>{children}</LensProvider>
-          </ConnectKitProvider>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </ThemeProvider>
+    <WagmiProvider config={wagmiConfig}>
+      <QueryClientProvider client={queryClient}>
+        <ConnectKitProvider>
+          <LensProvider client={publicClient}>{children}</LensProvider>
+        </ConnectKitProvider>
+      </QueryClientProvider>
+    </WagmiProvider>
   );
 };

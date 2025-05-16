@@ -1,21 +1,14 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
-import { useNotifications } from "@/hooks/use-notifications";
-import { getLensClient } from "@/lib/lens/client";
 import { cn } from "@/lib/utils";
-import { fetchAccount } from "@lens-protocol/client/actions";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { Bell, Bookmark, Home, PlusCircle, Search, Trophy } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export function MobileNavigation() {
   const pathname = usePathname();
   const { data: user } = useAuthenticatedUser();
-  const { unreadCount } = useNotifications();
   const isAuthenticated = !!user;
 
   // Don't show navigation on landing page
@@ -81,14 +74,7 @@ export function MobileNavigation() {
         >
           <div className="relative">
             <Bell className="size-5" />
-            {unreadCount > 0 && (
-              <Badge
-                className="-right-1.5 -top-1.5 absolute flex size-4 items-center justify-center rounded-full bg-[#00A8FF] p-0 text-white"
-                variant="outline"
-              >
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </Badge>
-            )}
+            {/* Simple static implementation without hooks */}
           </div>
           <span className="text-xs">Alerts</span>
         </Link>

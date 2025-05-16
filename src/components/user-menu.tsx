@@ -9,23 +9,23 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useLensAuth } from "@/hooks/use-lens-auth";
 import { getLensClient } from "@/lib/lens/client";
 import { cn } from "@/lib/utils";
 import { fetchAccount } from "@lens-protocol/client/actions";
-import { useAuthenticatedUser } from "@lens-protocol/react";
+import { useAuthenticatedUser, useLogout } from "@lens-protocol/react";
 import { LogOut, UserRound } from "lucide-react";
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface ProfileMenuProps {
   className?: string;
 }
 
 export function ProfileMenu({ className }: ProfileMenuProps) {
-  const { signOut, isLoggingOut } = useLensAuth();
+  const { execute: logout, loading: isLoggingOut } = useLogout();
   const { data: user } = useAuthenticatedUser();
   const router = useRouter();
   const [accountData, setAccountData] = useState<any>(null);
@@ -53,24 +53,25 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
     if (!user || isLoggingOut) return;
 
     try {
-      const success = await signOut();
+      await logout();
 
-      if (success) {
-        // Trigger a storage event to notify other tabs
-        window.localStorage.setItem("lens.auth.logout", Date.now().toString());
+      // Trigger a storage event to notify other tabs
+      window.localStorage.setItem("lens.auth.logout", Date.now().toString());
 
-        // Clear any local storage or session data
-        localStorage.removeItem("lens.auth.storage");
-        sessionStorage.clear();
+      // Clear any local storage or session data
+      localStorage.removeItem("lens.auth.storage");
+      sessionStorage.clear();
 
-        // Refresh the page to reset the app state
-        router.push("/");
+      toast.success("Successfully logged out");
 
-        // We need to force a full page refresh
-        window.location.reload();
-      }
+      // Refresh the page to reset the app state
+      router.push("/");
+
+      // We need to force a full page refresh
+      window.location.reload();
     } catch (error) {
       console.error("Failed to logout:", error);
+      toast.error("Failed to log out");
     }
   };
 

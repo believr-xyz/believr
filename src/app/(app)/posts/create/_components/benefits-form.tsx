@@ -20,10 +20,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { Benefit } from "@/types/post";
 import { PlusIcon, TrashIcon } from "lucide-react";
 import { useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
+
+// Temporary type definition
+interface Benefit {
+  type: string;
+  title: string;
+  description: string;
+  percentage?: number;
+}
 
 interface BenefitsFormProps {
   initialBenefits?: Benefit[];

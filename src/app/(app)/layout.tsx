@@ -1,25 +1,22 @@
 "use client";
 
-import { Header } from "@/components/layout/header";
-import { MobileNavigation } from "@/components/layout/mobile-navigation";
+import { Header } from "@/components/header";
+import { MobileNavigation } from "@/components/mobile-nav";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import { redirect } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { data: user, loading } = useAuthenticatedUser();
-  const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
-    setIsClient(true);
-  }, []);
+    if (!loading && !user) {
+      router.push("/");
+    }
+  }, [loading, user, router]);
 
-  // If on client and not authenticated, redirect to landing page
-  if (isClient && !loading && !user) {
-    redirect("/");
-  }
-
-  if (loading || !isClient) {
+  if (loading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <div className="rounded-lg bg-background p-8 shadow-lg">
@@ -28,6 +25,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (

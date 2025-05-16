@@ -4,9 +4,31 @@ import { PostCard } from "@/app/(app)/feed/_components/post-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Post } from "@/types/post";
 import { AlertCircleIcon } from "lucide-react";
 import { useState } from "react";
+
+// Temporary type definition
+interface Post {
+  id: string;
+  content: string;
+  createdAt: Date;
+  collectible?: {
+    price: string;
+    currency: string;
+    collected: number;
+    total: number;
+  };
+  creator: {
+    id: string;
+    username: string;
+    name: string;
+    avatar?: string;
+    stats: {
+      followers: number;
+      believers: number;
+    };
+  };
+}
 
 interface CollectedPostsProps {
   username: string;

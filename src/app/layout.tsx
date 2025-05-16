@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import { Urbanist } from "next/font/google";
 import "@/styles/globals.css";
-import MainLayout from "@/components/layout";
-import { Providers } from "@/components/providers";
+import { Web3Provider } from "@/components/providers";
 import { Toaster } from "@/components/ui/sonner";
+import { ThemeProvider } from "next-themes";
 
 const urbanist = Urbanist({
   subsets: ["latin"],
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   icons: [{ rel: "icon", url: "/favicon.svg" }],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
@@ -26,10 +26,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={urbanist.className}>
       <body className="min-h-screen bg-background antialiased">
-        <Providers>
-          <MainLayout>{children}</MainLayout>
-        </Providers>
-        <Toaster />
+        <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
+          <Web3Provider>{children}</Web3Provider>
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );

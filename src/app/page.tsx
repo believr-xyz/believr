@@ -1,7 +1,8 @@
 "use client";
 
-import { Footer } from "@/components/footer";
-import { Header } from "@/components/header";
+import { Footer } from "@/components/layout/footer";
+import { Header } from "@/components/layout/header";
+import { Loader } from "@/components/loader";
 import { Login } from "@/components/login";
 import { Badge } from "@/components/ui/badge";
 import { useAuthenticatedUser } from "@lens-protocol/react";
@@ -11,7 +12,7 @@ import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 
 // Placeholder creator data with curated human photos
-const leftColumnCreators = [
+const creators = [
   {
     id: 1,
     image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format",
@@ -27,9 +28,6 @@ const leftColumnCreators = [
     image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=800&auto=format",
     alt: "Young male creator",
   },
-];
-
-const rightColumnCreators = [
   {
     id: 4,
     image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format",
@@ -64,98 +62,141 @@ export default function Home() {
 
   // Show loading state while checking authentication
   if (userLoading || !isClient) {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    return <Loader />;
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex h-screen flex-col overflow-hidden">
       <Header />
 
-      <main className="flex-1 pt-14">
-        <div className="mx-auto max-w-5xl p-4">
-          <div className="mx-auto max-w-5xl">
-            <div className="flex min-h-[calc(100vh-8rem)] w-full flex-col lg:flex-row">
-              {/* Left side - Hero and CTA */}
-              <div className="flex flex-1 flex-col justify-center px-4 py-6 lg:py-12">
-                <Badge className="mb-6 w-fit bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">
-                  Welcome to Believr!
-                </Badge>
-                <h1 className="font-bold text-4xl tracking-tight md:text-5xl lg:text-6xl">
-                  Where early <br className="hidden md:inline" /> believers
-                  <span className="text-[#00A8FF]"> co-invest</span>{" "}
-                  <br className="hidden md:inline" /> in creators success
-                </h1>
+      <main className="flex-1 pt-10">
+        <div className="mx-auto flex h-full max-w-6xl flex-col justify-between p-4">
+          {/* Hero section - Top to bottom layout with reduced spacing */}
+          <div className="flex flex-col items-center py-10 pt-16 text-center">
+            {/* Badge */}
+            <Badge className="mb-4 w-fit bg-[#00A8FF] font-medium text-sm text-white hover:bg-[#00A8FF]/90">
+              Welcome to Believr!
+            </Badge>
 
-                <p className="mt-6 max-w-md text-lg text-muted-foreground">
-                  Believr is a decentralized social co-investing platform where early believers back
-                  creators they believe in and share in their success.
-                </p>
+            {/* Headline - with tighter tracking */}
+            <h1 className="max-w-3xl font-bold text-4xl tracking-tighter md:text-5xl lg:text-6xl">
+              Where early believers
+              <span className="text-[#00A8FF]"> co-invest</span> in creators success
+            </h1>
 
-                <div className="mt-10 max-w-xs">
-                  <Login />
+            {/* Subheadline - smaller with reduced margin */}
+            <p className="mt-4 max-w-2xl text-base text-muted-foreground">
+              Believr is a decentralized social co-investing platform where early believers back
+              creators they believe in and share in their success.{" "}
+              <span className="font-bold">Built on Lens Protocol.</span>
+            </p>
+
+            {/* CTA Button */}
+            <div className="mt-8 w-full max-w-xs">
+              <Login label="Get Started" />
+            </div>
+          </div>
+
+          {/* Creator showcase - Two rows of scrolling images with fade effects */}
+          <div className="mt-0 mb-0 w-full">
+            <div className="relative mx-auto flex h-[140px] w-full max-w-3xl flex-col gap-2 overflow-hidden">
+              {/* Top row - right to left */}
+              <div className="relative h-[65px] w-full overflow-hidden">
+                <div className="absolute top-0 left-0 z-10 h-full w-16 bg-gradient-to-r from-background to-transparent" />
+                <div className="absolute top-0 right-0 z-10 h-full w-16 bg-gradient-to-l from-background to-transparent" />
+                <div className="absolute top-0 left-0 w-full" style={{ display: "flex" }}>
+                  <motion.div
+                    className="flex w-full gap-3"
+                    animate={{ x: [0, "-50%"] }}
+                    transition={{
+                      x: {
+                        repeat: Number.POSITIVE_INFINITY,
+                        repeatType: "loop",
+                        duration: 40,
+                        ease: "linear",
+                      },
+                    }}
+                    style={{ display: "flex", whiteSpace: "nowrap" }}
+                  >
+                    {creators.map((creator, index) => (
+                      <div
+                        key={`creator-top-first-${creator.id}-${index}`}
+                        className="group relative h-[60px] min-w-[60px] flex-shrink-0 overflow-hidden rounded-full shadow-lg transition-all duration-300 hover:z-10 hover:scale-110"
+                      >
+                        <Image
+                          src={creator.image}
+                          alt={creator.alt}
+                          fill
+                          sizes="60px"
+                          className="object-cover"
+                          priority={index === 0}
+                        />
+                      </div>
+                    ))}
+                    {creators.map((creator, index) => (
+                      <div
+                        key={`creator-top-second-${creator.id}-${index}`}
+                        className="group relative h-[60px] min-w-[60px] flex-shrink-0 overflow-hidden rounded-full shadow-lg transition-all duration-300 hover:z-10 hover:scale-110"
+                      >
+                        <Image
+                          src={creator.image}
+                          alt={creator.alt}
+                          fill
+                          sizes="60px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                  </motion.div>
                 </div>
               </div>
-
-              {/* Right side - Creator showcase with animations */}
-              <div className="relative flex flex-1 items-center justify-center p-4">
-                <div className="grid h-[600px] w-full max-w-2xl grid-cols-2 gap-4 overflow-hidden lg:gap-5">
-                  {/* Left column - scrolling up */}
-                  <div className="h-full overflow-hidden">
-                    <motion.div
-                      className="space-y-4 lg:space-y-5"
-                      animate={{ y: [0, -800, 0] }}
-                      transition={{
+              {/* Bottom row - left to right */}
+              <div className="relative h-[65px] w-full overflow-hidden">
+                <div className="absolute top-0 left-0 z-10 h-full w-16 bg-gradient-to-r from-background to-transparent" />
+                <div className="absolute top-0 right-0 z-10 h-full w-16 bg-gradient-to-l from-background to-transparent" />
+                <div className="absolute top-0 left-0 w-full" style={{ display: "flex" }}>
+                  <motion.div
+                    className="flex w-full gap-3"
+                    animate={{ x: ["-50%", "0%"] }}
+                    transition={{
+                      x: {
                         repeat: Number.POSITIVE_INFINITY,
-                        duration: 45,
+                        repeatType: "loop",
+                        duration: 50,
                         ease: "linear",
-                      }}
-                    >
-                      {[...leftColumnCreators, ...leftColumnCreators].map((creator, index) => (
-                        <div
-                          key={`left-${creator.id}-${index}`}
-                          className="relative mb-4 aspect-[4/5] w-full overflow-hidden rounded-[32px] shadow-lg lg:mb-5"
-                        >
-                          <Image
-                            src={creator.image}
-                            alt={creator.alt}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 400px"
-                            className="object-cover"
-                            priority={index === 0}
-                          />
-                        </div>
-                      ))}
-                    </motion.div>
-                  </div>
-
-                  {/* Right column - scrolling down */}
-                  <div className="h-full overflow-hidden">
-                    <motion.div
-                      className="space-y-4 lg:space-y-5"
-                      animate={{ y: [-800, 0, -800] }}
-                      transition={{
-                        repeat: Number.POSITIVE_INFINITY,
-                        duration: 45,
-                        ease: "linear",
-                      }}
-                    >
-                      {[...rightColumnCreators, ...rightColumnCreators].map((creator, index) => (
-                        <div
-                          key={`right-${creator.id}-${index}`}
-                          className="relative mb-4 aspect-[4/5] w-full overflow-hidden rounded-[32px] shadow-lg lg:mb-5"
-                        >
-                          <Image
-                            src={creator.image}
-                            alt={creator.alt}
-                            fill
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 40vw, 400px"
-                            className="object-cover"
-                            priority={index === 0}
-                          />
-                        </div>
-                      ))}
-                    </motion.div>
-                  </div>
+                      },
+                    }}
+                    style={{ display: "flex", whiteSpace: "nowrap" }}
+                  >
+                    {creators.map((creator, index) => (
+                      <div
+                        key={`creator-bottom-first-${creator.id}-${index}`}
+                        className="group relative h-[60px] min-w-[60px] flex-shrink-0 overflow-hidden rounded-full shadow-lg transition-all duration-300 hover:z-10 hover:scale-110"
+                      >
+                        <Image
+                          src={creator.image}
+                          alt={creator.alt}
+                          fill
+                          sizes="60px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                    {creators.map((creator, index) => (
+                      <div
+                        key={`creator-bottom-second-${creator.id}-${index}`}
+                        className="group relative h-[60px] min-w-[60px] flex-shrink-0 overflow-hidden rounded-full shadow-lg transition-all duration-300 hover:z-10 hover:scale-110"
+                      >
+                        <Image
+                          src={creator.image}
+                          alt={creator.alt}
+                          fill
+                          sizes="60px"
+                          className="object-cover"
+                        />
+                      </div>
+                    ))}
+                  </motion.div>
                 </div>
               </div>
             </div>

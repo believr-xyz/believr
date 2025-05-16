@@ -9,9 +9,10 @@ import { AccountSelector } from "./accounts";
 
 interface LoginProps {
   variant?: "default" | "header";
+  label?: string;
 }
 
-export function Login({ variant = "default" }: LoginProps) {
+export function Login({ variant = "default", label = "Get Started" }: LoginProps) {
   const [showAccountSelector, setShowAccountSelector] = useState(false);
   const { data: authenticatedUser, loading: authUserLoading } = useAuthenticatedUser();
 
@@ -30,7 +31,7 @@ export function Login({ variant = "default" }: LoginProps) {
             return (
               <>
                 <Button onClick={show} className={buttonClasses}>
-                  Connect Wallet
+                  {label}
                 </Button>
               </>
             );

@@ -2,9 +2,9 @@
 
 import { Login } from "@/components/login";
 import { Logo } from "@/components/logo";
-import { ProfileMenu } from "@/components/user-menu";
 import { SearchBar } from "@/components/search-bar";
 import { Button } from "@/components/ui/button";
+import { ProfileMenu } from "@/components/user-menu";
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { PlusIcon } from "lucide-react";
@@ -40,7 +40,7 @@ export function Header() {
               href="/feed"
               className={cn(
                 "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                pathname.startsWith("/feed") && "text-[#00A8FF]"
+                pathname.startsWith("/feed") && "text-[#00A8FF]",
               )}
             >
               Home
@@ -49,7 +49,7 @@ export function Header() {
               href="/explore"
               className={cn(
                 "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                pathname.startsWith("/explore") && "text-[#00A8FF]"
+                pathname.startsWith("/explore") && "text-[#00A8FF]",
               )}
             >
               Explore
@@ -58,7 +58,7 @@ export function Header() {
               href="/groups"
               className={cn(
                 "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                pathname.startsWith("/groups") && "text-[#00A8FF]"
+                pathname.startsWith("/groups") && "text-[#00A8FF]",
               )}
             >
               Believers
@@ -67,7 +67,7 @@ export function Header() {
               href="/bookmarks"
               className={cn(
                 "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                pathname.startsWith("/bookmarks") && "text-[#00A8FF]"
+                pathname.startsWith("/bookmarks") && "text-[#00A8FF]",
               )}
             >
               Bookmarks

@@ -1,6 +1,4 @@
-"use client";
-
-import { Button } from "@/components/ui/button";
+// Split into server and client components to follow Next.js 15 patterns
 import {
   Card,
   CardContent,
@@ -10,11 +8,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useIsMobile } from "@/hooks/use-mobile";
-import { PlusIcon, UsersIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { UsersIcon } from "lucide-react";
+import Link from "next/link";
 
+// Simplified group interface
 interface Group {
   id: string;
   name: string;
@@ -24,64 +21,63 @@ interface Group {
   isPrivate?: boolean;
 }
 
-// Mock groups for the MVP demo
+// Minimal mock data - just two examples for UI display
 const MOCK_GROUPS: Group[] = [
   {
     id: "group-1",
     name: "SaaS Believers",
-    description: "A community for believers in SaaS startups and projects",
+    description: "Support early-stage SaaS founders and projects.",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format",
     members: 156,
-    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=300&auto=format",
   },
   {
     id: "group-2",
-    name: "Game Developers",
-    description: "Support indie game developers and studios",
-    members: 237,
-    image: "https://images.unsplash.com/photo-1536746803623-cef87080bfc8?w=300&auto=format",
-  },
-  {
-    id: "group-3",
     name: "Web3 Founders",
-    description: "Early-stage Web3 startups looking for support",
+    description: "Early-stage Web3 startups looking for support.",
+    image: "https://images.unsplash.com/photo-1639322537504-6427a16b0a28?w=1200&auto=format",
     members: 94,
-    image: "https://images.unsplash.com/photo-1639322537504-6427a16b0a28?w=300&auto=format",
     isPrivate: true,
   },
 ];
 
-export default function GroupsPage() {
+// Client component for interactive parts
+("use client");
+import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { PlusIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+function GroupsPageClient({ groups }: { groups: Group[] }) {
   const isMobile = useIsMobile();
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState<string>("all");
   const router = useRouter();
 
   // Filter groups based on active tab
-  const filteredGroups = MOCK_GROUPS.filter((group) => {
-    if (activeTab === "all") return true;
-    if (activeTab === "private") return group.isPrivate;
-    if (activeTab === "public") return !group.isPrivate;
-    return true;
-  });
+  const filteredGroups = activeTab === "all" ? groups : groups.filter((g) => !g.isPrivate);
 
   return (
-    <div className="container mx-auto max-w-5xl pb-12">
-      <div className="mb-8 flex flex-col md:flex-row md:items-center md:justify-between">
+    <div className="container mx-auto max-w-5xl">
+      <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
-          <h1 className="mb-2 font-bold text-3xl">Believers</h1>
-          <p className="text-muted-foreground">Join groups of believers with shared interests</p>
+          <h1 className="font-bold text-3xl">Believers Groups</h1>
+          <p className="mt-1 text-muted-foreground">
+            Join groups of like-minded believers supporting creators
+          </p>
         </div>
-        <Button className="mt-4 bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90 md:mt-0">
+        <Button className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">
           <PlusIcon className="mr-2 size-4" />
           Create Group
         </Button>
       </div>
 
       <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="mb-6 grid w-full grid-cols-3">
-          <TabsTrigger value="all">All</TabsTrigger>
-          <TabsTrigger value="public">Public</TabsTrigger>
-          <TabsTrigger value="private">Private</TabsTrigger>
-        </TabsList>
+        <div className="mb-6 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <TabsList className={isMobile ? "grid w-full grid-cols-2" : ""}>
+            <TabsTrigger value="all">All Groups</TabsTrigger>
+            <TabsTrigger value="public">Public Only</TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value={activeTab}>
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -115,7 +111,7 @@ export default function GroupsPage() {
                 </CardContent>
                 <CardFooter>
                   <Button className="w-full" onClick={() => router.push(`/groups/${group.id}`)}>
-                    Join Group
+                    View Group
                   </Button>
                 </CardFooter>
               </Card>
@@ -125,4 +121,9 @@ export default function GroupsPage() {
       </Tabs>
     </div>
   );
+}
+
+// Server component
+export default function GroupsPage() {
+  return <GroupsPageClient groups={MOCK_GROUPS} />;
 }

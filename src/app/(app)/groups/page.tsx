@@ -1,8 +1,10 @@
-// This is a Server Component
+"use client";
 
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { GroupsPageClient } from "./_components/groups-page-client";
 
-// Export Group interface to share with client component
+// Types
 export interface Group {
   id: string;
   name: string;
@@ -32,5 +34,34 @@ const MOCK_GROUPS: Group[] = [
 ];
 
 export default function GroupsPage() {
-  return <GroupsPageClient groups={MOCK_GROUPS} />;
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadGroups = async () => {
+      setIsLoading(true);
+      try {
+        // Simulate API fetch
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        setGroups(MOCK_GROUPS);
+      } catch (error) {
+        console.error("Error loading groups:", error);
+        toast.error("Failed to load groups");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadGroups();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-80 items-center justify-center">
+        <div className="size-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  return <GroupsPageClient groups={groups} />;
 }

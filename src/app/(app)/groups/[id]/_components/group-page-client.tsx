@@ -4,7 +4,7 @@ import { PostCard } from "@/app/(app)/feed/_components/post-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeftIcon, UsersIcon } from "lucide-react";
+import { ArrowLeftIcon, PlusIcon, UsersIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Group } from "../page";
@@ -12,6 +12,20 @@ import { Group } from "../page";
 export function GroupPageClient({ group }: { group: Group }) {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("posts");
+  const [isJoining, setIsJoining] = useState(false);
+
+  const handleJoinGroup = async () => {
+    setIsJoining(true);
+    try {
+      // Simulate API call
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // In a real app, this would update the group membership status
+    } catch (error) {
+      console.error("Error joining group:", error);
+    } finally {
+      setIsJoining(false);
+    }
+  };
 
   return (
     <div className="container mx-auto max-w-5xl pb-12">
@@ -69,12 +83,16 @@ export function GroupPageClient({ group }: { group: Group }) {
             </CardHeader>
             <CardContent>
               {group.isMember ? (
-                <Button className="w-full" variant="outline">
+                <Button className="w-full" variant="outline" disabled={isJoining}>
                   Leave Group
                 </Button>
               ) : (
-                <Button className="w-full bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">
-                  Join Group
+                <Button
+                  className="w-full bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
+                  onClick={handleJoinGroup}
+                  disabled={isJoining}
+                >
+                  {isJoining ? "Joining..." : "Join Group"}
                 </Button>
               )}
             </CardContent>
@@ -94,7 +112,10 @@ export function GroupPageClient({ group }: { group: Group }) {
             <div className="flex flex-col items-center justify-center rounded-lg border p-12 text-center">
               <h3 className="mb-1 font-semibold text-xl">No posts yet</h3>
               <p className="mb-4 text-muted-foreground">Be the first to post in this group</p>
-              <Button className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">Create Post</Button>
+              <Button className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">
+                <PlusIcon className="mr-2 size-4" />
+                Create Post
+              </Button>
             </div>
           ) : (
             <div className="space-y-6">

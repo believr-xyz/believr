@@ -24,6 +24,33 @@ export function GroupsPageClient({ groups }: { groups: Group[] }) {
   // Filter groups based on active tab
   const filteredGroups = activeTab === "all" ? groups : groups.filter((g) => !g.isPrivate);
 
+  if (groups.length === 0) {
+    return (
+      <div className="container mx-auto max-w-5xl">
+        <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
+          <div>
+            <h1 className="font-bold text-3xl">Believers Groups</h1>
+            <p className="mt-1 text-muted-foreground">
+              Join groups of like-minded believers supporting creators
+            </p>
+          </div>
+          <Button className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">
+            <PlusIcon className="mr-2 size-4" />
+            Create Group
+          </Button>
+        </div>
+        <div className="flex flex-col items-center justify-center rounded-lg border p-12 text-center">
+          <h3 className="mb-1 font-semibold text-xl">No groups found</h3>
+          <p className="mb-4 text-muted-foreground">Be the first to create a group</p>
+          <Button className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">
+            <PlusIcon className="mr-2 size-4" />
+            Create Group
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto max-w-5xl">
       <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">

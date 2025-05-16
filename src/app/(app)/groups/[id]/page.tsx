@@ -1,8 +1,12 @@
-// This is a Server Component
+"use client";
 
+import { Button } from "@/components/ui/button";
+import { useParams, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { GroupPageClient } from "./_components/group-page-client";
 
-// Export Group interface to share with client component
+// Types
 export interface Group {
   id: string;
   name: string;
@@ -56,7 +60,51 @@ const MOCK_GROUP: Group = {
   isMember: false,
 };
 
-export default function GroupPage({ params }: { params: { id: string } }) {
-  // In a real app, we would fetch the group data from Lens API based on params.id
-  return <GroupPageClient group={MOCK_GROUP} />;
+export default function GroupPage() {
+  const router = useRouter();
+  const params = useParams();
+  const groupId = params.id as string;
+
+  const [group, setGroup] = useState<Group | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadGroup = async () => {
+      setIsLoading(true);
+      try {
+        // Simulate API fetch
+        await new Promise((resolve) => setTimeout(resolve, 500));
+        setGroup(MOCK_GROUP);
+      } catch (error) {
+        console.error("Error loading group:", error);
+        toast.error("Failed to load group details");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadGroup();
+  }, [groupId]);
+
+  if (isLoading) {
+    return (
+      <div className="flex h-80 items-center justify-center">
+        <div className="size-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (!group) {
+    return (
+      <div className="flex h-80 flex-col items-center justify-center text-center">
+        <h2 className="mb-2 font-semibold text-xl">Group not found</h2>
+        <p className="mb-4 text-muted-foreground">
+          The group you're looking for doesn't exist or has been removed.
+        </p>
+        <Button onClick={() => router.push("/groups")}>Back to Groups</Button>
+      </div>
+    );
+  }
+
+  return <GroupPageClient group={group} />;
 }

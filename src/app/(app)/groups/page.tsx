@@ -18,16 +18,14 @@ const MOCK_GROUPS: Group[] = [
     id: "group-1",
     name: "SaaS Believers",
     description: "Support early-stage SaaS founders and projects.",
-    image:
-      "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format",
+    image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format",
     members: 156,
   },
   {
     id: "group-2",
     name: "Web3 Founders",
     description: "Early-stage Web3 startups looking for support.",
-    image:
-      "https://images.unsplash.com/photo-1639322537504-6427a16b0a28?w=1200&auto=format",
+    image: "https://images.unsplash.com/photo-1639322537504-6427a16b0a28?w=1200&auto=format",
     members: 94,
     isPrivate: true,
   },

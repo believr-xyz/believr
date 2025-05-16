@@ -30,7 +30,11 @@ interface ProfileTabsProps {
   onTabChange?: (tab: string) => void;
 }
 
-export function ProfileTabs({ posts, activeTab = "posts", onTabChange }: ProfileTabsProps) {
+export function ProfileTabs({
+  posts,
+  activeTab = "posts",
+  onTabChange,
+}: ProfileTabsProps) {
   const router = useRouter();
   const collectiblePosts = posts.filter((post) => post.collectible);
 
@@ -53,7 +57,18 @@ export function ProfileTabs({ posts, activeTab = "posts", onTabChange }: Profile
             <p className="text-muted-foreground">No posts yet</p>
           </Card>
         ) : (
-          posts.map((post) => <PostCard key={post.id} post={post} />)
+          posts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={{
+                ...post,
+                creator: {
+                  ...post.creator,
+                  username: post.creator.handle,
+                },
+              }}
+            />
+          ))
         )}
       </TabsContent>
 
@@ -63,7 +78,18 @@ export function ProfileTabs({ posts, activeTab = "posts", onTabChange }: Profile
             <p className="text-muted-foreground">No collectible posts yet</p>
           </Card>
         ) : (
-          collectiblePosts.map((post) => <PostCard key={post.id} post={post} />)
+          collectiblePosts.map((post) => (
+            <PostCard
+              key={post.id}
+              post={{
+                ...post,
+                creator: {
+                  ...post.creator,
+                  username: post.creator.handle,
+                },
+              }}
+            />
+          ))
         )}
       </TabsContent>
     </Tabs>

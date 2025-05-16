@@ -3,8 +3,14 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Benefit } from "@/types/post";
 import { BadgeCheckIcon, CoinsIcon, LockIcon, StarIcon } from "lucide-react";
+
+interface Benefit {
+  title: string;
+  description: string;
+  type: "access" | "revenue" | "recognition" | "exclusive";
+  percentage?: number;
+}
 
 interface BenefitsListProps {
   benefits: Benefit[];
@@ -16,7 +22,7 @@ const benefitIcons = {
   revenue: CoinsIcon,
   recognition: BadgeCheckIcon,
   exclusive: StarIcon,
-};
+} as const;
 
 export function BenefitsList({ benefits }: BenefitsListProps) {
   if (!benefits || benefits.length === 0) {
@@ -51,7 +57,9 @@ export function BenefitsList({ benefits }: BenefitsListProps) {
                           : benefit.type}
                       </Badge>
                     </div>
-                    <p className="mt-1 text-muted-foreground text-sm">{benefit.description}</p>
+                    <p className="mt-1 text-muted-foreground text-sm">
+                      {benefit.description}
+                    </p>
                   </div>
                 </div>
               </div>

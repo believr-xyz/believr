@@ -1,6 +1,7 @@
 "use client";
 
 import { Header } from "@/components/layout/header";
+import { Loader } from "@/components/loader";
 import { MobileNavigation } from "@/components/mobile-nav";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { useRouter } from "next/navigation";
@@ -17,14 +18,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, [loading, user, router]);
 
   if (loading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="rounded-lg bg-background p-8 shadow-lg">
-          <h2 className="mb-4 font-semibold text-xl">Loading...</h2>
-          <p className="text-muted-foreground">Please wait while we authenticate you.</p>
-        </div>
-      </div>
-    );
+    return <Loader />;
   }
 
   if (!user) {
@@ -32,9 +26,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-screen flex-col bg-[#F7F8F9] dark:bg-background">
       <Header />
-      <main className="container mx-auto mt-8 flex-1 px-4 pt-0 pb-16 md:px-6 md:pb-12">
+      <main className="container mx-auto mt-16 flex-1 px-4 pb-16 md:mt-20 md:px-6 md:pb-12">
         {children}
       </main>
       <MobileNavigation />

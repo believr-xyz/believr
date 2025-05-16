@@ -4,9 +4,21 @@ import { BookmarkButton } from "@/app/(app)/bookmarks/_components/bookmark-butto
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
-import { HeartIcon, MessageCircleIcon, RefreshCwIcon, ShareIcon } from "lucide-react";
+import {
+  BadgeCheck,
+  DollarSign,
+  HeartIcon,
+  MessageCircleIcon,
+  RefreshCwIcon,
+  AwardIcon,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface PostCardProps {
@@ -35,7 +47,10 @@ export function PostCard({ post }: PostCardProps) {
   const timeAgo = formatDistanceToNow(post.createdAt, { addSuffix: true });
 
   const percentCollected = post.collectible
-    ? Math.min(100, Math.round((post.collectible.collected / post.collectible.total) * 100))
+    ? Math.min(
+        100,
+        Math.round((post.collectible.collected / post.collectible.total) * 100)
+      )
     : 0;
 
   return (
@@ -46,7 +61,9 @@ export function PostCard({ post }: PostCardProps) {
           onClick={() => router.push(`/u/${post.creator.username}`)}
         >
           <AvatarImage src={post.creator.avatar} alt={post.creator.name} />
-          <AvatarFallback>{post.creator.username[0]?.toUpperCase()}</AvatarFallback>
+          <AvatarFallback>
+            {post.creator.username[0]?.toUpperCase()}
+          </AvatarFallback>
         </Avatar>
         <div className="flex flex-1 flex-col">
           <div className="flex items-center justify-between">
@@ -57,7 +74,9 @@ export function PostCard({ post }: PostCardProps) {
               >
                 {post.creator.name}
               </h3>
-              <p className="text-muted-foreground text-sm">@{post.creator.username}</p>
+              <p className="text-muted-foreground text-sm">
+                @{post.creator.username}
+              </p>
             </div>
             <span className="text-muted-foreground text-xs">{timeAgo}</span>
           </div>
@@ -66,12 +85,18 @@ export function PostCard({ post }: PostCardProps) {
 
       <CardContent
         className="cursor-pointer pt-0 pb-2"
-        onClick={() => router.push(`/posts/${post.creator.username}/${post.id}`)}
+        onClick={() =>
+          router.push(`/posts/${post.creator.username}/${post.id}`)
+        }
       >
         <p className="mb-3 whitespace-pre-line">{post.content}</p>
         {post.image && (
           <div className="mt-2 overflow-hidden rounded-xl">
-            <img src={post.image} alt="Post content" className="aspect-video w-full object-cover" />
+            <img
+              src={post.image}
+              alt="Post content"
+              className="aspect-video w-full object-cover"
+            />
           </div>
         )}
 
@@ -84,38 +109,50 @@ export function PostCard({ post }: PostCardProps) {
                 </span>
               </Badge>
               <span className="text-muted-foreground text-sm">
-                {post.collectible.collected} / {post.collectible.total} collected
+                {post.collectible.collected} / {post.collectible.total}{" "}
+                collected
               </span>
             </div>
 
             <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-              <div className="h-full bg-[#00A8FF]" style={{ width: `${percentCollected}%` }} />
+              <div
+                className="h-full bg-[#00A8FF]"
+                style={{ width: `${percentCollected}%` }}
+              />
             </div>
           </div>
         )}
       </CardContent>
 
       <CardFooter className="flex justify-between border-t p-3">
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
-          <HeartIcon className="size-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
-          <MessageCircleIcon className="size-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
-          <RefreshCwIcon className="size-4" />
-        </Button>
-        <Button variant="ghost" size="icon" className="text-muted-foreground">
-          <ShareIcon className="size-4" />
-        </Button>
-        <BookmarkButton postId={post.id} />
-        <Button
-          variant="default"
-          className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
-          onClick={() => router.push(`/posts/${post.creator.username}/${post.id}`)}
-        >
-          Believe
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" className="text-muted-foreground">
+            <MessageCircleIcon className="size-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-muted-foreground">
+            <RefreshCwIcon className="size-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-muted-foreground">
+            <HeartIcon className="size-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="text-muted-foreground">
+            <DollarSign className="size-4" />
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <BookmarkButton postId={post.id} />
+          <Button
+            variant="default"
+            className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
+            onClick={() =>
+              router.push(`/posts/${post.creator.username}/${post.id}`)
+            }
+          >
+            <AwardIcon className="mr-1.5 size-4" />
+            Believe
+          </Button>
+        </div>
       </CardFooter>
     </Card>
   );

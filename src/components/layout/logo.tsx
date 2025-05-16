@@ -6,21 +6,30 @@ import Link from "next/link";
 
 interface LogoProps {
   className?: string;
+  variant?: "full" | "icon";
 }
 
-export function Logo({ className = "" }: LogoProps) {
+export function Logo({ className = "", variant = "full" }: LogoProps) {
   const { resolvedTheme } = useTheme();
-  const logoSrc = resolvedTheme === "dark" ? "/logo-dark.svg" : "/logo-light.svg";
+
+  const getLogoSrc = () => {
+    if (variant === "icon") {
+      return "/icon.svg";
+    }
+    return resolvedTheme === "dark" ? "/logo-dark.svg" : "/logo-light.svg";
+  };
+
+  const logoSrc = getLogoSrc();
 
   return (
     <Link href="/" className={className}>
       <Image
         src={logoSrc}
         alt="Believr Logo"
-        width={114}
-        height={25.1}
+        width={variant === "icon" ? 32 : 114}
+        height={variant === "icon" ? 32 : 25.1}
         priority
-        className="h-6.5 w-auto"
+        className={variant === "icon" ? "h-9 w-9" : "h-7 w-auto"}
       />
     </Link>
   );

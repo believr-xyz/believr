@@ -7,11 +7,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircleIcon } from "lucide-react";
 import { useState } from "react";
 
-// Temporary type definition
 interface Post {
   id: string;
   content: string;
   createdAt: Date;
+  image?: string;
   collectible?: {
     price: string;
     currency: string;
@@ -23,10 +23,6 @@ interface Post {
     username: string;
     name: string;
     avatar?: string;
-    stats: {
-      followers: number;
-      believers: number;
-    };
   };
 }
 
@@ -68,10 +64,6 @@ export function CollectedPosts({ username, isOwnProfile = false }: CollectedPost
                 name: "Sarah Web3",
                 avatar:
                   "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
-                stats: {
-                  followers: 1254,
-                  believers: 89,
-                },
               },
             },
           ]);

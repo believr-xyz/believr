@@ -57,9 +57,7 @@ export function BenefitsList({ benefits }: BenefitsListProps) {
                           : benefit.type}
                       </Badge>
                     </div>
-                    <p className="mt-1 text-muted-foreground text-sm">
-                      {benefit.description}
-                    </p>
+                    <p className="mt-1 text-muted-foreground text-sm">{benefit.description}</p>
                   </div>
                 </div>
               </div>

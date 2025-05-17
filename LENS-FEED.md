@@ -73,6 +73,25 @@ Based on analysis of the Lens SDK, we can implement the following feed-related f
 - Replace mock trending campaigns with real trending collectible posts
 - Add proper loading states and error handling
 
+### 5. User Profile Features
+
+**SDK Resources:**
+
+- `useAccount` hook from `@lens-protocol/react/account`
+- `fetchAccount` function from `@lens-protocol/client/actions/account`
+- `useAccountStats` hook (or equivalent) for profile statistics
+
+**Implementation Plan:**
+
+- Create basic profile page components using Lens account data
+- Display essential profile information:
+  - Username/handle
+  - Profile picture/avatar
+  - Bio/description
+  - Basic stats (followers, following, posts)
+- Add follow/unfollow functionality using the appropriate Lens hooks
+- Implement profile data fetching with proper loading states and error handling
+
 ## Implementation Details
 
 ### 1. Custom GraphQL Fragments
@@ -129,7 +148,67 @@ export const FeedPostFragment = graphql(
 );
 ```
 
-### 2. Feed Hook Implementation
+### 2. Profile Fragment and Hook Implementation
+
+Create a fragment and hook for profile data:
+
+```typescript
+// src/lib/lens/fragments/accounts.ts
+import { graphql } from "@lens-protocol/client";
+import { MediaImageFragment } from "./media";
+
+export const AccountFragment = graphql(
+  `
+    fragment Account on Account {
+      __typename
+      address
+      username {
+        value
+      }
+      metadata {
+        name
+        bio
+        picture {
+          ...MediaImage
+        }
+      }
+    }
+  `,
+  [MediaImageFragment]
+);
+
+// src/hooks/use-profile.ts
+import { useAccount } from "@lens-protocol/react/account";
+import { useAccountStats } from "@lens-protocol/react/account";
+import { useState } from "react";
+
+export function useProfile(address: string) {
+  const {
+    data: account,
+    loading: accountLoading,
+    error: accountError,
+  } = useAccount({
+    address,
+  });
+
+  const {
+    data: stats,
+    loading: statsLoading,
+    error: statsError,
+  } = useAccountStats({
+    address,
+  });
+
+  return {
+    profile: account,
+    stats,
+    loading: accountLoading || statsLoading,
+    error: accountError || statsError,
+  };
+}
+```
+
+### 3. Feed Hook Implementation
 
 Create custom hooks for different feed types:
 
@@ -204,7 +283,7 @@ export function usePopularFeed() {
 }
 ```
 
-### 3. Search Implementation
+### 4. Search Implementation
 
 Implement profile search functionality:
 
@@ -229,7 +308,78 @@ export function useProfileSearch(query: string) {
 }
 ```
 
-### 4. Post Engagement Implementation
+### 5. Profile Component Implementation
+
+Create a simple profile component:
+
+```typescript
+// src/components/profile/profile-card.tsx
+import { useProfile } from "@/hooks/use-profile";
+import { Avatar } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { useFollow } from "@lens-protocol/react/follow";
+
+export function ProfileCard({ address }: { address: string }) {
+  const { profile, stats, loading, error } = useProfile(address);
+  const { execute: followAccount, loading: followLoading } = useFollow();
+
+  if (loading) return <div>Loading profile...</div>;
+  if (error) return <div>Error loading profile</div>;
+  if (!profile) return <div>Profile not found</div>;
+
+  const handleFollow = async () => {
+    await followAccount({
+      account: address,
+    });
+  };
+
+  return (
+    <div className="flex flex-col items-center p-4 border rounded-lg">
+      <Avatar className="h-20 w-20">
+        <AvatarImage
+          src={profile.metadata?.picture}
+          alt={profile.metadata?.name || ""}
+        />
+        <AvatarFallback>{profile.metadata?.name?.[0] || "U"}</AvatarFallback>
+      </Avatar>
+
+      <h2 className="text-xl font-bold mt-2">{profile.metadata?.name}</h2>
+      <p className="text-sm text-muted-foreground">
+        @{profile.username?.value}
+      </p>
+
+      {profile.metadata?.bio && (
+        <p className="mt-2 text-sm text-center">{profile.metadata.bio}</p>
+      )}
+
+      <div className="flex gap-4 mt-4">
+        <div className="text-center">
+          <p className="font-bold">{stats?.followers || 0}</p>
+          <p className="text-xs text-muted-foreground">Followers</p>
+        </div>
+        <div className="text-center">
+          <p className="font-bold">{stats?.following || 0}</p>
+          <p className="text-xs text-muted-foreground">Following</p>
+        </div>
+        <div className="text-center">
+          <p className="font-bold">{stats?.posts || 0}</p>
+          <p className="text-xs text-muted-foreground">Posts</p>
+        </div>
+      </div>
+
+      <Button
+        className="mt-4 w-full"
+        onClick={handleFollow}
+        disabled={followLoading}
+      >
+        {followLoading ? "Following..." : "Follow"}
+      </Button>
+    </div>
+  );
+}
+```
+
+### 6. Post Engagement Implementation
 
 Implement post interactions:
 
@@ -275,11 +425,12 @@ export function usePostInteractions(postId: string) {
 ## Implementation Roadmap
 
 1. **Setup GraphQL Fragments** - Create necessary fragments for efficient data fetching
-2. **Profile Search Integration** - Replace mock search with real Lens API search
-3. **Feed Integration** - Implement main feed components with real data
-4. **Post Engagement** - Implement post interaction functionalities
-5. **Trending Content** - Replace mock trending data with real trending content
-6. **Error Handling & Optimization** - Add robust error handling and optimize performance
+2. **Profile Integration** - Implement basic profile components and fetching
+3. **Profile Search Integration** - Replace mock search with real Lens API search
+4. **Feed Integration** - Implement main feed components with real data
+5. **Post Engagement** - Implement post interaction functionalities
+6. **Trending Content** - Replace mock trending data with real trending content
+7. **Error Handling & Optimization** - Add robust error handling and optimize performance
 
 ## Technical Considerations
 
@@ -291,8 +442,9 @@ export function usePostInteractions(postId: string) {
 
 ## Next Steps
 
-1. Implement search bar integration first as a standalone feature
-2. Integrate main feed components with real data
-3. Add post engagement functionality
-4. Implement trending section with real data
-5. Add optimistic UI updates for better UX
+1. Implement basic profile components and fetching
+2. Implement search bar integration as a standalone feature
+3. Integrate main feed components with real data
+4. Add post engagement functionality
+5. Implement trending section with real data
+6. Add optimistic UI updates for better UX

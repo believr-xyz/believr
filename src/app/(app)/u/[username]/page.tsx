@@ -1,79 +1,26 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useAccount } from "@lens-protocol/react";
+import { fetchAccountStats } from "@lens-protocol/client/actions";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ProfileHeader } from "./_components/profile-header";
 import { ProfileSkeleton } from "./_components/profile-skeleton";
 import { ProfileTabs } from "./_components/profile-tabs";
+import { getLensClient } from "@/lib/lens/client";
+import { Account, AccountStats } from "@lens-protocol/client";
 
-// Types
-interface Profile {
-  id: string;
-  username: string;
-  name: string;
-  bio?: string;
-  avatar?: string;
-  coverImage?: string;
-  location?: string;
-  website?: string;
-  verified?: boolean;
-  stats: {
-    posts: number;
-    followers: number;
-    following: number;
-    believers: number;
-  };
-  isFollowing?: boolean;
-}
-
-interface Post {
-  id: string;
-  content: string;
-  createdAt: Date;
-  image?: string;
-  collectible?: {
-    price: string;
-    currency: string;
-    collected: number;
-    total: number;
-  };
-  creator: {
-    id: string;
-    username: string;
-    name: string;
-    avatar?: string;
-  };
-}
-
-// Mock data for the MVP
-const MOCK_PROFILE: Profile = {
-  id: "creator-2",
-  username: "gamerbuild",
-  name: "Indie Game Studio",
-  bio: "Creating the next generation of story-driven games. Building in public. Join our journey as we develop immersive experiences that challenge the status quo of gaming.",
-  avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-  coverImage: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&auto=format",
-  location: "San Francisco, CA",
-  website: "https://indie-games.example",
-  verified: true,
-  stats: {
-    posts: 42,
-    followers: 876,
-    following: 124,
-    believers: 52,
-  },
-  isFollowing: false,
-};
-
-const MOCK_POSTS: Post[] = [
+// Mock data for the MVP - will be removed once the posts feature is implemented
+const MOCK_POSTS = [
   {
     id: "post-2",
     content:
       "My indie game studio is creating a new story-driven RPG. Early believers get alpha access and in-game recognition!",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-    image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format",
     collectible: {
       price: "10",
       currency: "GHO",
@@ -84,7 +31,8 @@ const MOCK_POSTS: Post[] = [
       id: "creator-2",
       username: "gamerbuild",
       name: "Indie Game Studio",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar:
+        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
   {
@@ -92,12 +40,14 @@ const MOCK_POSTS: Post[] = [
     content:
       "Just released a new demo of our character customization system. Check it out and let us know what you think!",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
-    image: "https://images.unsplash.com/photo-1511882150382-421056c89033?w=800&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1511882150382-421056c89033?w=800&auto=format",
     creator: {
       id: "creator-2",
       username: "gamerbuild",
       name: "Indie Game Studio",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar:
+        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
   {
@@ -115,48 +65,91 @@ const MOCK_POSTS: Post[] = [
       id: "creator-2",
       username: "gamerbuild",
       name: "Indie Game Studio",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar:
+        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
 ];
 
 function ProfileContent({ username }: { username: string }) {
   const router = useRouter();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [account, setAccount] = useState<Account | null>(null);
+  const [accountStats, setAccountStats] = useState<AccountStats | null>(null);
+  const [posts, setPosts] = useState(MOCK_POSTS);
   const [activeTab, setActiveTab] = useState<"posts" | "collectibles">("posts");
 
-  // In a real app, you would fetch the profile and posts data based on the username
+  // Use the Lens useAccount hook directly
+  const {
+    data: lensAccount,
+    loading: accountLoading,
+    error: accountError,
+  } = useAccount({
+    username: {
+      localName: username,
+    },
+  });
+
+  // Fetch account stats separately
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsError, setStatsError] = useState<Error | null>(null);
+
+  // Set the account when it's loaded
   useEffect(() => {
-    // Simulate API fetch
-    const loadProfileData = async () => {
-      setIsLoading(true);
+    if (lensAccount) {
+      setAccount(lensAccount);
+    }
+  }, [lensAccount]);
+
+  // Fetch account stats
+  useEffect(() => {
+    async function fetchStats() {
+      if (!lensAccount) return;
+
+      setStatsLoading(true);
       try {
-        // This would be API calls in a real app
-        await new Promise((resolve) => setTimeout(resolve, 700)); // Simulate network delay
+        const client = await getLensClient();
+        const result = await fetchAccountStats(client, {
+          account: lensAccount.address,
+        });
 
-        // For the MVP, we'll use the mock data
-        setProfile(MOCK_PROFILE);
-        setPosts(MOCK_POSTS);
+        if (result.isOk()) {
+          setAccountStats(result.value);
+        } else {
+          setStatsError(result.error);
+        }
       } catch (error) {
-        console.error("Error loading profile:", error);
-        toast.error("Failed to load profile data");
+        setStatsError(
+          error instanceof Error ? error : new Error(String(error))
+        );
       } finally {
-        setIsLoading(false);
+        setStatsLoading(false);
       }
-    };
+    }
 
-    loadProfileData();
-  }, [username]);
+    if (lensAccount) {
+      fetchStats();
+    }
+  }, [lensAccount]);
 
-  const handleFollowChange = (isFollowing: boolean, newFollowerCount: number) => {
-    if (profile) {
-      setProfile({
-        ...profile,
-        isFollowing,
-        stats: {
-          ...profile.stats,
+  // Show error toast if there was a problem fetching the profile
+  useEffect(() => {
+    if (accountError || statsError) {
+      console.error("Error loading profile:", accountError || statsError);
+      toast.error("Failed to load profile data");
+    }
+  }, [accountError, statsError]);
+
+  const handleFollowChange = (
+    isFollowing: boolean,
+    newFollowerCount: number
+  ) => {
+    // This will be implemented properly with the follow feature
+    // For now, just update the UI state
+    if (accountStats) {
+      setAccountStats({
+        ...accountStats,
+        graphFollowStats: {
+          ...accountStats.graphFollowStats,
           followers: newFollowerCount,
         },
       });
@@ -167,28 +160,50 @@ function ProfileContent({ username }: { username: string }) {
     setActiveTab(tab as "posts" | "collectibles");
   };
 
-  if (isLoading) {
+  const loading = accountLoading || statsLoading;
+
+  if (loading) {
     return null; // This won't be seen as the Suspense fallback will be shown instead
   }
 
-  if (!profile) {
+  if (accountError || statsError) {
+    return (
+      <div className="flex h-80 flex-col items-center justify-center text-center">
+        <h2 className="mb-2 font-semibold text-xl">Error Loading Profile</h2>
+        <p className="mb-4 text-muted-foreground">
+          We encountered a problem while trying to load this profile.
+        </p>
+        <Button onClick={() => router.push("/feed")}>Return to Feed</Button>
+      </div>
+    );
+  }
+
+  if (!account) {
     return (
       <div className="flex h-80 flex-col items-center justify-center text-center">
         <h2 className="mb-2 font-semibold text-xl">Profile not found</h2>
         <p className="mb-4 text-muted-foreground">
           The profile you're looking for doesn't exist or has been removed.
         </p>
-        <Button onClick={() => router.push("/discover")}>Discover Creators</Button>
+        <Button onClick={() => router.push("/feed")}>Return to Feed</Button>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-5xl">
-      <ProfileHeader profile={profile} onFollowChange={handleFollowChange} />
+      <ProfileHeader
+        account={account}
+        stats={accountStats}
+        onFollowChange={handleFollowChange}
+      />
 
       <div className="px-5">
-        <ProfileTabs posts={posts} activeTab={activeTab} onTabChange={handleTabChange} />
+        <ProfileTabs
+          posts={posts}
+          activeTab={activeTab}
+          onTabChange={handleTabChange}
+        />
       </div>
     </div>
   );

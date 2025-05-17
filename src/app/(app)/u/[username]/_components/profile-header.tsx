@@ -4,6 +4,7 @@ import { FollowButton } from "@/components/shared/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Account, AccountStats } from "@lens-protocol/client";
 import { ExternalLink, MapPin } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -46,7 +47,14 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
       {/* Cover image */}
       <div className="relative mb-8 h-48 w-full overflow-hidden rounded-xl md:h-64">
         {coverPicture ? (
-          <img src={coverPicture} alt="Cover" className="h-full w-full object-cover" />
+          <Image
+            src={coverPicture}
+            alt="Cover"
+            fill
+            sizes="(max-width: 768px) 100vw, 800px"
+            className="object-cover"
+            priority
+          />
         ) : (
           <div className="h-full w-full bg-gradient-to-r from-blue-500 to-purple-500" />
         )}
@@ -54,8 +62,11 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
         {/* Profile avatar - positioned to overlap cover and content */}
         <div className="absolute bottom-[-24px] left-4 rounded-full border-4 border-background md:left-8">
           <Avatar className="size-32">
-            <AvatarImage src={picture} alt={name} />
-            <AvatarFallback className="text-2xl">{name?.[0] || username[0]}</AvatarFallback>
+            {picture ? (
+              <AvatarImage src={picture} alt={name} />
+            ) : (
+              <AvatarFallback className="text-2xl">{name?.[0] || username[0]}</AvatarFallback>
+            )}
           </Avatar>
         </div>
 

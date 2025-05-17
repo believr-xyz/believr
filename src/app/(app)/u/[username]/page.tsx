@@ -1,5 +1,6 @@
 "use client";
 
+import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
 import { getLensClient } from "@/lib/lens/client";
 import { Account, AccountStats } from "@lens-protocol/client";
@@ -8,12 +9,11 @@ import { useAccount } from "@lens-protocol/react";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Trending } from "../../feed/_components/trending";
+import { TrendingSkeleton } from "../../feed/_components/trending-skeleton";
 import { ProfileHeader } from "./_components/profile-header";
 import { ProfileSkeleton } from "./_components/profile-skeleton";
 import { ProfileTabs } from "./_components/profile-tabs";
-import { SearchBar } from "@/components/shared/search-bar";
-import { Trending } from "../../feed/_components/trending";
-import { TrendingSkeleton } from "../../feed/_components/trending-skeleton";
 
 // Mock data - this will be replaced with real data from the API
 const MOCK_TRENDING_CREATORS = [

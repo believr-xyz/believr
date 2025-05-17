@@ -76,13 +76,16 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
   };
 
   const handleProfileClick = () => {
-    if (accountData?.ownedBy?.defaultProfile?.username) {
-      router.push(`/u/${accountData.ownedBy.defaultProfile.username}`);
-    } else if (accountData?.ownedBy?.username) {
-      router.push(`/u/${accountData.ownedBy.username}`);
+    // Get the username directly from the account data
+    const username =
+      accountData?.username?.value?.split("/").pop() || accountData?.username?.localName;
+
+    if (username) {
+      router.push(`/u/${username}`);
     } else {
-      // Fallback if we don't have a username
-      router.push(`/u/default`); // This would be replaced with proper handling in production
+      // If we still can't find a username, use the address as fallback
+      const shortAddress = user?.address.substring(0, 8);
+      router.push(`/u/${shortAddress}`);
     }
   };
 
@@ -91,9 +94,21 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
   // Get the first few characters of the address for display
   const displayAddress = user.address.substring(0, 2).toUpperCase();
 
-  // Get profile picture URL from the nested structure
-  const profilePictureUrl =
-    accountData?.metadata?.picture?.optimized?.uri || accountData?.metadata?.picture?.raw?.uri;
+  // Get profile picture URL - simplify access path and add fallbacks
+  let profilePictureUrl = null;
+
+  if (accountData?.metadata?.picture) {
+    // Handle direct string URL
+    if (typeof accountData.metadata.picture === "string") {
+      profilePictureUrl = accountData.metadata.picture;
+    }
+    // Handle object structure with nested URI
+    else if (accountData.metadata.picture?.optimized?.uri) {
+      profilePictureUrl = accountData.metadata.picture.optimized.uri;
+    } else if (accountData.metadata.picture?.raw?.uri) {
+      profilePictureUrl = accountData.metadata.picture.raw.uri;
+    }
+  }
 
   return (
     <div className={cn(className)}>

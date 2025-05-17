@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
 import { BadgeCheck, DollarSign, HeartIcon, MessageCircleIcon, RefreshCwIcon } from "lucide-react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 
 interface PostCardProps {
@@ -72,8 +73,14 @@ export function PostCard({ post }: PostCardProps) {
       <CardContent className="cursor-pointer pt-0 pb-2" onClick={handleCardClick}>
         <p className="mb-3 whitespace-pre-line">{post.content}</p>
         {post.image && (
-          <div className="mt-2 overflow-hidden rounded-xl">
-            <img src={post.image} alt="Post content" className="aspect-video w-full object-cover" />
+          <div className="relative mt-2 aspect-video overflow-hidden rounded-xl">
+            <Image
+              src={post.image}
+              alt="Post content"
+              fill
+              sizes="(max-width: 768px) 100vw, 600px"
+              className="object-cover"
+            />
           </div>
         )}
 

@@ -23,9 +23,12 @@ interface AccountSelectorProps {
 
 // Helper function to add handle property to accounts
 const mapToClientAccount = (account: any): Account => {
+  // Extract username from various possible locations
+  const username = account.username?.value?.split("/").pop() || account.username?.localName;
+
   return {
     ...account,
-    handle: account.username?.localName || "",
+    handle: username || "", // For backward compatibility
   };
 };
 

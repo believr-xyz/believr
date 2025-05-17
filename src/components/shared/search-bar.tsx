@@ -121,12 +121,17 @@ export function SearchBar({ className }: SearchBarProps) {
 
   const navigateToProfile = (handle?: string) => {
     if (!handle) return;
+
+    // Extract just the username part without namespace
+    const usernameParts = handle.split("/");
+    const username = usernameParts[usernameParts.length - 1];
+
     setShowResults(false);
     setQuery("");
     if (window.innerWidth < 768) {
       setIsSearchOpen(false);
     }
-    router.push(`/u/${handle}`);
+    router.push(`/u/${username}`);
   };
 
   return (
@@ -226,7 +231,11 @@ export function SearchBar({ className }: SearchBarProps) {
                     </Avatar>
                     <div>
                       <p className="font-medium">{displayName}</p>
-                      {username && <p className="text-muted-foreground text-sm">@{username}</p>}
+                      {username && (
+                        <p className="text-muted-foreground text-sm">
+                          @{username.split("/").pop()}
+                        </p>
+                      )}
                     </div>
                   </div>
                 );

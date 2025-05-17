@@ -32,6 +32,37 @@ const nextConfig: NextConfig = {
         hostname: "metamask.github.io",
         pathname: "**",
       },
+      // Lens and IPFS gateways
+      {
+        protocol: "https",
+        hostname: "lens.infura-ipfs.io",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "ipfs.infura.io",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "ipfs.io",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "arweave.net",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "gateway.ipfscdn.io",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "**cdn.lens.xyz",
+        pathname: "**",
+      },
     ],
   },
 };

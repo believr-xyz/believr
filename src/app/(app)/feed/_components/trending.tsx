@@ -61,8 +61,11 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
                     onClick={() => router.push(`/u/${creator.username}`)}
                   >
                     <Avatar className="size-10">
-                      <AvatarImage src={creator.avatar} alt={creator.name} />
-                      <AvatarFallback>{creator.name[0]}</AvatarFallback>
+                      {creator.avatar ? (
+                        <AvatarImage src={creator.avatar} alt={creator.name} />
+                      ) : (
+                        <AvatarFallback>{creator.name[0]?.toUpperCase() || "?"}</AvatarFallback>
+                      )}
                     </Avatar>
                     <div>
                       <h4 className="font-medium">{creator.name}</h4>
@@ -103,8 +106,13 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
                   <h4 className="mb-2 font-medium">{campaign.title}</h4>
                   <div className="mb-2 flex items-center gap-2">
                     <Avatar className="size-6">
-                      <AvatarImage src={campaign.creator.avatar} alt={campaign.creator.name} />
-                      <AvatarFallback>{campaign.creator.name[0]}</AvatarFallback>
+                      {campaign.creator.avatar ? (
+                        <AvatarImage src={campaign.creator.avatar} alt={campaign.creator.name} />
+                      ) : (
+                        <AvatarFallback>
+                          {campaign.creator.name[0]?.toUpperCase() || "?"}
+                        </AvatarFallback>
+                      )}
                     </Avatar>
                     <span className="text-xs">{campaign.creator.name}</span>
                   </div>

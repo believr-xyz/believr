@@ -1,73 +1,92 @@
 "use client";
 
+import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
+import { getLensClient } from "@/lib/lens/client";
+import { Account, AccountStats } from "@lens-protocol/client";
+import { fetchAccountStats } from "@lens-protocol/client/actions";
+import { useAccount } from "@lens-protocol/react";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { Trending } from "../../feed/_components/trending";
+import { TrendingSkeleton } from "../../feed/_components/trending-skeleton";
 import { ProfileHeader } from "./_components/profile-header";
 import { ProfileSkeleton } from "./_components/profile-skeleton";
 import { ProfileTabs } from "./_components/profile-tabs";
 
-// Types
-interface Profile {
-  id: string;
-  username: string;
-  name: string;
-  bio?: string;
-  avatar?: string;
-  coverImage?: string;
-  location?: string;
-  website?: string;
-  verified?: boolean;
-  stats: {
-    posts: number;
-    followers: number;
-    following: number;
-    believers: number;
-  };
-  isFollowing?: boolean;
-}
-
-interface Post {
-  id: string;
-  content: string;
-  createdAt: Date;
-  image?: string;
-  collectible?: {
-    price: string;
-    currency: string;
-    collected: number;
-    total: number;
-  };
-  creator: {
-    id: string;
-    username: string;
-    name: string;
-    avatar?: string;
-  };
-}
-
-// Mock data for the MVP
-const MOCK_PROFILE: Profile = {
-  id: "creator-2",
-  username: "gamerbuild",
-  name: "Indie Game Studio",
-  bio: "Creating the next generation of story-driven games. Building in public. Join our journey as we develop immersive experiences that challenge the status quo of gaming.",
-  avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-  coverImage: "https://images.unsplash.com/photo-1511512578047-dfb367046420?w=1200&auto=format",
-  location: "San Francisco, CA",
-  website: "https://indie-games.example",
-  verified: true,
-  stats: {
-    posts: 42,
-    followers: 876,
-    following: 124,
-    believers: 52,
+// Mock data - this will be replaced with real data from the API
+const MOCK_TRENDING_CREATORS = [
+  {
+    id: "creator-1",
+    name: "Sarah Web3",
+    username: "web3sarah",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+    stats: {
+      followers: 1245,
+      believers: 78,
+    },
   },
-  isFollowing: false,
-};
+  {
+    id: "creator-2",
+    name: "Indie Game Studio",
+    username: "gamerbuild",
+    avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+    stats: {
+      followers: 876,
+      believers: 52,
+    },
+  },
+  {
+    id: "creator-3",
+    name: "Tech Podcaster",
+    username: "techpodcaster",
+    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
+    stats: {
+      followers: 3422,
+      believers: 156,
+    },
+  },
+];
 
-const MOCK_POSTS: Post[] = [
+// Mock trending campaigns
+const MOCK_TRENDING_CAMPAIGNS = [
+  {
+    id: "post-1",
+    title: "New SaaS Productivity Tool",
+    creator: {
+      id: "creator-1",
+      name: "Sarah Web3",
+      username: "web3sarah",
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+    },
+    collectible: {
+      price: "5",
+      currency: "GHO",
+      collected: 28,
+      total: 50,
+    },
+  },
+  {
+    id: "post-2",
+    title: "Story-Driven RPG Game",
+    creator: {
+      id: "creator-2",
+      name: "Indie Game Studio",
+      username: "gamerbuild",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+    },
+    collectible: {
+      price: "10",
+      currency: "GHO",
+      collected: 72,
+      total: 100,
+    },
+  },
+];
+
+// Mock data for the MVP - will be removed once the posts feature is implemented
+const MOCK_POSTS = [
   {
     id: "post-2",
     content:
@@ -120,43 +139,85 @@ const MOCK_POSTS: Post[] = [
   },
 ];
 
+function TrendingContent() {
+  // This function would fetch and display trending content from Lens API in a real app
+  return <Trending creators={MOCK_TRENDING_CREATORS} campaigns={MOCK_TRENDING_CAMPAIGNS} />;
+}
+
 function ProfileContent({ username }: { username: string }) {
   const router = useRouter();
-  const [profile, setProfile] = useState<Profile | null>(null);
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [account, setAccount] = useState<Account | null>(null);
+  const [accountStats, setAccountStats] = useState<AccountStats | null>(null);
+  const [posts, setPosts] = useState(MOCK_POSTS);
   const [activeTab, setActiveTab] = useState<"posts" | "collectibles">("posts");
 
-  // In a real app, you would fetch the profile and posts data based on the username
+  // Use the Lens useAccount hook directly
+  const {
+    data: lensAccount,
+    loading: accountLoading,
+    error: accountError,
+  } = useAccount({
+    username: {
+      localName: username,
+    },
+  });
+
+  // Fetch account stats separately
+  const [statsLoading, setStatsLoading] = useState(false);
+  const [statsError, setStatsError] = useState<Error | null>(null);
+
+  // Set the account when it's loaded
   useEffect(() => {
-    // Simulate API fetch
-    const loadProfileData = async () => {
-      setIsLoading(true);
+    if (lensAccount) {
+      setAccount(lensAccount);
+    }
+  }, [lensAccount]);
+
+  // Fetch account stats
+  useEffect(() => {
+    async function fetchStats() {
+      if (!lensAccount) return;
+
+      setStatsLoading(true);
       try {
-        // This would be API calls in a real app
-        await new Promise((resolve) => setTimeout(resolve, 700)); // Simulate network delay
+        const client = await getLensClient();
+        const result = await fetchAccountStats(client, {
+          account: lensAccount.address,
+        });
 
-        // For the MVP, we'll use the mock data
-        setProfile(MOCK_PROFILE);
-        setPosts(MOCK_POSTS);
+        if (result.isOk()) {
+          setAccountStats(result.value);
+        } else {
+          setStatsError(result.error);
+        }
       } catch (error) {
-        console.error("Error loading profile:", error);
-        toast.error("Failed to load profile data");
+        setStatsError(error instanceof Error ? error : new Error(String(error)));
       } finally {
-        setIsLoading(false);
+        setStatsLoading(false);
       }
-    };
+    }
 
-    loadProfileData();
-  }, [username]);
+    if (lensAccount) {
+      fetchStats();
+    }
+  }, [lensAccount]);
+
+  // Show error toast if there was a problem fetching the profile
+  useEffect(() => {
+    if (accountError || statsError) {
+      console.error("Error loading profile:", accountError || statsError);
+      toast.error("Failed to load profile data");
+    }
+  }, [accountError, statsError]);
 
   const handleFollowChange = (isFollowing: boolean, newFollowerCount: number) => {
-    if (profile) {
-      setProfile({
-        ...profile,
-        isFollowing,
-        stats: {
-          ...profile.stats,
+    // This will be implemented properly with the follow feature
+    // For now, just update the UI state
+    if (accountStats) {
+      setAccountStats({
+        ...accountStats,
+        graphFollowStats: {
+          ...accountStats.graphFollowStats,
           followers: newFollowerCount,
         },
       });
@@ -167,28 +228,71 @@ function ProfileContent({ username }: { username: string }) {
     setActiveTab(tab as "posts" | "collectibles");
   };
 
-  if (isLoading) {
+  const loading = accountLoading || statsLoading;
+
+  if (loading) {
     return null; // This won't be seen as the Suspense fallback will be shown instead
   }
 
-  if (!profile) {
+  if (accountError || statsError) {
+    return (
+      <div className="flex h-80 flex-col items-center justify-center text-center">
+        <h2 className="mb-2 font-semibold text-xl">Error Loading Profile</h2>
+        <p className="mb-4 text-muted-foreground">
+          We encountered a problem while trying to load this profile.
+        </p>
+        <Button onClick={() => router.push("/feed")}>Return to Feed</Button>
+      </div>
+    );
+  }
+
+  if (!account) {
     return (
       <div className="flex h-80 flex-col items-center justify-center text-center">
         <h2 className="mb-2 font-semibold text-xl">Profile not found</h2>
         <p className="mb-4 text-muted-foreground">
           The profile you're looking for doesn't exist or has been removed.
         </p>
-        <Button onClick={() => router.push("/discover")}>Discover Creators</Button>
+        <Button onClick={() => router.push("/feed")}>Return to Feed</Button>
       </div>
     );
   }
 
   return (
     <div className="mx-auto max-w-5xl">
-      <ProfileHeader profile={profile} onFollowChange={handleFollowChange} />
+      {/* Mobile Search - Only visible on mobile */}
+      <div className="mb-6 block px-5 md:hidden">
+        <SearchBar className="w-full" />
+      </div>
 
-      <div className="px-5">
-        <ProfileTabs posts={posts} activeTab={activeTab} onTabChange={handleTabChange} />
+      {/* Grid layout for main content and sidebar */}
+      <div className="grid grid-cols-1 gap-6 px-5 md:grid-cols-3 md:gap-8">
+        {/* Main Profile Content */}
+        <div className="md:col-span-2">
+          <ProfileHeader
+            account={account}
+            stats={accountStats}
+            onFollowChange={handleFollowChange}
+          />
+
+          <div className="mt-6">
+            <ProfileTabs posts={posts} activeTab={activeTab} onTabChange={handleTabChange} />
+          </div>
+        </div>
+
+        {/* Right Sidebar - Sticky */}
+        <div className="hidden md:block">
+          <div className="sticky top-16 space-y-6">
+            {/* Search bar in the sidebar */}
+            <div className="mt-1">
+              <SearchBar className="w-full" />
+            </div>
+
+            <Suspense fallback={<TrendingSkeleton />}>
+              <TrendingContent />
+            </Suspense>
+          </div>
+        </div>
       </div>
     </div>
   );

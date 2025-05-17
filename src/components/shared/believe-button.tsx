@@ -8,12 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CheckCheck, Star } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -47,8 +42,7 @@ export function BelieveButton({
   const [internalBelieved, setInternalBelieved] = useState(false);
 
   // Use the external state if provided, otherwise use internal state
-  const believed =
-    externalBelieved !== undefined ? externalBelieved : internalBelieved;
+  const believed = externalBelieved !== undefined ? externalBelieved : internalBelieved;
 
   const handleBelieve = () => {
     // This would be connected to the Lens client in a real implementation
@@ -107,14 +101,12 @@ export function BelieveButton({
       <Dialog open={showModal} onOpenChange={setShowModal}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle className="text-center">
-              Become an Early Believer
-            </DialogTitle>
+            <DialogTitle className="text-center">Become an Early Believer</DialogTitle>
           </DialogHeader>
           <div className="py-4 text-center">
             <p className="mb-4">
-              You're about to believe in @{displayUsername}'s journey! Early
-              believers get special perks and recognition.
+              You're about to believe in @{displayUsername}'s journey! Early believers get special
+              perks and recognition.
             </p>
             {price && (
               <p className="mb-4 font-medium">

@@ -6,7 +6,6 @@ import { getLensClient } from "@/lib/lens/client";
 import { Account, AccountStats, PageSize } from "@lens-protocol/client";
 import { evmAddress } from "@lens-protocol/client";
 import { fetchAccountStats } from "@lens-protocol/client/actions";
-import { AnyPost } from "@lens-protocol/graphql";
 import { useAccount, usePosts } from "@lens-protocol/react";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -23,7 +22,8 @@ const MOCK_TRENDING_CREATORS = [
     id: "creator-1",
     name: "Sarah Web3",
     username: "web3sarah",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     stats: {
       followers: 1245,
       believers: 78,
@@ -33,7 +33,8 @@ const MOCK_TRENDING_CREATORS = [
     id: "creator-2",
     name: "Indie Game Studio",
     username: "gamerbuild",
-    avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+    avatar:
+      "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     stats: {
       followers: 876,
       believers: 52,
@@ -43,7 +44,8 @@ const MOCK_TRENDING_CREATORS = [
     id: "creator-3",
     name: "Tech Podcaster",
     username: "techpodcaster",
-    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
+    avatar:
+      "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
     stats: {
       followers: 3422,
       believers: 156,
@@ -60,7 +62,8 @@ const MOCK_TRENDING_CAMPAIGNS = [
       id: "creator-1",
       name: "Sarah Web3",
       username: "web3sarah",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+      avatar:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     },
     collectible: {
       price: "5",
@@ -76,7 +79,8 @@ const MOCK_TRENDING_CAMPAIGNS = [
       id: "creator-2",
       name: "Indie Game Studio",
       username: "gamerbuild",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar:
+        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
     collectible: {
       price: "10",
@@ -89,7 +93,12 @@ const MOCK_TRENDING_CAMPAIGNS = [
 
 function TrendingContent() {
   // This function would fetch and display trending content from Lens API in a real app
-  return <Trending creators={MOCK_TRENDING_CREATORS} campaigns={MOCK_TRENDING_CAMPAIGNS} />;
+  return (
+    <Trending
+      creators={MOCK_TRENDING_CREATORS}
+      campaigns={MOCK_TRENDING_CAMPAIGNS}
+    />
+  );
 }
 
 function ProfileContent({ username }: { username: string }) {
@@ -152,7 +161,9 @@ function ProfileContent({ username }: { username: string }) {
           setStatsError(result.error);
         }
       } catch (error) {
-        setStatsError(error instanceof Error ? error : new Error(String(error)));
+        setStatsError(
+          error instanceof Error ? error : new Error(String(error))
+        );
       } finally {
         setStatsLoading(false);
       }
@@ -166,12 +177,18 @@ function ProfileContent({ username }: { username: string }) {
   // Show error toast if there was a problem fetching the profile
   useEffect(() => {
     if (accountError || statsError || postsError) {
-      console.error("Error loading profile data:", accountError || statsError || postsError);
+      console.error(
+        "Error loading profile data:",
+        accountError || statsError || postsError
+      );
       toast.error("Failed to load profile data");
     }
   }, [accountError, statsError, postsError]);
 
-  const handleFollowChange = (isFollowing: boolean, newFollowerCount: number) => {
+  const handleFollowChange = (
+    isFollowing: boolean,
+    newFollowerCount: number
+  ) => {
     // This will be implemented properly with the follow feature
     // For now, just update the UI state
     if (accountStats) {

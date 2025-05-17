@@ -1,6 +1,6 @@
 "use client";
 
-import { BookmarkButton } from "@/app/(app)/bookmarks/_components/bookmark-button";
+import { BookmarkToggleButton } from "@/components/shared/bookmark-toggle-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -294,7 +294,7 @@ export default function PostPage() {
                   <Button variant="ghost" size="icon" className="text-muted-foreground">
                     <DollarSign className="size-4" />
                   </Button>
-                  <BookmarkButton postId={post.id} />
+                  <BookmarkToggleButton postId={post.id} />
                 </div>
               </div>
 

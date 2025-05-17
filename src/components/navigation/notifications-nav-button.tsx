@@ -7,11 +7,11 @@ import { Bell } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-interface NotificationsButtonProps {
+interface NotificationsNavButtonProps {
   className?: string;
 }
 
-export function NotificationsButton({ className }: NotificationsButtonProps) {
+export function NotificationsNavButton({ className }: NotificationsNavButtonProps) {
   const pathname = usePathname();
   const isActive = pathname.startsWith("/notifications");
 

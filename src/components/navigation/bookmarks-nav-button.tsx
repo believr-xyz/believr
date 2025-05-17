@@ -6,11 +6,11 @@ import { Bookmark } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-interface BookmarksButtonProps {
+interface BookmarksNavButtonProps {
   className?: string;
 }
 
-export function BookmarksButton({ className }: BookmarksButtonProps) {
+export function BookmarksNavButton({ className }: BookmarksNavButtonProps) {
   const pathname = usePathname();
   const isActive = pathname.startsWith("/bookmarks");
 

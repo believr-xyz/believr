@@ -1,5 +1,6 @@
 "use client";
 
+import { FollowButton } from "@/components/shared/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -68,14 +69,14 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
                       <p className="text-muted-foreground text-xs">@{creator.username}</p>
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
+                  <FollowButton
+                    userId={creator.id}
+                    username={creator.username}
                     size="sm"
-                    className="h-8 rounded-full font-medium text-xs"
-                    onClick={() => router.push(`/u/${creator.username}`)}
-                  >
-                    Follow
-                  </Button>
+                    variant="outline"
+                    rounded
+                    className="h-8 font-medium text-xs"
+                  />
                 </div>
               ))
             )}

@@ -1,17 +1,17 @@
 "use client";
 
+import { Login } from "@/components/auth/login";
+import { ProfileMenu } from "@/components/auth/user-menu";
 import { Logo } from "@/components/layout/logo";
-import { Login } from "@/components/login";
+import { BookmarksNavButton } from "@/components/navigation/bookmarks-nav-button";
+import { NotificationsNavButton } from "@/components/navigation/notifications-nav-button";
 import { Button } from "@/components/ui/button";
-import { ProfileMenu } from "@/components/user-menu";
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { BookmarksButton } from "../bookmarks-button";
-import { NotificationsButton } from "../notifications-button";
 
 export function Header() {
   const pathname = usePathname();
@@ -69,8 +69,8 @@ export function Header() {
             </Link>
           </Button>
           <div className="flex items-center gap-2 md:gap-3">
-            <BookmarksButton className="hidden md:flex" />
-            <NotificationsButton className="hidden md:flex" />
+            <BookmarksNavButton className="hidden md:flex" />
+            <NotificationsNavButton className="hidden md:flex" />
             <ProfileMenu className="hidden md:flex" />
           </div>
         </div>

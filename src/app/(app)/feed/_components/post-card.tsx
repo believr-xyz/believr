@@ -1,19 +1,13 @@
 "use client";
 
-import { BookmarkButton } from "@/app/(app)/bookmarks/_components/bookmark-button";
+import { BelieveButton } from "@/components/shared/believe-button";
+import { BookmarkToggleButton } from "@/components/shared/bookmark-toggle-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { formatDistanceToNow } from "date-fns";
-import {
-  AwardIcon,
-  BadgeCheck,
-  DollarSign,
-  HeartIcon,
-  MessageCircleIcon,
-  RefreshCwIcon,
-} from "lucide-react";
+import { BadgeCheck, DollarSign, HeartIcon, MessageCircleIcon, RefreshCwIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface PostCardProps {
@@ -45,6 +39,10 @@ export function PostCard({ post }: PostCardProps) {
     ? Math.min(100, Math.round((post.collectible.collected / post.collectible.total) * 100))
     : 0;
 
+  const handleCardClick = () => {
+    router.push(`/posts/${post.creator.username}/${post.id}`);
+  };
+
   return (
     <Card className="mb-4 overflow-hidden hover:border-primary/20 hover:shadow-sm">
       <CardHeader className="flex flex-row gap-4 pt-4 pb-2">
@@ -71,10 +69,7 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       </CardHeader>
 
-      <CardContent
-        className="cursor-pointer pt-0 pb-2"
-        onClick={() => router.push(`/posts/${post.creator.username}/${post.id}`)}
-      >
+      <CardContent className="cursor-pointer pt-0 pb-2" onClick={handleCardClick}>
         <p className="mb-3 whitespace-pre-line">{post.content}</p>
         {post.image && (
           <div className="mt-2 overflow-hidden rounded-xl">
@@ -119,15 +114,13 @@ export function PostCard({ post }: PostCardProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <BookmarkButton postId={post.id} />
-          <Button
-            variant="default"
-            className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
-            onClick={() => router.push(`/posts/${post.creator.username}/${post.id}`)}
-          >
-            <AwardIcon className="mr-1.5 size-4" />
-            Believe
-          </Button>
+          <BookmarkToggleButton postId={post.id} />
+          <BelieveButton
+            postId={post.id}
+            creatorUsername={post.creator.username}
+            price={post.collectible?.price}
+            currency={post.collectible?.currency}
+          />
         </div>
       </CardFooter>
     </Card>

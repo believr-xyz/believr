@@ -1,8 +1,8 @@
 "use client";
 
 import { Header } from "@/components/layout/header";
-import { Loader } from "@/components/loader";
-import { MobileNavigation } from "@/components/mobile-nav";
+import { MobileNavigation } from "@/components/layout/mobile";
+import { Loader } from "@/components/ui/loader";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";

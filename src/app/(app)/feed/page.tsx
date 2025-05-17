@@ -1,6 +1,6 @@
 "use client";
 
-import { SearchBar } from "@/components/search-bar";
+import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";

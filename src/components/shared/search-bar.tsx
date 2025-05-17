@@ -4,55 +4,27 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { useAccounts } from "@lens-protocol/react";
 import { Loader2, SearchIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
-// Mock profiles for demonstration
-const MOCK_PROFILES = [
-  {
-    id: "profile-1",
-    handle: { localName: "web3sarah" },
-    metadata: {
-      displayName: "Sarah Web3",
-      picture: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
-    },
-  },
-  {
-    id: "profile-2",
-    handle: { localName: "gamerbuild" },
-    metadata: {
-      displayName: "Indie Game Studio",
-      picture: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-    },
-  },
-  {
-    id: "profile-3",
-    handle: { localName: "techpodcaster" },
-    metadata: {
-      displayName: "Tech Podcaster",
-      picture: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
-    },
-  },
-  {
-    id: "profile-4",
-    handle: { localName: "cryptodev" },
-    metadata: {
-      displayName: "Crypto Developer",
-      picture: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format",
-    },
-  },
-  {
-    id: "profile-5",
-    handle: { localName: "designergal" },
-    metadata: {
-      displayName: "UI Designer",
-      picture: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&auto=format",
-    },
-  },
-];
-
-type ProfileType = (typeof MOCK_PROFILES)[number];
+// Interface matching Lens Account structure based on their API
+interface LensAccount {
+  address: string;
+  username: {
+    value: string;
+    localName: string;
+    namespace: {
+      address: string;
+    };
+  } | null;
+  metadata: {
+    name: string | null;
+    bio: string | null;
+    picture: string | null;
+  } | null;
+}
 
 interface SearchBarProps {
   className?: string;
@@ -60,8 +32,6 @@ interface SearchBarProps {
 
 export function SearchBar({ className }: SearchBarProps) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<ProfileType[]>([]);
-  const [loading, setLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -69,39 +39,20 @@ export function SearchBar({ className }: SearchBarProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // Handle search query with mock data
-  const handleSearch = (searchQuery: string) => {
-    if (!searchQuery || searchQuery.length < 2) {
-      setResults([]);
-      return;
-    }
+  // Use the Lens useAccounts hook to search for profiles
+  const { data, loading } = useAccounts({
+    filter:
+      query.length > 1
+        ? {
+            searchBy: {
+              localNameQuery: query,
+            },
+          }
+        : undefined,
+    pageSize: 5,
+  });
 
-    setLoading(true);
-
-    // Simulate API call with timeout
-    setTimeout(() => {
-      const filteredProfiles = MOCK_PROFILES.filter((profile) => {
-        const displayName = profile.metadata.displayName.toLowerCase();
-        const handleName = profile.handle.localName.toLowerCase();
-        const search = searchQuery.toLowerCase();
-
-        return displayName.includes(search) || handleName.includes(search);
-      });
-
-      setResults(filteredProfiles);
-      setSelectedIndex(-1); // Reset selection when results change
-      setLoading(false);
-    }, 500); // Simulate network delay
-  };
-
-  // Debounce search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      handleSearch(query);
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [query]);
+  const results = data?.items || [];
 
   // Handle click outside to close results
   useEffect(() => {
@@ -157,7 +108,7 @@ export function SearchBar({ className }: SearchBarProps) {
       e.preventDefault();
       if (selectedIndex >= 0 && selectedIndex < results.length) {
         const profile = results[selectedIndex];
-        navigateToProfile(profile.handle.localName);
+        navigateToProfile(profile.username?.value);
       }
     }
 
@@ -171,7 +122,7 @@ export function SearchBar({ className }: SearchBarProps) {
     }
   };
 
-  const navigateToProfile = (handle: string) => {
+  const navigateToProfile = (handle?: string) => {
     if (!handle) return;
     setShowResults(false);
     setQuery("");
@@ -257,27 +208,32 @@ export function SearchBar({ className }: SearchBarProps) {
             </div>
           ) : results.length > 0 ? (
             <div className="max-h-[300px] overflow-y-auto py-1">
-              {results.map((profile, index) => (
-                <div
-                  key={profile.id}
-                  className={cn(
-                    "flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-accent",
-                    selectedIndex === index && "bg-accent",
-                  )}
-                  onClick={() => navigateToProfile(profile.handle.localName)}
-                >
-                  <Avatar className="size-8">
-                    <AvatarImage src={profile.metadata.picture as string} />
-                    <AvatarFallback>
-                      {profile.metadata.displayName.substring(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">{profile.metadata.displayName}</p>
-                    <p className="text-muted-foreground text-sm">@{profile.handle.localName}</p>
+              {results.map((account, index) => {
+                const username = account.username?.value;
+                const displayName =
+                  account.metadata?.name || account.username?.localName || "Unknown";
+                const avatarUrl = account.metadata?.picture || "";
+
+                return (
+                  <div
+                    key={account.address}
+                    className={cn(
+                      "flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-accent",
+                      selectedIndex === index && "bg-accent",
+                    )}
+                    onClick={() => navigateToProfile(username)}
+                  >
+                    <Avatar className="size-8">
+                      <AvatarImage src={avatarUrl} />
+                      <AvatarFallback>{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{displayName}</p>
+                      {username && <p className="text-muted-foreground text-sm">@{username}</p>}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           ) : query.length > 1 ? (
             <div className="p-4 text-center text-muted-foreground text-sm">

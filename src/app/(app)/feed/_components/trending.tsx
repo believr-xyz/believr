@@ -54,10 +54,7 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
               </p>
             ) : (
               creators.map((creator) => (
-                <div
-                  key={creator.id}
-                  className="flex items-center justify-between"
-                >
+                <div key={creator.id} className="flex items-center justify-between">
                   <div
                     className="flex cursor-pointer items-center gap-3"
                     onClick={() => router.push(`/u/${creator.username}`)}
@@ -68,15 +65,13 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
                     </Avatar>
                     <div>
                       <h4 className="font-medium">{creator.name}</h4>
-                      <p className="text-muted-foreground text-xs">
-                        @{creator.username}
-                      </p>
+                      <p className="text-muted-foreground text-xs">@{creator.username}</p>
                     </div>
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="h-8 rounded-full text-xs font-medium"
+                    className="h-8 rounded-full font-medium text-xs"
                     onClick={() => router.push(`/u/${creator.username}`)}
                   >
                     Follow
@@ -102,33 +97,22 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
                 <div
                   key={campaign.id}
                   className="cursor-pointer rounded-lg py-2 transition-colors hover:bg-muted/20"
-                  onClick={() =>
-                    router.push(
-                      `/posts/${campaign.creator.username}/${campaign.id}`
-                    )
-                  }
+                  onClick={() => router.push(`/posts/${campaign.creator.username}/${campaign.id}`)}
                 >
                   <h4 className="mb-2 font-medium">{campaign.title}</h4>
                   <div className="mb-2 flex items-center gap-2">
                     <Avatar className="size-6">
-                      <AvatarImage
-                        src={campaign.creator.avatar}
-                        alt={campaign.creator.name}
-                      />
-                      <AvatarFallback>
-                        {campaign.creator.name[0]}
-                      </AvatarFallback>
+                      <AvatarImage src={campaign.creator.avatar} alt={campaign.creator.name} />
+                      <AvatarFallback>{campaign.creator.name[0]}</AvatarFallback>
                     </Avatar>
                     <span className="text-xs">{campaign.creator.name}</span>
                   </div>
                   <div className="mb-2 flex items-center justify-between text-xs">
                     <span>
-                      {campaign.collectible.price}{" "}
-                      {campaign.collectible.currency}
+                      {campaign.collectible.price} {campaign.collectible.currency}
                     </span>
                     <span className="text-muted-foreground">
-                      {campaign.collectible.collected} /{" "}
-                      {campaign.collectible.total}
+                      {campaign.collectible.collected} / {campaign.collectible.total}
                     </span>
                   </div>
                   <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
@@ -138,10 +122,8 @@ export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
                         width: `${Math.min(
                           100,
                           Math.round(
-                            (campaign.collectible.collected /
-                              campaign.collectible.total) *
-                              100
-                          )
+                            (campaign.collectible.collected / campaign.collectible.total) * 100,
+                          ),
                         )}%`,
                       }}
                     />

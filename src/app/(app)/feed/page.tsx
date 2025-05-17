@@ -1,7 +1,7 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
 import { SearchBar } from "@/components/search-bar";
+import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Link from "next/link";
 import { Suspense } from "react";
@@ -18,8 +18,7 @@ const MOCK_POSTS = [
     content:
       "Just launched my new SaaS project! Looking for early believers to help shape the future of productivity tools. Check it out! 🚀",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2), // 2 hours ago
-    image:
-      "https://images.unsplash.com/photo-1555421689-491a97ff2040?w=800&auto=format",
+    image: "https://images.unsplash.com/photo-1555421689-491a97ff2040?w=800&auto=format",
     collectible: {
       price: "5",
       currency: "GHO",
@@ -30,8 +29,7 @@ const MOCK_POSTS = [
       id: "creator-1",
       username: "web3sarah",
       name: "Sarah Web3",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     },
   },
   {
@@ -39,8 +37,7 @@ const MOCK_POSTS = [
     content:
       "My indie game studio is creating a new story-driven RPG. Early believers get alpha access and in-game recognition!",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-    image:
-      "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format",
+    image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format",
     collectible: {
       price: "10",
       currency: "GHO",
@@ -51,8 +48,7 @@ const MOCK_POSTS = [
       id: "creator-2",
       username: "gamerbuild",
       name: "Indie Game Studio",
-      avatar:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
   {
@@ -64,8 +60,7 @@ const MOCK_POSTS = [
       id: "creator-3",
       username: "techpodcaster",
       name: "Tech Podcaster",
-      avatar:
-        "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
     },
   },
 ];
@@ -76,8 +71,7 @@ const MOCK_TRENDING_CREATORS = [
     id: "creator-1",
     name: "Sarah Web3",
     username: "web3sarah",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     stats: {
       followers: 1245,
       believers: 78,
@@ -87,8 +81,7 @@ const MOCK_TRENDING_CREATORS = [
     id: "creator-2",
     name: "Indie Game Studio",
     username: "gamerbuild",
-    avatar:
-      "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+    avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     stats: {
       followers: 876,
       believers: 52,
@@ -98,8 +91,7 @@ const MOCK_TRENDING_CREATORS = [
     id: "creator-3",
     name: "Tech Podcaster",
     username: "techpodcaster",
-    avatar:
-      "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
+    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
     stats: {
       followers: 3422,
       believers: 156,
@@ -116,8 +108,7 @@ const MOCK_TRENDING_CAMPAIGNS = [
       id: "creator-1",
       name: "Sarah Web3",
       username: "web3sarah",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     },
     collectible: {
       price: "5",
@@ -133,8 +124,7 @@ const MOCK_TRENDING_CAMPAIGNS = [
       id: "creator-2",
       name: "Indie Game Studio",
       username: "gamerbuild",
-      avatar:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
     collectible: {
       price: "10",
@@ -150,8 +140,7 @@ const MOCK_TRENDING_CAMPAIGNS = [
       id: "creator-2",
       name: "Indie Game Studio",
       username: "gamerbuild",
-      avatar:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
     collectible: {
       price: "5",
@@ -175,12 +164,7 @@ function FeedContent() {
 
 function TrendingContent() {
   // This function would fetch and display trending content from Lens API in a real app
-  return (
-    <Trending
-      creators={MOCK_TRENDING_CREATORS}
-      campaigns={MOCK_TRENDING_CAMPAIGNS}
-    />
-  );
+  return <Trending creators={MOCK_TRENDING_CREATORS} campaigns={MOCK_TRENDING_CAMPAIGNS} />;
 }
 
 export default function FeedPage() {
@@ -193,13 +177,13 @@ export default function FeedPage() {
         <SearchBar className="w-full" />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 md:gap-8 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
         {/* Main Content - Left Column (Scrollable) */}
         <div className="md:col-span-2">
           <Tabs
             defaultValue="for-you"
             onValueChange={setActiveTab}
-            className="w-full md:w-auto mb-6 mt-1"
+            className="mt-1 mb-6 w-full md:w-auto"
           >
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="for-you">For You</TabsTrigger>
@@ -208,11 +192,7 @@ export default function FeedPage() {
             </TabsList>
           </Tabs>
 
-          <Tabs
-            defaultValue="for-you"
-            value={activeTab}
-            className="w-full md:w-auto"
-          >
+          <Tabs defaultValue="for-you" value={activeTab} className="w-full md:w-auto">
             <TabsContent value="for-you">
               <Suspense fallback={<FeedSkeleton />}>
                 <FeedContent />

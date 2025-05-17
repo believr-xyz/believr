@@ -1,7 +1,7 @@
 "use client";
 
-import { Login } from "@/components/login";
 import { Logo } from "@/components/layout/logo";
+import { Login } from "@/components/login";
 import { Button } from "@/components/ui/button";
 import { ProfileMenu } from "@/components/user-menu";
 import { cn } from "@/lib/utils";
@@ -10,8 +10,8 @@ import { PlusIcon } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
-import { NotificationsButton } from "../notifications-button";
 import { BookmarksButton } from "../bookmarks-button";
+import { NotificationsButton } from "../notifications-button";
 
 export function Header() {
   const pathname = usePathname();
@@ -40,7 +40,7 @@ export function Header() {
               href="/feed"
               className={cn(
                 "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                pathname.startsWith("/feed") && "text-[#00A8FF]"
+                pathname.startsWith("/feed") && "text-[#00A8FF]",
               )}
             >
               Home
@@ -49,7 +49,7 @@ export function Header() {
               href="/groups"
               className={cn(
                 "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
-                pathname.startsWith("/groups") && "text-[#00A8FF]"
+                pathname.startsWith("/groups") && "text-[#00A8FF]",
               )}
             >
               Believers

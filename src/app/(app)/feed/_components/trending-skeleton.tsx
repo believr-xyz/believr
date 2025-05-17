@@ -11,9 +11,7 @@ export function TrendingSkeleton() {
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div
-              key={`trending-creator-${i}-${Math.random()
-                .toString(36)
-                .substring(2, 9)}`}
+              key={`trending-creator-${i}-${Math.random().toString(36).substring(2, 9)}`}
               className="flex items-center justify-between"
             >
               <div className="flex items-center gap-3">
@@ -36,9 +34,7 @@ export function TrendingSkeleton() {
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div
-              key={`trending-tag-${i}-${Math.random()
-                .toString(36)
-                .substring(2, 9)}`}
+              key={`trending-tag-${i}-${Math.random().toString(36).substring(2, 9)}`}
               className="space-y-2 rounded-lg p-3"
             >
               <Skeleton className="h-4 w-4/5" />

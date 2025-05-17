@@ -15,8 +15,7 @@ const MOCK_PROFILES = [
     handle: { localName: "web3sarah" },
     metadata: {
       displayName: "Sarah Web3",
-      picture:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+      picture: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     },
   },
   {
@@ -24,8 +23,7 @@ const MOCK_PROFILES = [
     handle: { localName: "gamerbuild" },
     metadata: {
       displayName: "Indie Game Studio",
-      picture:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      picture: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
   {
@@ -33,8 +31,7 @@ const MOCK_PROFILES = [
     handle: { localName: "techpodcaster" },
     metadata: {
       displayName: "Tech Podcaster",
-      picture:
-        "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
+      picture: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
     },
   },
   {
@@ -42,8 +39,7 @@ const MOCK_PROFILES = [
     handle: { localName: "cryptodev" },
     metadata: {
       displayName: "Crypto Developer",
-      picture:
-        "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format",
+      picture: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format",
     },
   },
   {
@@ -51,8 +47,7 @@ const MOCK_PROFILES = [
     handle: { localName: "designergal" },
     metadata: {
       displayName: "UI Designer",
-      picture:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&auto=format",
+      picture: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&auto=format",
     },
   },
 ];
@@ -148,17 +143,13 @@ export function SearchBar({ className }: SearchBarProps) {
     // Arrow down - move selection down
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((prevIndex) =>
-        prevIndex < results.length - 1 ? prevIndex + 1 : prevIndex
-      );
+      setSelectedIndex((prevIndex) => (prevIndex < results.length - 1 ? prevIndex + 1 : prevIndex));
     }
 
     // Arrow up - move selection up
     else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((prevIndex) =>
-        prevIndex > 0 ? prevIndex - 1 : prevIndex
-      );
+      setSelectedIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : prevIndex));
     }
 
     // Enter - navigate to selected profile
@@ -204,11 +195,7 @@ export function SearchBar({ className }: SearchBarProps) {
       </Button>
 
       {/* Search bar - hidden on mobile unless toggled */}
-      <div
-        className={`relative ${
-          isSearchOpen ? "block" : "hidden"
-        } w-full md:block`}
-      >
+      <div className={`relative ${isSearchOpen ? "block" : "hidden"} w-full md:block`}>
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <SearchIcon className="size-4 text-muted-foreground" />
         </div>
@@ -228,11 +215,7 @@ export function SearchBar({ className }: SearchBarProps) {
       {isSearchOpen && showResults && (
         <div className="fixed inset-0 z-50 bg-background p-4 md:hidden">
           <div className="mb-4 flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSearchOpen(false)}
-            >
+            <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(false)}>
               <span className="sr-only">Close</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -263,54 +246,46 @@ export function SearchBar({ className }: SearchBarProps) {
       )}
 
       {/* Search results dropdown */}
-      {showResults &&
-        (query.length > 1 || results.length > 0) &&
-        !isSearchOpen && (
-          <div
-            ref={resultsRef}
-            className="absolute top-full left-0 z-10 mt-1 w-full overflow-hidden rounded-md border bg-background shadow-md"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center p-4">
-                <Loader2 className="size-5 animate-spin text-muted-foreground" />
-              </div>
-            ) : results.length > 0 ? (
-              <div className="max-h-[300px] overflow-y-auto py-1">
-                {results.map((profile, index) => (
-                  <div
-                    key={profile.id}
-                    className={cn(
-                      "flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-accent",
-                      selectedIndex === index && "bg-accent"
-                    )}
-                    onClick={() => navigateToProfile(profile.handle.localName)}
-                  >
-                    <Avatar className="size-8">
-                      <AvatarImage src={profile.metadata.picture as string} />
-                      <AvatarFallback>
-                        {profile.metadata.displayName
-                          .substring(0, 2)
-                          .toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-medium">
-                        {profile.metadata.displayName}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        @{profile.handle.localName}
-                      </p>
-                    </div>
+      {showResults && (query.length > 1 || results.length > 0) && !isSearchOpen && (
+        <div
+          ref={resultsRef}
+          className="absolute top-full left-0 z-10 mt-1 w-full overflow-hidden rounded-md border bg-background shadow-md"
+        >
+          {loading ? (
+            <div className="flex items-center justify-center p-4">
+              <Loader2 className="size-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : results.length > 0 ? (
+            <div className="max-h-[300px] overflow-y-auto py-1">
+              {results.map((profile, index) => (
+                <div
+                  key={profile.id}
+                  className={cn(
+                    "flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-accent",
+                    selectedIndex === index && "bg-accent",
+                  )}
+                  onClick={() => navigateToProfile(profile.handle.localName)}
+                >
+                  <Avatar className="size-8">
+                    <AvatarImage src={profile.metadata.picture as string} />
+                    <AvatarFallback>
+                      {profile.metadata.displayName.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">{profile.metadata.displayName}</p>
+                    <p className="text-muted-foreground text-sm">@{profile.handle.localName}</p>
                   </div>
-                ))}
-              </div>
-            ) : query.length > 1 ? (
-              <div className="p-4 text-center text-sm text-muted-foreground">
-                No results found for &quot;{query}&quot;
-              </div>
-            ) : null}
-          </div>
-        )}
+                </div>
+              ))}
+            </div>
+          ) : query.length > 1 ? (
+            <div className="p-4 text-center text-muted-foreground text-sm">
+              No results found for &quot;{query}&quot;
+            </div>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }

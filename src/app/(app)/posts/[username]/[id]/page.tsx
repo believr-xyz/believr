@@ -11,11 +11,11 @@ import { formatDistanceToNow } from "date-fns";
 import {
   ArrowLeft,
   BadgeCheck,
+  DollarSign,
   HeartIcon,
   Loader2,
   MessageCircleIcon,
   RefreshCwIcon,
-  DollarSign,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -82,8 +82,7 @@ const MOCK_POST: PostDetail = {
   content:
     "My indie game studio is creating a new story-driven RPG. Early believers get alpha access and in-game recognition!\n\nWe're building a world where your choices truly matter, with branching storylines and dynamic character development. Our team has been working on this concept for over a year, and we're excited to finally share it with the community.\n\nBy believing in this project early, you'll receive:\n- Exclusive alpha access before public release\n- Your name in the game credits as an 'Early Believer'\n- A special in-game item named after you\n- Access to our private Discord for early feedback\n\nJoin us on this journey to create something special!",
   createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-  image:
-    "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1200&auto=format",
+  image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1200&auto=format",
   collectible: {
     price: "10",
     currency: "GHO",
@@ -94,8 +93,7 @@ const MOCK_POST: PostDetail = {
         id: "user-1",
         username: "cryptofan",
         name: "Crypto Fan",
-        avatar:
-          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format",
+        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format",
         collectedAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
         verified: true,
       },
@@ -103,16 +101,14 @@ const MOCK_POST: PostDetail = {
         id: "user-2",
         username: "gamerlover",
         name: "Gamer Enthusiast",
-        avatar:
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format",
         collectedAt: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
       },
       {
         id: "user-3",
         username: "techbuilder",
         name: "Tech Builder",
-        avatar:
-          "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format",
+        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format",
         collectedAt: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
         verified: true,
       },
@@ -122,8 +118,7 @@ const MOCK_POST: PostDetail = {
     id: "creator-2",
     username: "gamerbuild",
     name: "Indie Game Studio",
-    avatar:
-      "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+    avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     bio: "Creating the next generation of story-driven games. Building in public.",
     verified: true,
     stats: {
@@ -140,8 +135,7 @@ const MOCK_POST: PostDetail = {
         id: "user-1",
         username: "cryptofan",
         name: "Crypto Fan",
-        avatar:
-          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format",
+        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format",
         verified: true,
       },
     },
@@ -153,8 +147,7 @@ const MOCK_POST: PostDetail = {
         id: "user-2",
         username: "gamerlover",
         name: "Gamer Enthusiast",
-        avatar:
-          "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format",
+        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format",
       },
     },
   ],
@@ -256,11 +249,7 @@ export default function PostPage() {
           <Card className="overflow-hidden">
             {post.image && (
               <div className="w-full overflow-hidden">
-                <img
-                  src={post.image}
-                  alt={post.title}
-                  className="h-auto w-full object-cover"
-                />
+                <img src={post.image} alt={post.title} className="h-auto w-full object-cover" />
               </div>
             )}
 
@@ -271,67 +260,38 @@ export default function PostPage() {
                     className="size-10 cursor-pointer"
                     onClick={() => router.push(`/u/${post.creator.username}`)}
                   >
-                    <AvatarImage
-                      src={post.creator.avatar}
-                      alt={post.creator.name}
-                    />
-                    <AvatarFallback>
-                      {post.creator.name[0].toUpperCase()}
-                    </AvatarFallback>
+                    <AvatarImage src={post.creator.avatar} alt={post.creator.name} />
+                    <AvatarFallback>{post.creator.name[0].toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-1">
                       <h3
                         className="font-semibold hover:underline"
-                        onClick={() =>
-                          router.push(`/u/${post.creator.username}`)
-                        }
+                        onClick={() => router.push(`/u/${post.creator.username}`)}
                       >
                         {post.creator.name}
                       </h3>
-                      {post.creator.verified && (
-                        <BadgeCheck className="size-4 text-[#00A8FF]" />
-                      )}
+                      {post.creator.verified && <BadgeCheck className="size-4 text-[#00A8FF]" />}
                     </div>
                     <div className="flex items-center gap-1">
-                      <p className="text-muted-foreground text-sm">
-                        @{post.creator.username}
-                      </p>
+                      <p className="text-muted-foreground text-sm">@{post.creator.username}</p>
                       <span className="text-muted-foreground text-xs">•</span>
-                      <span className="text-muted-foreground text-xs">
-                        {timeAgo}
-                      </span>
+                      <span className="text-muted-foreground text-xs">{timeAgo}</span>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground"
-                  >
+                  <Button variant="ghost" size="icon" className="text-muted-foreground">
                     <MessageCircleIcon className="size-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground"
-                  >
+                  <Button variant="ghost" size="icon" className="text-muted-foreground">
                     <RefreshCwIcon className="size-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground"
-                  >
+                  <Button variant="ghost" size="icon" className="text-muted-foreground">
                     <HeartIcon className="size-4" />
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-muted-foreground"
-                  >
+                  <Button variant="ghost" size="icon" className="text-muted-foreground">
                     <DollarSign className="size-4" />
                   </Button>
                   <BookmarkButton postId={post.id} />
@@ -339,9 +299,7 @@ export default function PostPage() {
               </div>
 
               <h1 className="mb-4 font-bold text-2xl">{post.title}</h1>
-              <div className="whitespace-pre-line text-base">
-                {post.content}
-              </div>
+              <div className="whitespace-pre-line text-base">{post.content}</div>
 
               <div className="mt-8">
                 <Tabs defaultValue="comments">

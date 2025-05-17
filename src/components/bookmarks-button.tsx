@@ -20,10 +20,7 @@ export function BookmarksButton({ className }: BookmarksButtonProps) {
         type="button"
         variant="ghost"
         size="icon"
-        className={cn(
-          "relative",
-          isActive && "bg-accent text-accent-foreground"
-        )}
+        className={cn("relative", isActive && "bg-accent text-accent-foreground")}
         asChild
       >
         <Link href="/bookmarks">

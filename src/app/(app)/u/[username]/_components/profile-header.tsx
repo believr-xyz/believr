@@ -104,9 +104,9 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
               <span className="font-semibold">{stats?.graphFollowStats?.following || 0}</span>
               <span className="ml-1 text-muted-foreground">Following</span>
             </div>
-            {/* This is a custom field not in Lens */}
+            {/* Display collects as believers */}
             <div>
-              <span className="font-semibold">0</span>
+              <span className="font-semibold">{stats?.feedStats?.collects || 0}</span>
               <span className="ml-1 text-muted-foreground">Believers</span>
             </div>
           </div>

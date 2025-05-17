@@ -4,10 +4,12 @@ import { PostCard } from "@/app/(app)/feed/_components/post-card";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AnyPost, Post } from "@lens-protocol/client";
 import { AlertCircleIcon } from "lucide-react";
 import { useState } from "react";
 
-interface Post {
+// Use for mock data only - will be replaced with Lens API
+interface MockPost {
   id: string;
   content: string;
   createdAt: Date;
@@ -33,7 +35,7 @@ interface CollectedPostsProps {
 
 export function CollectedPosts({ username, isOwnProfile = false }: CollectedPostsProps) {
   const [isLoading, setIsLoading] = useState(false);
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<MockPost[]>([]);
   const [hasError, setHasError] = useState(false);
 
   // Simulate fetching collected posts - in a real app this would call a Lens API
@@ -41,7 +43,7 @@ export function CollectedPosts({ username, isOwnProfile = false }: CollectedPost
   useState(() => {
     setIsLoading(true);
 
-    // Mock implementation - in real app we'd call Lens API here
+    // Mock implementation - in real implementation this would be populated from Lens API call
     setTimeout(() => {
       try {
         // Test data - in real implementation this would be populated from Lens API call
@@ -123,9 +125,96 @@ export function CollectedPosts({ username, isOwnProfile = false }: CollectedPost
     );
   }
 
+  // Map our mock posts to the structure expected by the Lens AnyPost type
+  const mappedPosts = posts.map((post) => ({
+    __typename: "Post" as const,
+    id: post.id,
+    slug: post.id,
+    isDeleted: false,
+    isEdited: false,
+    timestamp: post.createdAt.toISOString(),
+    contentUri: `lens://contentUri/${post.id}`,
+    snapshotUrl: `https://lens.xyz/snapshot/${post.id}`,
+    app: {
+      __typename: "App" as const,
+      address: "0x0000000000000000000000000000000000000000",
+      metadata: {
+        name: "Believr",
+        logo: "/logo.png",
+      },
+    },
+    author: {
+      address: post.creator.id,
+      metadata: {
+        name: post.creator.name,
+        picture: post.creator.avatar,
+      },
+      username: {
+        value: post.creator.username,
+      },
+    },
+    metadata: {
+      __typename: "TextOnlyMetadata" as const,
+      content: post.content,
+      id: post.id,
+      locale: "en",
+      tags: [],
+      mainContentFocus: "TEXT_ONLY",
+    },
+    stats: {
+      comments: 0,
+      mirrors: 0,
+      quotes: 0,
+      bookmarks: 0,
+      reactions: 0,
+      collects: post.collectible?.collected || 0,
+    },
+    operations: {
+      hasBookmarked: false,
+      hasReacted: false,
+      hasCollected: false,
+      canComment: true,
+      canMirror: true,
+      canCollect: true,
+    },
+    feed: {
+      __typename: "PostFeedInfo",
+      address: "0x0000000000000000000000000000000000000000",
+    },
+    collectibleMetadata: {
+      __typename: "NftMetadata",
+      collection: post.collectible
+        ? {
+            __typename: "NftCollection",
+            name: "Collectibles",
+          }
+        : null,
+      id: post.id,
+    },
+    rules: {
+      __typename: "PostRules",
+      canComment: true,
+      canMirror: true,
+    },
+    mentions: [],
+    actions: post.collectible
+      ? [
+          {
+            __typename: "SimpleCollectAction" as const,
+            collectLimit: post.collectible.total.toString(),
+            followerOnGraph: null,
+            endsAt: null,
+            isImmutable: true,
+            address: post.creator.id,
+            collectNftAddress: null,
+          },
+        ]
+      : [],
+  })) as any as AnyPost[]; // Use type assertion to fix immediate error since the mock data is incomplete
+
   return (
     <div className="space-y-6">
-      {posts.map((post) => (
+      {mappedPosts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
     </div>

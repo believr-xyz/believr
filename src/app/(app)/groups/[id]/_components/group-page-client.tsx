@@ -4,10 +4,40 @@ import { PostCard } from "@/app/(app)/feed/_components/post-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Post } from "@lens-protocol/client";
 import { ArrowLeftIcon, PlusIcon, UsersIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Group } from "../page";
+
+// Create a mapper function to convert group posts to Lens SDK compatible format
+function mapMockPostToLensPost(mockPost: Group["posts"][0]): Post {
+  return {
+    __typename: "Post",
+    id: mockPost.id,
+    author: {
+      address: mockPost.creator.id,
+      metadata: {
+        name: mockPost.creator.name,
+        picture: mockPost.creator.avatar || "",
+      },
+      username: {
+        value: mockPost.creator.handle,
+      },
+    },
+    timestamp: mockPost.createdAt.toISOString(),
+    metadata: {
+      __typename: "TextOnlyMetadata",
+      content: mockPost.content,
+    },
+    stats: {
+      comments: 0,
+      bookmarks: 0,
+      reposts: 0,
+      quotes: 0,
+    },
+  } as Post;
+}
 
 export function GroupPageClient({ group }: { group: Group }) {
   const router = useRouter();
@@ -120,18 +150,7 @@ export function GroupPageClient({ group }: { group: Group }) {
           ) : (
             <div className="space-y-6">
               {group.posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={{
-                    ...post,
-                    creator: {
-                      id: post.creator.id,
-                      username: post.creator.handle,
-                      name: post.creator.name,
-                      avatar: post.creator.avatar,
-                    },
-                  }}
-                />
+                <PostCard key={post.id} post={mapMockPostToLensPost(post)} />
               ))}
             </div>
           )}

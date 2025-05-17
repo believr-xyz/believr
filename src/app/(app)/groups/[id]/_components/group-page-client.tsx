@@ -4,10 +4,40 @@ import { PostCard } from "@/app/(app)/feed/_components/post-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Post } from "@lens-protocol/client";
 import { ArrowLeftIcon, PlusIcon, UsersIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Group } from "../page";
+
+// Create a mapper function to convert group posts to Lens SDK compatible format
+function mapMockPostToLensPost(mockPost: Group["posts"][0]): Post {
+  return {
+    __typename: "Post",
+    id: mockPost.id,
+    author: {
+      address: mockPost.creator.id,
+      metadata: {
+        name: mockPost.creator.name,
+        picture: mockPost.creator.avatar || "",
+      },
+      username: {
+        value: mockPost.creator.handle,
+      },
+    },
+    timestamp: mockPost.createdAt.toISOString(),
+    metadata: {
+      __typename: "TextOnlyMetadata",
+      content: mockPost.content,
+    },
+    stats: {
+      comments: 0,
+      bookmarks: 0,
+      reposts: 0,
+      quotes: 0,
+    },
+  } as Post;
+}
 
 export function GroupPageClient({ group }: { group: Group }) {
   const router = useRouter();
@@ -29,7 +59,11 @@ export function GroupPageClient({ group }: { group: Group }) {
 
   return (
     <div className="container mx-auto max-w-5xl pb-12">
-      <Button variant="ghost" className="mb-6" onClick={() => router.push("/groups")}>
+      <Button
+        variant="ghost"
+        className="mb-6"
+        onClick={() => router.push("/groups")}
+      >
         <ArrowLeftIcon className="mr-2 size-4" />
         Back to Groups
       </Button>
@@ -38,7 +72,11 @@ export function GroupPageClient({ group }: { group: Group }) {
       <div className="relative mb-6 overflow-hidden rounded-xl">
         {group.image && (
           <div className="relative h-[200px] w-full overflow-hidden md:h-[300px]">
-            <img src={group.image} alt={group.name} className="h-full w-full object-cover" />
+            <img
+              src={group.image}
+              alt={group.name}
+              className="h-full w-full object-cover"
+            />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           </div>
         )}
@@ -83,7 +121,11 @@ export function GroupPageClient({ group }: { group: Group }) {
             </CardHeader>
             <CardContent>
               {group.isMember ? (
-                <Button className="w-full" variant="outline" disabled={isJoining}>
+                <Button
+                  className="w-full"
+                  variant="outline"
+                  disabled={isJoining}
+                >
                   Leave Group
                 </Button>
               ) : (
@@ -101,7 +143,12 @@ export function GroupPageClient({ group }: { group: Group }) {
       </div>
 
       {/* Group content tabs */}
-      <Tabs defaultValue="posts" value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs
+        defaultValue="posts"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full"
+      >
         <TabsList className="mb-6 grid w-full grid-cols-2">
           <TabsTrigger value="posts">Posts</TabsTrigger>
           <TabsTrigger value="members">Members</TabsTrigger>
@@ -111,7 +158,9 @@ export function GroupPageClient({ group }: { group: Group }) {
           {group.posts.length === 0 ? (
             <div className="flex flex-col items-center justify-center rounded-lg border p-12 text-center">
               <h3 className="mb-1 font-semibold text-xl">No posts yet</h3>
-              <p className="mb-4 text-muted-foreground">Be the first to post in this group</p>
+              <p className="mb-4 text-muted-foreground">
+                Be the first to post in this group
+              </p>
               <Button className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">
                 <PlusIcon className="mr-2 size-4" />
                 Create Post
@@ -120,18 +169,7 @@ export function GroupPageClient({ group }: { group: Group }) {
           ) : (
             <div className="space-y-6">
               {group.posts.map((post) => (
-                <PostCard
-                  key={post.id}
-                  post={{
-                    ...post,
-                    creator: {
-                      id: post.creator.id,
-                      username: post.creator.handle,
-                      name: post.creator.name,
-                      avatar: post.creator.avatar,
-                    },
-                  }}
-                />
+                <PostCard key={post.id} post={mapMockPostToLensPost(post)} />
               ))}
             </div>
           )}
@@ -139,7 +177,9 @@ export function GroupPageClient({ group }: { group: Group }) {
 
         <TabsContent value="members">
           <div className="flex flex-col items-center justify-center rounded-lg border p-12 text-center">
-            <h3 className="mb-1 font-semibold text-xl">Members feature coming soon</h3>
+            <h3 className="mb-1 font-semibold text-xl">
+              Members feature coming soon
+            </h3>
             <p className="mb-4 text-muted-foreground">
               We're working on integrating this with Lens Protocol
             </p>

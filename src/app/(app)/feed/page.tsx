@@ -3,106 +3,63 @@
 import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageSize, evmAddress } from "@lens-protocol/client";
+import { getLensClient, getPublicClient } from "@/lib/lens/client";
+import { AnyPost, PageSize, Post, evmAddress } from "@lens-protocol/client";
+import { fetchPostsForYou, fetchPostsToExplore } from "@lens-protocol/client/actions";
 import { useAuthenticatedUser, usePosts } from "@lens-protocol/react";
+import { useTimeline } from "@lens-protocol/react";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { FeedSkeleton } from "./_components/feed-skeleton";
 import { PostCard } from "./_components/post-card";
-import { Trending } from "./_components/trending";
+import { type Campaign, type Creator, Trending } from "./_components/trending";
 import { TrendingSkeleton } from "./_components/trending-skeleton";
 
-// Still using mock data for trending section until we implement that
-const MOCK_TRENDING_CREATORS = [
-  {
-    id: "creator-1",
-    name: "Sarah Web3",
-    username: "web3sarah",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
-    stats: {
-      followers: 1245,
-      believers: 78,
-    },
-  },
-  {
-    id: "creator-2",
-    name: "Indie Game Studio",
-    username: "gamerbuild",
-    avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-    stats: {
-      followers: 876,
-      believers: 52,
-    },
-  },
-  {
-    id: "creator-3",
-    name: "Tech Podcaster",
-    username: "techpodcaster",
-    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
-    stats: {
-      followers: 3422,
-      believers: 156,
-    },
-  },
-];
-
-// Mock trending campaigns
-const MOCK_TRENDING_CAMPAIGNS = [
-  {
-    id: "post-1",
-    title: "New SaaS Productivity Tool",
-    creator: {
-      id: "creator-1",
-      name: "Sarah Web3",
-      username: "web3sarah",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
-    },
-    collectible: {
-      price: "5",
-      currency: "GHO",
-      collected: 28,
-      total: 50,
-    },
-  },
-  {
-    id: "post-2",
-    title: "Story-Driven RPG Game",
-    creator: {
-      id: "creator-2",
-      name: "Indie Game Studio",
-      username: "gamerbuild",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-    },
-    collectible: {
-      price: "10",
-      currency: "GHO",
-      collected: 72,
-      total: 100,
-    },
-  },
-  {
-    id: "post-5",
-    title: "Sound Effects Collection for Developers",
-    creator: {
-      id: "creator-2",
-      name: "Indie Game Studio",
-      username: "gamerbuild",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-    },
-    collectible: {
-      price: "5",
-      currency: "GHO",
-      collected: 34,
-      total: 50,
-    },
-  },
-];
-
 function ForYouFeed() {
-  // This tab shows the most recent posts
-  const { data, loading, error } = usePosts({
-    pageSize: PageSize.Ten,
-  });
+  const { data: user } = useAuthenticatedUser();
+  const [posts, setPosts] = useState<AnyPost[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  useEffect(() => {
+    async function loadForYouPosts() {
+      try {
+        setLoading(true);
+        // First try to fetch personalized posts for you if user is authenticated
+        if (user?.address) {
+          const client = await getLensClient();
+          const result = await fetchPostsForYou(client, {
+            account: evmAddress(user.address),
+          });
+
+          if (result.isOk() && result.value?.items?.length) {
+            // Extract the post objects from PostForYou items
+            const forYouPosts = result.value.items.map((item) => item.post);
+            setPosts(forYouPosts as AnyPost[]);
+            return;
+          }
+        }
+
+        // Fallback to explore feed if user not logged in or no personalized posts
+        const publicClient = getPublicClient();
+        const exploreResult = await fetchPostsToExplore(publicClient, {});
+
+        if (exploreResult.isOk()) {
+          setPosts(exploreResult.value?.items as AnyPost[]);
+        } else {
+          setError(new Error(exploreResult.error.message));
+        }
+      } catch (err) {
+        const error = err instanceof Error ? err : new Error("Unknown error");
+        setError(error);
+        console.error("Error fetching for-you posts:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadForYouPosts();
+  }, [user?.address]);
 
   if (loading) {
     return <FeedSkeleton />;
@@ -119,7 +76,7 @@ function ForYouFeed() {
     );
   }
 
-  if (!data?.items.length) {
+  if (!posts.length) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center">
         <p className="mb-3 text-muted-foreground">No posts found</p>
@@ -129,7 +86,7 @@ function ForYouFeed() {
 
   return (
     <div className="flex flex-col gap-4">
-      {data.items.map((post) => (
+      {posts.map((post) => (
         <PostCard key={post.id} post={post} />
       ))}
     </div>
@@ -139,15 +96,9 @@ function ForYouFeed() {
 function FollowingFeed() {
   const { data: user } = useAuthenticatedUser();
 
-  // For authenticated users, we can show posts from followed accounts
-  const { data, loading, error } = usePosts({
-    filter: user?.address
-      ? {
-          // Show posts from accounts that the user follows
-          authors: [evmAddress(user.address)],
-        }
-      : undefined,
-    pageSize: PageSize.Ten,
+  // For authenticated users, show timeline feed (posts from followed accounts)
+  const { data, loading, error } = useTimeline({
+    account: user?.address ? evmAddress(user.address) : undefined,
   });
 
   if (loading) {
@@ -165,26 +116,35 @@ function FollowingFeed() {
     );
   }
 
-  if (!data?.items.length) {
+  if (!data?.items?.length) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center">
         <p className="mb-3 text-muted-foreground">No posts from accounts you follow</p>
+        <p className="text-muted-foreground text-sm">
+          Follow some creators to see their posts here
+        </p>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col gap-4">
-      {data.items.map((post) => (
-        <PostCard key={post.id} post={post} />
+      {data.items.map((timelineItem) => (
+        <PostCard key={timelineItem.primary.id} post={timelineItem.primary} />
       ))}
     </div>
   );
 }
 
 function PopularFeed() {
-  // Show posts with the most recent activity
+  // Show trending/popular posts with appropriate sorting
   const { data, loading, error } = usePosts({
+    // Sort by the most recent and popular posts
+    filter: {
+      metadata: {
+        mainContentFocus: ["IMAGE", "ARTICLE", "TEXT_ONLY", "VIDEO", "AUDIO"],
+      },
+    },
     pageSize: PageSize.Ten,
   });
 
@@ -221,8 +181,101 @@ function PopularFeed() {
 }
 
 function TrendingContent() {
-  // This function would fetch and display trending content from Lens API in a real app
-  return <Trending creators={MOCK_TRENDING_CREATORS} campaigns={MOCK_TRENDING_CAMPAIGNS} />;
+  // Use real Lens data instead of mock data for trending posts
+  const { data, loading, error } = usePosts({
+    filter: {
+      metadata: {
+        // Focus on posts with visual content for trending section
+        mainContentFocus: ["IMAGE", "VIDEO"],
+      },
+    },
+    pageSize: PageSize.Ten,
+  });
+
+  if (loading || error || !data?.items.length) {
+    return <Trending creators={[]} campaigns={[]} />;
+  }
+
+  // Transform Lens posts directly to the component props
+  const trendingPosts: Campaign[] = data.items
+    .filter((post): post is Post => post.__typename === "Post")
+    .slice(0, 5)
+    .map((post) => {
+      // Extract title from post metadata or use content snippet
+      let title = "";
+      if (post.metadata.__typename === "ArticleMetadata") {
+        title = post.metadata.title || "Untitled Post";
+      } else if (post.metadata.__typename === "TextOnlyMetadata") {
+        title = post.metadata.content || "Untitled Post";
+      } else if (post.metadata.__typename === "ImageMetadata" && post.metadata.content) {
+        title = post.metadata.content.slice(0, 50) + "..." || "Untitled Post";
+      } else if (post.metadata.__typename === "VideoMetadata" && post.metadata.content) {
+        title = post.metadata.content.slice(0, 50) + "..." || "Untitled Post";
+      } else if (post.metadata.__typename === "AudioMetadata" && post.metadata.content) {
+        title = post.metadata.content.slice(0, 50) + "..." || "Untitled Post";
+      } else {
+        title = "Untitled Post";
+      }
+
+      // Extract username from profile
+      const username =
+        post.author.username?.value?.split("/").pop() || post.author.address.substring(0, 8);
+
+      // Extract profile picture
+      let picture = "";
+      if (typeof post.author.metadata?.picture === "string") {
+        picture = post.author.metadata.picture;
+      } else if (post.author.metadata?.picture) {
+        picture = post.author.metadata.picture.item || "";
+      }
+
+      return {
+        id: post.id,
+        title: title,
+        creator: {
+          id: post.author.address,
+          name: post.author.metadata?.name || username,
+          username: username,
+          picture: picture,
+        },
+        collectible: {
+          price: "0",
+          currency: "ETH",
+          collected: post.stats.collects || 0,
+          total: 100,
+        },
+      };
+    });
+
+  // Use just the top creators
+  const topCreators: Creator[] = data.items
+    .filter((post): post is Post => post.__typename === "Post")
+    .slice(0, 3)
+    .map((post) => {
+      const author = post.author;
+      const username = author.username?.value?.split("/").pop() || author.address.substring(0, 8);
+
+      // Extract profile picture
+      let picture = "";
+      if (typeof author.metadata?.picture === "string") {
+        picture = author.metadata.picture;
+      } else if (author.metadata?.picture) {
+        picture = author.metadata.picture.item || "";
+      }
+
+      return {
+        id: author.address,
+        name: author.metadata?.name || username,
+        username: username,
+        picture: picture,
+        stats: {
+          followers: 0, // We don't have this data
+          collects: post.stats.collects || 0,
+        },
+      };
+    });
+
+  return <Trending creators={topCreators} campaigns={trendingPosts} />;
 }
 
 export default function FeedPage() {
@@ -248,24 +301,24 @@ export default function FeedPage() {
             onValueChange={setActiveTab}
             className="mt-1 mb-6 w-full md:w-auto"
           >
-            <TabsList className="grid w-full grid-cols-3">
+            <TabsList className="mb-4 grid w-full grid-cols-3">
               <TabsTrigger value="for-you">For You</TabsTrigger>
               <TabsTrigger value="following">Following</TabsTrigger>
               <TabsTrigger value="popular">Popular</TabsTrigger>
             </TabsList>
-          </Tabs>
 
-          <Tabs defaultValue={activeTab} value={activeTab} className="w-full md:w-auto">
             <TabsContent value="for-you">
               <Suspense fallback={<FeedSkeleton />}>
                 <ForYouFeed />
               </Suspense>
             </TabsContent>
+
             <TabsContent value="following">
               <Suspense fallback={<FeedSkeleton />}>
                 <FollowingFeed />
               </Suspense>
             </TabsContent>
+
             <TabsContent value="popular">
               <Suspense fallback={<FeedSkeleton />}>
                 <PopularFeed />
@@ -274,18 +327,11 @@ export default function FeedPage() {
           </Tabs>
         </div>
 
-        {/* Right Sidebar - Sticky */}
+        {/* Sidebar - Right Column (Trending, Recommendations) */}
         <div className="hidden md:block">
-          <div className="sticky top-16 space-y-6">
-            {/* Search bar in the sidebar */}
-            <div className="mt-1">
-              <SearchBar className="w-full" />
-            </div>
-
-            <Suspense fallback={<TrendingSkeleton />}>
-              <TrendingContent />
-            </Suspense>
-          </div>
+          <Suspense fallback={<TrendingSkeleton />}>
+            <TrendingContent />
+          </Suspense>
         </div>
       </div>
     </div>

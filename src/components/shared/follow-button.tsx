@@ -2,6 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuthenticatedUser } from "@lens-protocol/react";
+import { Check, Plus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -57,6 +59,7 @@ export function FollowButton({
 }: FollowButtonProps) {
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
   const [isLoading, setIsLoading] = useState(false);
+  const { data: user } = useAuthenticatedUser();
 
   // Determine button variant based on follow state
   const variant = isFollowing ? "outline" : initialVariant;
@@ -65,17 +68,26 @@ export function FollowButton({
     e.preventDefault();
     e.stopPropagation();
 
+    if (!user?.address) {
+      toast.error("Please sign in to follow users");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // This would be replaced with actual follow/unfollow logic in production
-      await new Promise((resolve) => setTimeout(resolve, 800)); // Simulate API call
+      // TODO: Implement real follow functionality using Lens SDK
+      // This is a placeholder that simulates the behavior
+      await new Promise((resolve) => setTimeout(resolve, 800));
 
       const newIsFollowing = !isFollowing;
       setIsFollowing(newIsFollowing);
 
-      toast.success(isFollowing ? "Unfollowed successfully" : "Followed successfully");
+      if (newIsFollowing) {
+        toast.success(`Followed @${username}`);
+      } else {
+        toast.success(`Unfollowed @${username}`);
+      }
 
-      // Notify parent component if callback provided
       if (onFollowChange) {
         onFollowChange(newIsFollowing);
       }
@@ -92,7 +104,7 @@ export function FollowButton({
       variant={variant}
       size={size}
       onClick={handleFollow}
-      isLoading={isLoading}
+      disabled={isLoading}
       className={cn(
         {
           "bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90": !isFollowing && variant === "default",
@@ -102,7 +114,10 @@ export function FollowButton({
       )}
       {...props}
     >
-      {showText && !isLoading && (isFollowing ? "Following" : "Follow")}
+      {isLoading ? "" : showText ? (isFollowing ? "Following" : "Follow") : null}
+      {!showText &&
+        !isLoading &&
+        (isFollowing ? <Check className="size-4" /> : <Plus className="size-4" />)}
     </Button>
   );
 }

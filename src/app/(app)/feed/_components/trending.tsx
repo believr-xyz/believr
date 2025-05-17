@@ -1,30 +1,30 @@
 "use client";
 
-import { FollowButton } from "@/components/shared/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { ArrowUpRight, TrendingUp } from "lucide-react";
+import Link from "next/link";
 
-interface Creator {
+export interface Creator {
   id: string;
   name: string;
   username: string;
-  avatar?: string;
+  picture: string;
   stats: {
     followers: number;
-    believers: number;
+    collects: number;
   };
 }
 
-interface Campaign {
+export interface Campaign {
   id: string;
   title: string;
   creator: {
     id: string;
     name: string;
     username: string;
-    avatar?: string;
+    picture: string;
   };
   collectible: {
     price: string;
@@ -35,113 +35,134 @@ interface Campaign {
 }
 
 interface TrendingProps {
-  creators?: Creator[];
-  campaigns?: Campaign[];
+  creators: Creator[];
+  campaigns: Campaign[];
 }
 
-export function Trending({ creators = [], campaigns = [] }: TrendingProps) {
-  const router = useRouter();
-
+export function Trending({ creators, campaigns }: TrendingProps) {
   return (
     <div className="space-y-6">
-      {/* Follow Creator (previously Who to Follow) */}
-      <Card className="overflow-hidden">
-        <div className="p-4">
-          <h3 className="mb-4 font-medium text-lg">Follow Creator</h3>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center text-base">
+            <TrendingUp className="mr-2 size-4" />
+            Trending Creators
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-6 pb-4">
           <div className="space-y-4">
             {creators.length === 0 ? (
-              <p className="py-2 text-center text-muted-foreground text-sm">
-                No trending creators yet
-              </p>
+              <div className="py-2 text-center text-muted-foreground text-sm">
+                No trending creators to display
+              </div>
             ) : (
               creators.map((creator) => (
-                <div key={creator.id} className="flex items-center justify-between">
-                  <div
-                    className="flex cursor-pointer items-center gap-3"
-                    onClick={() => router.push(`/u/${creator.username}`)}
-                  >
-                    <Avatar className="size-10">
-                      {creator.avatar ? (
-                        <AvatarImage src={creator.avatar} alt={creator.name} />
-                      ) : (
-                        <AvatarFallback>{creator.name[0]?.toUpperCase() || "?"}</AvatarFallback>
-                      )}
-                    </Avatar>
-                    <div>
-                      <h4 className="font-medium">{creator.name}</h4>
-                      <p className="text-muted-foreground text-xs">@{creator.username}</p>
+                <Link
+                  key={creator.id}
+                  href={`/u/${creator.username}`}
+                  className="flex items-center gap-3"
+                >
+                  <Avatar className="size-9 border">
+                    <AvatarImage src={creator.picture} alt={creator.name} />
+                    <AvatarFallback>{creator.name[0]}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 truncate">
+                    <div className="flex items-center gap-1 truncate">
+                      <span className="truncate font-medium">{creator.name}</span>
+                    </div>
+                    <div className="flex text-muted-foreground text-xs">
+                      <span>@{creator.username}</span>
                     </div>
                   </div>
-                  <FollowButton
-                    userId={creator.id}
-                    username={creator.username}
-                    size="sm"
-                    variant="outline"
-                    rounded
-                    className="h-8 font-medium text-xs"
-                  />
-                </div>
+                  <div className="text-right text-xs">
+                    <p className="font-medium">{creator.stats.collects}</p>
+                    <p className="text-muted-foreground">believers</p>
+                  </div>
+                </Link>
               ))
             )}
           </div>
-        </div>
+        </CardContent>
       </Card>
 
-      {/* Featured Campaigns (previously Hot Campaigns) */}
-      <Card className="overflow-hidden">
-        <div className="p-4">
-          <h3 className="mb-4 font-medium text-lg">Featured</h3>
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center text-base">
+            <TrendingUp className="mr-2 size-4" />
+            Trending Campaigns
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="px-6 pb-4">
           <div className="space-y-4">
             {campaigns.length === 0 ? (
-              <p className="py-2 text-center text-muted-foreground text-sm">
-                No active campaigns yet
-              </p>
+              <div className="py-2 text-center text-muted-foreground text-sm">
+                No trending campaigns to display
+              </div>
             ) : (
               campaigns.map((campaign) => (
-                <div
+                <Link
                   key={campaign.id}
-                  className="cursor-pointer rounded-lg py-2 transition-colors hover:bg-muted/20"
-                  onClick={() => router.push(`/posts/${campaign.creator.username}/${campaign.id}`)}
+                  href={`/posts/${campaign.id}`}
+                  className="group block cursor-pointer pt-1"
                 >
-                  <h4 className="mb-2 font-medium">{campaign.title}</h4>
-                  <div className="mb-2 flex items-center gap-2">
-                    <Avatar className="size-6">
-                      {campaign.creator.avatar ? (
-                        <AvatarImage src={campaign.creator.avatar} alt={campaign.creator.name} />
-                      ) : (
-                        <AvatarFallback>
-                          {campaign.creator.name[0]?.toUpperCase() || "?"}
-                        </AvatarFallback>
-                      )}
+                  <div className="flex items-center gap-2 pb-1">
+                    <Avatar className="size-6 border">
+                      <AvatarImage src={campaign.creator.picture} alt={campaign.creator.name} />
+                      <AvatarFallback>{campaign.creator.name[0]}</AvatarFallback>
                     </Avatar>
-                    <span className="text-xs">{campaign.creator.name}</span>
+                    <span className="text-muted-foreground text-xs">
+                      @{campaign.creator.username}
+                    </span>
                   </div>
-                  <div className="mb-2 flex items-center justify-between text-xs">
-                    <span>
+                  <div className="flex items-center justify-between">
+                    <h3 className="truncate font-medium text-sm group-hover:text-primary">
+                      {campaign.title}
+                    </h3>
+                    <ArrowUpRight className="ml-2 hidden size-3 group-hover:inline" />
+                  </div>
+                  <div className="mt-1 flex items-center justify-between">
+                    <div className="text-muted-foreground text-xs">
+                      <span className="font-medium text-foreground">
+                        {campaign.collectible.collected}
+                      </span>{" "}
+                      of{" "}
+                      <span
+                        className={cn(
+                          "font-medium",
+                          campaign.collectible.collected >= campaign.collectible.total
+                            ? "text-green-500 dark:text-green-400"
+                            : "text-foreground",
+                        )}
+                      >
+                        {campaign.collectible.total}
+                      </span>{" "}
+                      collected
+                    </div>
+                    <div className="font-medium text-xs">
                       {campaign.collectible.price} {campaign.collectible.currency}
-                    </span>
-                    <span className="text-muted-foreground">
-                      {campaign.collectible.collected} / {campaign.collectible.total}
-                    </span>
+                    </div>
                   </div>
-                  <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div className="mt-2 h-1.5 w-full rounded-full bg-muted">
                     <div
-                      className="h-full bg-[#00A8FF]"
+                      className={cn(
+                        "h-1.5 rounded-full",
+                        campaign.collectible.collected >= campaign.collectible.total
+                          ? "bg-green-500"
+                          : "bg-primary",
+                      )}
                       style={{
                         width: `${Math.min(
                           100,
-                          Math.round(
-                            (campaign.collectible.collected / campaign.collectible.total) * 100,
-                          ),
+                          (campaign.collectible.collected / campaign.collectible.total) * 100,
                         )}%`,
                       }}
                     />
                   </div>
-                </div>
+                </Link>
               ))
             )}
           </div>
-        </div>
+        </CardContent>
       </Card>
     </div>
   );

@@ -3,92 +3,114 @@
 import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
 import { getLensClient } from "@/lib/lens/client";
-import { Account, AccountStats, PageSize } from "@lens-protocol/client";
-import { evmAddress } from "@lens-protocol/client";
+import { Account, AccountStats, PageSize, Post, evmAddress } from "@lens-protocol/client";
 import { fetchAccountStats } from "@lens-protocol/client/actions";
 import { useAccount, usePosts } from "@lens-protocol/react";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
-import { Trending } from "../../feed/_components/trending";
+import { type Campaign, type Creator, Trending } from "../../feed/_components/trending";
 import { TrendingSkeleton } from "../../feed/_components/trending-skeleton";
 import { ProfileHeader } from "./_components/profile-header";
 import { ProfileSkeleton } from "./_components/profile-skeleton";
 import { ProfileTabs } from "./_components/profile-tabs";
 
-// Mock data - this will be replaced with real data from the API
-const MOCK_TRENDING_CREATORS = [
-  {
-    id: "creator-1",
-    name: "Sarah Web3",
-    username: "web3sarah",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
-    stats: {
-      followers: 1245,
-      believers: 78,
-    },
-  },
-  {
-    id: "creator-2",
-    name: "Indie Game Studio",
-    username: "gamerbuild",
-    avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-    stats: {
-      followers: 876,
-      believers: 52,
-    },
-  },
-  {
-    id: "creator-3",
-    name: "Tech Podcaster",
-    username: "techpodcaster",
-    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
-    stats: {
-      followers: 3422,
-      believers: 156,
-    },
-  },
-];
-
-// Mock trending campaigns
-const MOCK_TRENDING_CAMPAIGNS = [
-  {
-    id: "post-1",
-    title: "New SaaS Productivity Tool",
-    creator: {
-      id: "creator-1",
-      name: "Sarah Web3",
-      username: "web3sarah",
-      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
-    },
-    collectible: {
-      price: "5",
-      currency: "GHO",
-      collected: 28,
-      total: 50,
-    },
-  },
-  {
-    id: "post-2",
-    title: "Story-Driven RPG Game",
-    creator: {
-      id: "creator-2",
-      name: "Indie Game Studio",
-      username: "gamerbuild",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-    },
-    collectible: {
-      price: "10",
-      currency: "GHO",
-      collected: 72,
-      total: 100,
-    },
-  },
-];
-
 function TrendingContent() {
-  // This function would fetch and display trending content from Lens API in a real app
-  return <Trending creators={MOCK_TRENDING_CREATORS} campaigns={MOCK_TRENDING_CAMPAIGNS} />;
+  // Use real Lens data instead of mock data for trending posts
+  const { data, loading, error } = usePosts({
+    filter: {
+      metadata: {
+        // Focus on posts with visual content for trending section
+        mainContentFocus: ["IMAGE", "VIDEO"],
+      },
+    },
+    pageSize: PageSize.Ten,
+  });
+
+  if (loading || error || !data?.items.length) {
+    return <Trending creators={[]} campaigns={[]} />;
+  }
+
+  // Transform Lens posts directly to the component props
+  const trendingPosts: Campaign[] = data.items
+    .filter((post): post is Post => post.__typename === "Post")
+    .slice(0, 5)
+    .map((post) => {
+      // Extract title from post metadata or use content snippet
+      let title = "";
+      if (post.metadata.__typename === "ArticleMetadata") {
+        title = post.metadata.title || "Untitled Post";
+      } else if (post.metadata.__typename === "TextOnlyMetadata") {
+        title = post.metadata.content || "Untitled Post";
+      } else if (post.metadata.__typename === "ImageMetadata" && post.metadata.content) {
+        title = post.metadata.content.slice(0, 50) + "..." || "Untitled Post";
+      } else if (post.metadata.__typename === "VideoMetadata" && post.metadata.content) {
+        title = post.metadata.content.slice(0, 50) + "..." || "Untitled Post";
+      } else if (post.metadata.__typename === "AudioMetadata" && post.metadata.content) {
+        title = post.metadata.content.slice(0, 50) + "..." || "Untitled Post";
+      } else {
+        title = "Untitled Post";
+      }
+
+      // Extract username from profile
+      const username =
+        post.author.username?.value?.split("/").pop() || post.author.address.substring(0, 8);
+
+      // Extract profile picture
+      let picture = "";
+      if (typeof post.author.metadata?.picture === "string") {
+        picture = post.author.metadata.picture;
+      } else if (post.author.metadata?.picture) {
+        picture = post.author.metadata.picture.item || "";
+      }
+
+      return {
+        id: post.id,
+        title: title,
+        creator: {
+          id: post.author.address,
+          name: post.author.metadata?.name || username,
+          username: username,
+          picture: picture,
+        },
+        collectible: {
+          price: "0",
+          currency: "ETH",
+          collected: post.stats.collects || 0,
+          total: 100,
+        },
+      };
+    });
+
+  // Use just the top creators
+  const topCreators: Creator[] = data.items
+    .filter((post): post is Post => post.__typename === "Post")
+    .slice(0, 3)
+    .map((post) => {
+      const author = post.author;
+      const username = author.username?.value?.split("/").pop() || author.address.substring(0, 8);
+
+      // Extract profile picture
+      let picture = "";
+      if (typeof author.metadata?.picture === "string") {
+        picture = author.metadata.picture;
+      } else if (author.metadata?.picture) {
+        picture = author.metadata.picture.item || "";
+      }
+
+      return {
+        id: author.address,
+        name: author.metadata?.name || username,
+        username: username,
+        picture: picture,
+        stats: {
+          followers: 0, // We don't have this data
+          collects: post.stats.collects || 0,
+        },
+      };
+    });
+
+  return <Trending creators={topCreators} campaigns={trendingPosts} />;
 }
 
 function ProfileContent({ username }: { username: string }) {

@@ -8,7 +8,15 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { AnyPost, Post } from "@lens-protocol/client";
 import { formatDistanceToNow } from "date-fns";
-import { BadgeCheck, DollarSign, HeartIcon, MessageCircleIcon, RefreshCwIcon } from "lucide-react";
+import {
+  BadgeCheck,
+  DollarSign,
+  HeartIcon,
+  MessageCircleIcon,
+  MusicIcon,
+  RefreshCwIcon,
+  VideoIcon,
+} from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -28,35 +36,133 @@ export function PostCard({ post }: PostCardProps) {
 
   // Extract post content based on metadata type
   let content = "";
-  if (typedPost.metadata) {
-    // Handle different metadata types individually
-    if (typedPost.metadata.__typename === "TextOnlyMetadata") {
-      content = typedPost.metadata.content;
-    } else if (typedPost.metadata.__typename === "ArticleMetadata") {
-      content = typedPost.metadata.content;
-    } else if (typedPost.metadata.__typename === "ImageMetadata") {
-      content = typedPost.metadata.content;
-    } else if (typedPost.metadata.__typename === "AudioMetadata") {
-      content = typedPost.metadata.content;
-    } else if (typedPost.metadata.__typename === "VideoMetadata") {
-      // VideoMetadata should have content
-      // @ts-ignore - TypeScript doesn't know about this property
-      content = typedPost.metadata.content || "";
-    } else if (typedPost.metadata.__typename === "LinkMetadata") {
-      // LinkMetadata should have content
-      // @ts-ignore - TypeScript doesn't know about this property
-      content = typedPost.metadata.content || "";
+  try {
+    if (typedPost.metadata) {
+      // Handle different metadata types individually based on their __typename
+      if (typedPost.metadata.__typename === "TextOnlyMetadata") {
+        content = typedPost.metadata.content;
+      } else if (typedPost.metadata.__typename === "ArticleMetadata") {
+        content = typedPost.metadata.content;
+      } else if (typedPost.metadata.__typename === "ImageMetadata") {
+        content = typedPost.metadata.content;
+      } else if (typedPost.metadata.__typename === "AudioMetadata") {
+        content = typedPost.metadata.content;
+      } else if (typedPost.metadata.__typename === "VideoMetadata") {
+        content = typedPost.metadata.content;
+      } else {
+        // For other metadata types, try to access content property safely
+        content = (typedPost.metadata as any)?.content || "";
+      }
     }
-    // Other metadata types may not have content
+  } catch (error) {
+    console.error("Error extracting content from post metadata:", error);
+    content = "";
   }
 
-  // Extract image if post has one
-  let image: string | undefined;
+  // Extract media from the post based on metadata type
+  let mediaElement = null;
+
+  // Handle Image metadata
   if (typedPost.metadata.__typename === "ImageMetadata" && typedPost.metadata.image) {
-    image =
-      typeof typedPost.metadata.image === "string"
-        ? typedPost.metadata.image
-        : typedPost.metadata.image.item;
+    let imageUrl = "";
+    try {
+      imageUrl =
+        typeof typedPost.metadata.image === "string"
+          ? typedPost.metadata.image
+          : typedPost.metadata.image?.item || (typedPost.metadata.image as any)?.raw?.uri || "";
+    } catch (error) {
+      console.error("Error extracting image URL:", error);
+    }
+
+    if (imageUrl) {
+      mediaElement = (
+        <div className="relative mb-3 aspect-video overflow-hidden rounded-lg">
+          <Image
+            src={imageUrl}
+            alt={(typedPost.metadata as any).title || "Post image"}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+        </div>
+      );
+    }
+  }
+
+  // Handle Video metadata
+  else if (typedPost.metadata.__typename === "VideoMetadata" && typedPost.metadata.video) {
+    let videoUrl = "";
+    let posterUrl: string | undefined = undefined;
+
+    try {
+      videoUrl =
+        typeof typedPost.metadata.video === "string"
+          ? typedPost.metadata.video
+          : typedPost.metadata.video?.item || (typedPost.metadata.video as any)?.raw?.uri || "";
+
+      // Get poster if available
+      posterUrl = (typedPost.metadata as any)?.cover
+        ? typeof (typedPost.metadata as any).cover === "string"
+          ? (typedPost.metadata as any).cover
+          : (typedPost.metadata as any).cover?.item || ""
+        : undefined;
+    } catch (error) {
+      console.error("Error extracting video URL:", error);
+    }
+
+    if (videoUrl) {
+      mediaElement = (
+        <div className="mb-3 overflow-hidden rounded-lg">
+          <div className="relative aspect-video">
+            <video
+              src={videoUrl}
+              controls
+              poster={posterUrl}
+              className="h-full w-full object-cover"
+            >
+              <track kind="captions" src="" label="English" srcLang="en" default />
+              Your browser does not support the video element.
+            </video>
+          </div>
+        </div>
+      );
+    } else {
+      // Fallback for when video URL can't be determined
+      mediaElement = (
+        <div className="mb-3 flex aspect-video items-center justify-center rounded-lg bg-muted">
+          <VideoIcon className="size-12 text-muted-foreground" />
+        </div>
+      );
+    }
+  }
+
+  // Handle Audio metadata
+  else if (typedPost.metadata.__typename === "AudioMetadata" && typedPost.metadata.audio) {
+    let audioUrl = "";
+    try {
+      audioUrl =
+        typeof typedPost.metadata.audio === "string"
+          ? typedPost.metadata.audio
+          : typedPost.metadata.audio?.item || (typedPost.metadata.audio as any)?.raw?.uri || "";
+    } catch (error) {
+      console.error("Error extracting audio URL:", error);
+    }
+
+    if (audioUrl) {
+      mediaElement = (
+        <div className="mb-3 rounded-lg border p-4">
+          <div className="mb-2 flex items-center gap-3">
+            <MusicIcon className="size-6 text-primary" />
+            <span className="font-medium">{(typedPost.metadata as any).title || "Audio"}</span>
+          </div>
+          <audio controls className="w-full">
+            <source src={audioUrl} />
+            <track kind="captions" src="" label="English" srcLang="en" default />
+            Your browser does not support the audio element.
+          </audio>
+        </div>
+      );
+    }
   }
 
   // Check if post has a collect action
@@ -81,8 +187,9 @@ export function PostCard({ post }: PostCardProps) {
               src={
                 typeof typedPost.author.metadata?.picture === "string"
                   ? typedPost.author.metadata.picture
-                  : typedPost.author.metadata?.picture?.item
+                  : typedPost.author.metadata?.picture?.item || ""
               }
+              alt={typedPost.author.metadata?.name || username}
             />
             <AvatarFallback>{typedPost.author.metadata?.name?.[0] || username[0]}</AvatarFallback>
           </Avatar>
@@ -106,20 +213,10 @@ export function PostCard({ post }: PostCardProps) {
       </CardHeader>
 
       <CardContent className="pb-3">
-        <div className="mb-3 whitespace-pre-wrap">{content}</div>
+        {content && <div className="mb-3 whitespace-pre-wrap">{content}</div>}
 
-        {/* Image if exists */}
-        {image && (
-          <div className="relative mb-3 aspect-video overflow-hidden rounded-lg">
-            <Image
-              src={image}
-              alt="Post image"
-              fill
-              className="object-cover"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          </div>
-        )}
+        {/* Media element (image, video, audio) */}
+        {mediaElement}
 
         {/* Collectible badge if exists */}
         {hasCollectAction && collectAction.__typename === "SimpleCollectAction" && (
@@ -147,7 +244,10 @@ export function PostCard({ post }: PostCardProps) {
             </Button>
             <Button size="sm" variant="ghost" className="gap-1 px-2 text-muted-foreground">
               <HeartIcon className="size-4" />
-              <span>{typedPost.stats?.bookmarks || 0}</span>
+              <span>
+                {/* Use upvotes instead of reactions which doesn't exist */}
+                {typedPost.stats?.upvotes || 0}
+              </span>
             </Button>
           </div>
 

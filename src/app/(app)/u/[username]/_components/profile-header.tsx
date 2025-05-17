@@ -14,20 +14,12 @@ interface ProfileHeaderProps {
   onFollowChange: (isFollowing: boolean, newFollowerCount: number) => void;
 }
 
-export function ProfileHeader({
-  account,
-  stats,
-  onFollowChange,
-}: ProfileHeaderProps) {
+export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderProps) {
   const router = useRouter();
-  const [followerCount, setFollowerCount] = useState(
-    stats?.graphFollowStats?.followers || 0
-  );
+  const [followerCount, setFollowerCount] = useState(stats?.graphFollowStats?.followers || 0);
 
   const handleFollowChange = (isFollowing: boolean) => {
-    const newFollowerCount = isFollowing
-      ? followerCount + 1
-      : followerCount - 1;
+    const newFollowerCount = isFollowing ? followerCount + 1 : followerCount - 1;
     setFollowerCount(newFollowerCount);
     onFollowChange(isFollowing, newFollowerCount);
   };
@@ -41,26 +33,20 @@ export function ProfileHeader({
   const picture =
     typeof account.metadata?.picture === "string"
       ? account.metadata.picture
-      : account.metadata?.picture?.optimized?.uri ||
-        account.metadata?.picture?.raw?.uri;
+      : account.metadata?.picture?.optimized?.uri || account.metadata?.picture?.raw?.uri;
 
   // Cover picture handling
   const coverPicture =
     typeof account.metadata?.coverPicture === "string"
       ? account.metadata.coverPicture
-      : account.metadata?.coverPicture?.optimized?.uri ||
-        account.metadata?.coverPicture?.raw?.uri;
+      : account.metadata?.coverPicture?.optimized?.uri || account.metadata?.coverPicture?.raw?.uri;
 
   return (
     <div>
       {/* Cover image */}
       <div className="relative mb-8 h-48 w-full overflow-hidden rounded-xl md:h-64">
         {coverPicture ? (
-          <img
-            src={coverPicture}
-            alt="Cover"
-            className="h-full w-full object-cover"
-          />
+          <img src={coverPicture} alt="Cover" className="h-full w-full object-cover" />
         ) : (
           <div className="h-full w-full bg-gradient-to-r from-blue-500 to-purple-500" />
         )}
@@ -69,9 +55,7 @@ export function ProfileHeader({
         <div className="absolute bottom-[-24px] left-4 rounded-full border-4 border-background md:left-8">
           <Avatar className="size-32">
             <AvatarImage src={picture} alt={name} />
-            <AvatarFallback className="text-2xl">
-              {name?.[0] || username[0]}
-            </AvatarFallback>
+            <AvatarFallback className="text-2xl">{name?.[0] || username[0]}</AvatarFallback>
           </Avatar>
         </div>
 
@@ -98,9 +82,7 @@ export function ProfileHeader({
 
           <div className="mt-4 flex flex-wrap gap-8 text-sm md:mt-0">
             <div>
-              <span className="font-semibold">
-                {stats?.feedStats?.posts || 0}
-              </span>
+              <span className="font-semibold">{stats?.feedStats?.posts || 0}</span>
               <span className="ml-1 text-muted-foreground">Posts</span>
             </div>
             <div>
@@ -108,9 +90,7 @@ export function ProfileHeader({
               <span className="ml-1 text-muted-foreground">Followers</span>
             </div>
             <div>
-              <span className="font-semibold">
-                {stats?.graphFollowStats?.following || 0}
-              </span>
+              <span className="font-semibold">{stats?.graphFollowStats?.following || 0}</span>
               <span className="ml-1 text-muted-foreground">Following</span>
             </div>
             {/* This is a custom field not in Lens */}

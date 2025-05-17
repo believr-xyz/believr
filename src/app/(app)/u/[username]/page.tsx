@@ -1,16 +1,16 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { useAccount } from "@lens-protocol/react";
+import { getLensClient } from "@/lib/lens/client";
+import { Account, AccountStats } from "@lens-protocol/client";
 import { fetchAccountStats } from "@lens-protocol/client/actions";
+import { useAccount } from "@lens-protocol/react";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 import { ProfileHeader } from "./_components/profile-header";
 import { ProfileSkeleton } from "./_components/profile-skeleton";
 import { ProfileTabs } from "./_components/profile-tabs";
-import { getLensClient } from "@/lib/lens/client";
-import { Account, AccountStats } from "@lens-protocol/client";
 
 // Mock data for the MVP - will be removed once the posts feature is implemented
 const MOCK_POSTS = [
@@ -19,8 +19,7 @@ const MOCK_POSTS = [
     content:
       "My indie game studio is creating a new story-driven RPG. Early believers get alpha access and in-game recognition!",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-    image:
-      "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format",
+    image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format",
     collectible: {
       price: "10",
       currency: "GHO",
@@ -31,8 +30,7 @@ const MOCK_POSTS = [
       id: "creator-2",
       username: "gamerbuild",
       name: "Indie Game Studio",
-      avatar:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
   {
@@ -40,14 +38,12 @@ const MOCK_POSTS = [
     content:
       "Just released a new demo of our character customization system. Check it out and let us know what you think!",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
-    image:
-      "https://images.unsplash.com/photo-1511882150382-421056c89033?w=800&auto=format",
+    image: "https://images.unsplash.com/photo-1511882150382-421056c89033?w=800&auto=format",
     creator: {
       id: "creator-2",
       username: "gamerbuild",
       name: "Indie Game Studio",
-      avatar:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
   {
@@ -65,8 +61,7 @@ const MOCK_POSTS = [
       id: "creator-2",
       username: "gamerbuild",
       name: "Indie Game Studio",
-      avatar:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
 ];
@@ -118,9 +113,7 @@ function ProfileContent({ username }: { username: string }) {
           setStatsError(result.error);
         }
       } catch (error) {
-        setStatsError(
-          error instanceof Error ? error : new Error(String(error))
-        );
+        setStatsError(error instanceof Error ? error : new Error(String(error)));
       } finally {
         setStatsLoading(false);
       }
@@ -139,10 +132,7 @@ function ProfileContent({ username }: { username: string }) {
     }
   }, [accountError, statsError]);
 
-  const handleFollowChange = (
-    isFollowing: boolean,
-    newFollowerCount: number
-  ) => {
+  const handleFollowChange = (isFollowing: boolean, newFollowerCount: number) => {
     // This will be implemented properly with the follow feature
     // For now, just update the UI state
     if (accountStats) {
@@ -192,18 +182,10 @@ function ProfileContent({ username }: { username: string }) {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <ProfileHeader
-        account={account}
-        stats={accountStats}
-        onFollowChange={handleFollowChange}
-      />
+      <ProfileHeader account={account} stats={accountStats} onFollowChange={handleFollowChange} />
 
       <div className="px-5">
-        <ProfileTabs
-          posts={posts}
-          activeTab={activeTab}
-          onTabChange={handleTabChange}
-        />
+        <ProfileTabs posts={posts} activeTab={activeTab} onTabChange={handleTabChange} />
       </div>
     </div>
   );

@@ -3,9 +3,11 @@
 import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
 import { getLensClient } from "@/lib/lens/client";
-import { Account, AccountStats } from "@lens-protocol/client";
+import { Account, AccountStats, PageSize } from "@lens-protocol/client";
+import { evmAddress } from "@lens-protocol/client";
 import { fetchAccountStats } from "@lens-protocol/client/actions";
-import { useAccount } from "@lens-protocol/react";
+import { AnyPost } from "@lens-protocol/graphql";
+import { useAccount, usePosts } from "@lens-protocol/react";
 import { useParams, useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -85,60 +87,6 @@ const MOCK_TRENDING_CAMPAIGNS = [
   },
 ];
 
-// Mock data for the MVP - will be removed once the posts feature is implemented
-const MOCK_POSTS = [
-  {
-    id: "post-2",
-    content:
-      "My indie game studio is creating a new story-driven RPG. Early believers get alpha access and in-game recognition!",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-    image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format",
-    collectible: {
-      price: "10",
-      currency: "GHO",
-      collected: 72,
-      total: 100,
-    },
-    creator: {
-      id: "creator-2",
-      username: "gamerbuild",
-      name: "Indie Game Studio",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-    },
-  },
-  {
-    id: "post-4",
-    content:
-      "Just released a new demo of our character customization system. Check it out and let us know what you think!",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
-    image: "https://images.unsplash.com/photo-1511882150382-421056c89033?w=800&auto=format",
-    creator: {
-      id: "creator-2",
-      username: "gamerbuild",
-      name: "Indie Game Studio",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-    },
-  },
-  {
-    id: "post-5",
-    content:
-      "Launching our new sound effects collection for game developers. Early believers get exclusive access to premium SFX pack!",
-    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5), // 5 days ago
-    collectible: {
-      price: "5",
-      currency: "GHO",
-      collected: 34,
-      total: 50,
-    },
-    creator: {
-      id: "creator-2",
-      username: "gamerbuild",
-      name: "Indie Game Studio",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-    },
-  },
-];
-
 function TrendingContent() {
   // This function would fetch and display trending content from Lens API in a real app
   return <Trending creators={MOCK_TRENDING_CREATORS} campaigns={MOCK_TRENDING_CAMPAIGNS} />;
@@ -148,7 +96,6 @@ function ProfileContent({ username }: { username: string }) {
   const router = useRouter();
   const [account, setAccount] = useState<Account | null>(null);
   const [accountStats, setAccountStats] = useState<AccountStats | null>(null);
-  const [posts, setPosts] = useState(MOCK_POSTS);
   const [activeTab, setActiveTab] = useState<"posts" | "collectibles">("posts");
 
   // Use the Lens useAccount hook directly
@@ -160,6 +107,20 @@ function ProfileContent({ username }: { username: string }) {
     username: {
       localName: username,
     },
+  });
+
+  // Fetch posts by this user
+  const {
+    data: postsData,
+    loading: postsLoading,
+    error: postsError,
+  } = usePosts({
+    filter: lensAccount
+      ? {
+          authors: [evmAddress(lensAccount.address)],
+        }
+      : undefined,
+    pageSize: PageSize.Ten,
   });
 
   // Fetch account stats separately
@@ -204,11 +165,11 @@ function ProfileContent({ username }: { username: string }) {
 
   // Show error toast if there was a problem fetching the profile
   useEffect(() => {
-    if (accountError || statsError) {
-      console.error("Error loading profile:", accountError || statsError);
+    if (accountError || statsError || postsError) {
+      console.error("Error loading profile data:", accountError || statsError || postsError);
       toast.error("Failed to load profile data");
     }
-  }, [accountError, statsError]);
+  }, [accountError, statsError, postsError]);
 
   const handleFollowChange = (isFollowing: boolean, newFollowerCount: number) => {
     // This will be implemented properly with the follow feature
@@ -276,7 +237,12 @@ function ProfileContent({ username }: { username: string }) {
           />
 
           <div className="mt-6">
-            <ProfileTabs posts={posts} activeTab={activeTab} onTabChange={handleTabChange} />
+            <ProfileTabs
+              posts={postsData?.items || []}
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              loading={postsLoading}
+            />
           </div>
         </div>
 

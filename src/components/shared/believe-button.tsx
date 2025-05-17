@@ -1,125 +1,99 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
-import { AwardIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { CheckCheck, Star } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export interface BelieveButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  /**
-   * The post ID to believe in
-   */
+interface BelieveButtonProps {
   postId: string;
-  /**
-   * The username of the creator (for navigation after collect)
-   */
-  creatorUsername: string;
-  /**
-   * Whether the post is already believed
-   */
-  isBelieved?: boolean;
-  /**
-   * The price to believe (collect)
-   */
-  price?: string;
-  /**
-   * The currency for believing (collecting)
-   */
-  currency?: string;
-  /**
-   * The size of the button
-   */
-  size?: "default" | "sm" | "lg" | "icon";
-  /**
-   * The variant of the button
-   */
-  variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
-  /**
-   * Callback function when believe state changes
-   */
-  onBelieveChange?: (isBelieved: boolean) => void;
-  /**
-   * Whether to show the believe icon
-   */
-  showIcon?: boolean;
+  username: string;
 }
 
-/**
- * A reusable button component for believing in (collecting) posts
- */
-export function BelieveButton({
-  postId,
-  creatorUsername,
-  isBelieved: initialIsBelieved = false,
-  price,
-  currency,
-  size = "default",
-  variant = "default",
-  onBelieveChange,
-  showIcon = true,
-  className,
-  children,
-  ...props
-}: BelieveButtonProps) {
-  const router = useRouter();
-  const [isBelieved, setIsBelieved] = useState(initialIsBelieved);
-  const [isLoading, setIsLoading] = useState(false);
+export function BelieveButton({ postId, username }: BelieveButtonProps) {
+  const [showModal, setShowModal] = useState(false);
+  const [believed, setBelieved] = useState(false);
 
-  const handleBelieve = async (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-
-    if (isBelieved) {
-      // If already believed, navigate to the creator's profile
-      router.push(`/u/${creatorUsername}`);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // This would be replaced with actual collect logic in production
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
-
-      setIsBelieved(true);
-      toast.success("Successfully believed in this post!");
-
-      // Notify parent component if callback provided
-      if (onBelieveChange) {
-        onBelieveChange(true);
-      }
-    } catch (error) {
-      console.error("Error believing in post:", error);
-      toast.error("Failed to believe in post. Please try again.");
-    } finally {
-      setIsLoading(false);
-    }
+  const handleBelieve = () => {
+    // This would be connected to the Lens client in a real implementation
+    // For now, just simulate success
+    setTimeout(() => {
+      setShowModal(false);
+      setBelieved(true);
+      toast.success("You are now an early believer!");
+    }, 1000);
   };
 
-  // Default button text
-  const buttonText = isBelieved
-    ? "View Creator"
-    : price && currency
-      ? `Believe (${price} ${currency})`
-      : "Believe";
+  if (believed) {
+    return (
+      <TooltipProvider>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1 text-green-500 hover:text-green-600"
+            >
+              <CheckCheck className="size-4" />
+              <span>Believed</span>
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p>You're an early believer!</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
 
   return (
-    <Button
-      variant={variant}
-      size={size}
-      onClick={handleBelieve}
-      isLoading={isLoading}
-      className={cn(
-        {
-          "bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90": variant === "default",
-        },
-        className,
-      )}
-      {...props}
-    >
-      {!isLoading && showIcon && !isBelieved && <AwardIcon className="mr-1.5 size-4" />}
-      {children || buttonText}
-    </Button>
+    <>
+      <Button size="sm" variant="default" className="gap-1" onClick={() => setShowModal(true)}>
+        <Star className="size-4" />
+        <span>Believe</span>
+      </Button>
+
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-center">Become an Early Believer</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            <p className="mb-4">
+              You're about to believe in @{username}'s journey! Early believers get special perks
+              and recognition.
+            </p>
+            <ul className="mb-4 space-y-2 text-left">
+              <li className="flex items-center gap-2">
+                <CheckCheck className="size-4 text-green-500" />
+                <span>Early believer badge</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCheck className="size-4 text-green-500" />
+                <span>Priority access to future updates</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <CheckCheck className="size-4 text-green-500" />
+                <span>Shared on-chain proof of belief</span>
+              </li>
+            </ul>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowModal(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleBelieve}>Believe Now</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

@@ -24,8 +24,7 @@ interface AccountSelectorProps {
 // Helper function to add handle property to accounts
 const mapToClientAccount = (account: any): Account => {
   // Extract username from various possible locations
-  const username =
-    account.username?.value?.split("/").pop() || account.username?.localName;
+  const username = account.username?.value?.split("/").pop() || account.username?.localName;
 
   return {
     ...account,
@@ -41,10 +40,9 @@ export function AccountSelector({
   trigger,
 }: AccountSelectorProps) {
   const { data: walletClient } = useWalletClient();
-  const { data: availableAccounts, loading: accountsLoading } =
-    useAccountsAvailable({
-      managedBy: walletClient?.account.address,
-    });
+  const { data: availableAccounts, loading: accountsLoading } = useAccountsAvailable({
+    managedBy: walletClient?.account.address,
+  });
   const { execute: authenticate, loading: authenticateLoading } = useLogin();
   const router = useRouter();
   const wallet = useAccount();
@@ -79,12 +77,10 @@ export function AccountSelector({
       onOpenChange(false);
 
       const foundAccount = availableAccounts?.items.find(
-        (acc) => acc.account.address === account.address
+        (acc) => acc.account.address === account.address,
       )?.account;
 
-      const clientAccount = foundAccount
-        ? mapToClientAccount(foundAccount)
-        : undefined;
+      const clientAccount = foundAccount ? mapToClientAccount(foundAccount) : undefined;
 
       if (onSuccess) {
         onSuccess(clientAccount);
@@ -113,16 +109,12 @@ export function AccountSelector({
             )}
             {availableAccounts && availableAccounts.items.length === 0 && (
               <div className="col-span-3 text-muted-foreground">
-                <p className="text-sm">
-                  No Lens profiles found for this wallet.
-                </p>
+                <p className="text-sm">No Lens profiles found for this wallet.</p>
                 <div className="mt-4">
                   <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() =>
-                      window.open("https://onboarding.lens.xyz/", "_blank")
-                    }
+                    onClick={() => window.open("https://onboarding.lens.xyz/", "_blank")}
                   >
                     Create a Lens profile
                   </Button>
@@ -141,9 +133,7 @@ export function AccountSelector({
                     key={acc.account.address}
                     variant="outline"
                     disabled={authenticateLoading || isCurrentAccount}
-                    onClick={() =>
-                      handleSelectAccount(mapToClientAccount(acc.account))
-                    }
+                    onClick={() => handleSelectAccount(mapToClientAccount(acc.account))}
                     className="flex h-auto flex-col items-center px-2 py-3"
                   >
                     <Avatar className="mb-2 h-10 w-10">
@@ -156,9 +146,7 @@ export function AccountSelector({
                     <span className="w-full truncate text-center text-xs">
                       {acc.account.username?.localName || acc.account.address}
                       {isCurrentAccount && (
-                        <span className="block text-muted-foreground text-xs">
-                          (current)
-                        </span>
+                        <span className="block text-muted-foreground text-xs">(current)</span>
                       )}
                     </span>
                     {authenticateLoading && (

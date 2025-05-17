@@ -46,7 +46,7 @@ export function SearchBar({ className }: SearchBarProps) {
         typeof error === "object" && error !== null
           ? // @ts-ignore - runtime type checking
             error.message || error.error || error.toString()
-          : String(error)
+          : String(error),
       );
     } else {
       setErrorMessage(null);
@@ -91,17 +91,13 @@ export function SearchBar({ className }: SearchBarProps) {
     // Arrow down - move selection down
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((prevIndex) =>
-        prevIndex < results.length - 1 ? prevIndex + 1 : prevIndex
-      );
+      setSelectedIndex((prevIndex) => (prevIndex < results.length - 1 ? prevIndex + 1 : prevIndex));
     }
 
     // Arrow up - move selection up
     else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((prevIndex) =>
-        prevIndex > 0 ? prevIndex - 1 : prevIndex
-      );
+      setSelectedIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : prevIndex));
     }
 
     // Enter - navigate to selected profile
@@ -147,11 +143,7 @@ export function SearchBar({ className }: SearchBarProps) {
       </Button>
 
       {/* Search bar - hidden on mobile unless toggled */}
-      <div
-        className={`relative ${
-          isSearchOpen ? "block" : "hidden"
-        } w-full md:block`}
-      >
+      <div className={`relative ${isSearchOpen ? "block" : "hidden"} w-full md:block`}>
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <SearchIcon className="size-4 text-muted-foreground" />
         </div>
@@ -171,11 +163,7 @@ export function SearchBar({ className }: SearchBarProps) {
       {isSearchOpen && showResults && (
         <div className="fixed inset-0 z-50 bg-background p-4 md:hidden">
           <div className="mb-4 flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsSearchOpen(false)}
-            >
+            <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(false)}>
               <span className="sr-only">Close</span>
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -206,66 +194,52 @@ export function SearchBar({ className }: SearchBarProps) {
       )}
 
       {/* Search results dropdown */}
-      {showResults &&
-        (query.length > 1 || results.length > 0) &&
-        !isSearchOpen && (
-          <div
-            ref={resultsRef}
-            className="absolute top-full left-0 z-10 mt-1 w-full overflow-hidden rounded-md border bg-background shadow-md"
-          >
-            {loading ? (
-              <div className="flex items-center justify-center p-4">
-                <Loader2 className="size-5 animate-spin text-muted-foreground" />
-              </div>
-            ) : results.length > 0 ? (
-              <div className="max-h-[300px] overflow-y-auto py-1">
-                {results.map((account, index) => {
-                  const username = account.username?.value;
-                  const displayName =
-                    account.metadata?.name ||
-                    account.username?.localName ||
-                    "Unknown";
-                  const avatarUrl = account.metadata?.picture || "";
+      {showResults && (query.length > 1 || results.length > 0) && !isSearchOpen && (
+        <div
+          ref={resultsRef}
+          className="absolute top-full left-0 z-10 mt-1 w-full overflow-hidden rounded-md border bg-background shadow-md"
+        >
+          {loading ? (
+            <div className="flex items-center justify-center p-4">
+              <Loader2 className="size-5 animate-spin text-muted-foreground" />
+            </div>
+          ) : results.length > 0 ? (
+            <div className="max-h-[300px] overflow-y-auto py-1">
+              {results.map((account, index) => {
+                const username = account.username?.value;
+                const displayName =
+                  account.metadata?.name || account.username?.localName || "Unknown";
+                const avatarUrl = account.metadata?.picture || "";
 
-                  return (
-                    <div
-                      key={account.address}
-                      className={cn(
-                        "flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-accent",
-                        selectedIndex === index && "bg-accent"
-                      )}
-                      onClick={() => navigateToProfile(username)}
-                    >
-                      <Avatar className="size-8">
-                        <AvatarImage src={avatarUrl} />
-                        <AvatarFallback>
-                          {displayName.substring(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium">{displayName}</p>
-                        {username && (
-                          <p className="text-muted-foreground text-sm">
-                            @{username}
-                          </p>
-                        )}
-                      </div>
+                return (
+                  <div
+                    key={account.address}
+                    className={cn(
+                      "flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-accent",
+                      selectedIndex === index && "bg-accent",
+                    )}
+                    onClick={() => navigateToProfile(username)}
+                  >
+                    <Avatar className="size-8">
+                      <AvatarImage src={avatarUrl} />
+                      <AvatarFallback>{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{displayName}</p>
+                      {username && <p className="text-muted-foreground text-sm">@{username}</p>}
                     </div>
-                  );
-                })}
-              </div>
-            ) : query.length > 1 ? (
-              <div className="p-4 text-center text-muted-foreground text-sm">
-                No results found for &quot;{query}&quot;
-                {errorMessage && (
-                  <p className="mt-1 text-red-500 text-xs">
-                    Error: {errorMessage}
-                  </p>
-                )}
-              </div>
-            ) : null}
-          </div>
-        )}
+                  </div>
+                );
+              })}
+            </div>
+          ) : query.length > 1 ? (
+            <div className="p-4 text-center text-muted-foreground text-sm">
+              No results found for &quot;{query}&quot;
+              {errorMessage && <p className="mt-1 text-red-500 text-xs">Error: {errorMessage}</p>}
+            </div>
+          ) : null}
+        </div>
+      )}
     </div>
   );
 }

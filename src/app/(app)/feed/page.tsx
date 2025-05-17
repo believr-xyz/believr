@@ -3,7 +3,7 @@
 import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { evmAddress, PageSize } from "@lens-protocol/client";
+import { PageSize, evmAddress } from "@lens-protocol/client";
 import { useAuthenticatedUser, usePosts } from "@lens-protocol/react";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useState } from "react";
@@ -18,8 +18,7 @@ const MOCK_TRENDING_CREATORS = [
     id: "creator-1",
     name: "Sarah Web3",
     username: "web3sarah",
-    avatar:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     stats: {
       followers: 1245,
       believers: 78,
@@ -29,8 +28,7 @@ const MOCK_TRENDING_CREATORS = [
     id: "creator-2",
     name: "Indie Game Studio",
     username: "gamerbuild",
-    avatar:
-      "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+    avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     stats: {
       followers: 876,
       believers: 52,
@@ -40,8 +38,7 @@ const MOCK_TRENDING_CREATORS = [
     id: "creator-3",
     name: "Tech Podcaster",
     username: "techpodcaster",
-    avatar:
-      "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
+    avatar: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
     stats: {
       followers: 3422,
       believers: 156,
@@ -58,8 +55,7 @@ const MOCK_TRENDING_CAMPAIGNS = [
       id: "creator-1",
       name: "Sarah Web3",
       username: "web3sarah",
-      avatar:
-        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
     },
     collectible: {
       price: "5",
@@ -75,8 +71,7 @@ const MOCK_TRENDING_CAMPAIGNS = [
       id: "creator-2",
       name: "Indie Game Studio",
       username: "gamerbuild",
-      avatar:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
     collectible: {
       price: "10",
@@ -92,8 +87,7 @@ const MOCK_TRENDING_CAMPAIGNS = [
       id: "creator-2",
       name: "Indie Game Studio",
       username: "gamerbuild",
-      avatar:
-        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
     collectible: {
       price: "5",
@@ -117,7 +111,7 @@ function ForYouFeed() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center">
-        <p className="text-muted-foreground mb-3">Failed to load feed</p>
+        <p className="mb-3 text-muted-foreground">Failed to load feed</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Try again
         </Button>
@@ -128,7 +122,7 @@ function ForYouFeed() {
   if (!data?.items.length) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center">
-        <p className="text-muted-foreground mb-3">No posts found</p>
+        <p className="mb-3 text-muted-foreground">No posts found</p>
       </div>
     );
   }
@@ -163,7 +157,7 @@ function FollowingFeed() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center">
-        <p className="text-muted-foreground mb-3">Failed to load feed</p>
+        <p className="mb-3 text-muted-foreground">Failed to load feed</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Try again
         </Button>
@@ -174,9 +168,7 @@ function FollowingFeed() {
   if (!data?.items.length) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center">
-        <p className="text-muted-foreground mb-3">
-          No posts from accounts you follow
-        </p>
+        <p className="mb-3 text-muted-foreground">No posts from accounts you follow</p>
       </div>
     );
   }
@@ -203,7 +195,7 @@ function PopularFeed() {
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center">
-        <p className="text-muted-foreground mb-3">Failed to load feed</p>
+        <p className="mb-3 text-muted-foreground">Failed to load feed</p>
         <Button variant="outline" onClick={() => window.location.reload()}>
           Try again
         </Button>
@@ -214,7 +206,7 @@ function PopularFeed() {
   if (!data?.items.length) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center">
-        <p className="text-muted-foreground mb-3">No popular posts found</p>
+        <p className="mb-3 text-muted-foreground">No popular posts found</p>
       </div>
     );
   }
@@ -230,19 +222,14 @@ function PopularFeed() {
 
 function TrendingContent() {
   // This function would fetch and display trending content from Lens API in a real app
-  return (
-    <Trending
-      creators={MOCK_TRENDING_CREATORS}
-      campaigns={MOCK_TRENDING_CAMPAIGNS}
-    />
-  );
+  return <Trending creators={MOCK_TRENDING_CREATORS} campaigns={MOCK_TRENDING_CAMPAIGNS} />;
 }
 
 export default function FeedPage() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState<string>(
-    tabParam === "following" || tabParam === "popular" ? tabParam : "for-you"
+    tabParam === "following" || tabParam === "popular" ? tabParam : "for-you",
   );
 
   return (
@@ -268,11 +255,7 @@ export default function FeedPage() {
             </TabsList>
           </Tabs>
 
-          <Tabs
-            defaultValue={activeTab}
-            value={activeTab}
-            className="w-full md:w-auto"
-          >
+          <Tabs defaultValue={activeTab} value={activeTab} className="w-full md:w-auto">
             <TabsContent value="for-you">
               <Suspense fallback={<FeedSkeleton />}>
                 <ForYouFeed />

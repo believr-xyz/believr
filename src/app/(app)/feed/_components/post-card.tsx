@@ -5,21 +5,10 @@ import { BookmarkToggleButton } from "@/components/shared/bookmark-toggle-button
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { AnyPost, Post } from "@lens-protocol/client";
 import { formatDistanceToNow } from "date-fns";
-import {
-  BadgeCheck,
-  DollarSign,
-  HeartIcon,
-  MessageCircleIcon,
-  RefreshCwIcon,
-} from "lucide-react";
+import { BadgeCheck, DollarSign, HeartIcon, MessageCircleIcon, RefreshCwIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -63,10 +52,7 @@ export function PostCard({ post }: PostCardProps) {
 
   // Extract image if post has one
   let image: string | undefined;
-  if (
-    typedPost.metadata.__typename === "ImageMetadata" &&
-    typedPost.metadata.image
-  ) {
+  if (typedPost.metadata.__typename === "ImageMetadata" && typedPost.metadata.image) {
     image =
       typeof typedPost.metadata.image === "string"
         ? typedPost.metadata.image
@@ -75,7 +61,7 @@ export function PostCard({ post }: PostCardProps) {
 
   // Check if post has a collect action
   const collectAction = typedPost.actions?.find(
-    (action) => action.__typename === "SimpleCollectAction"
+    (action) => action.__typename === "SimpleCollectAction",
   );
   const hasCollectAction = !!collectAction;
 
@@ -84,8 +70,7 @@ export function PostCard({ post }: PostCardProps) {
 
   // Get username without namespace
   const username =
-    typedPost.author.username?.value?.split("/").pop() ||
-    typedPost.author.address.substring(0, 8);
+    typedPost.author.username?.value?.split("/").pop() || typedPost.author.address.substring(0, 8);
 
   return (
     <Card className="overflow-hidden">
@@ -99,9 +84,7 @@ export function PostCard({ post }: PostCardProps) {
                   : typedPost.author.metadata?.picture?.item
               }
             />
-            <AvatarFallback>
-              {typedPost.author.metadata?.name?.[0] || username[0]}
-            </AvatarFallback>
+            <AvatarFallback>{typedPost.author.metadata?.name?.[0] || username[0]}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <div className="flex items-center gap-1">
@@ -139,46 +122,30 @@ export function PostCard({ post }: PostCardProps) {
         )}
 
         {/* Collectible badge if exists */}
-        {hasCollectAction &&
-          collectAction.__typename === "SimpleCollectAction" && (
-            <div className="mt-3">
-              <Badge variant="outline" className="flex gap-1 px-2 py-1">
-                <DollarSign className="size-3" />
-                <span>Collectible</span>
-                <span>•</span>
-                <span>{collectAction.collectLimit || "∞"} available</span>
-              </Badge>
-            </div>
-          )}
+        {hasCollectAction && collectAction.__typename === "SimpleCollectAction" && (
+          <div className="mt-3">
+            <Badge variant="outline" className="flex gap-1 px-2 py-1">
+              <DollarSign className="size-3" />
+              <span>Collectible</span>
+              <span>•</span>
+              <span>{collectAction.collectLimit || "∞"} available</span>
+            </Badge>
+          </div>
+        )}
       </CardContent>
 
       <CardFooter className="pt-0">
         <div className="flex w-full items-center justify-between">
           <div className="flex gap-4">
-            <Button
-              size="sm"
-              variant="ghost"
-              className="gap-1 px-2 text-muted-foreground"
-            >
+            <Button size="sm" variant="ghost" className="gap-1 px-2 text-muted-foreground">
               <MessageCircleIcon className="size-4" />
               <span>{typedPost.stats?.comments || 0}</span>
             </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="gap-1 px-2 text-muted-foreground"
-            >
+            <Button size="sm" variant="ghost" className="gap-1 px-2 text-muted-foreground">
               <RefreshCwIcon className="size-4" />
-              <span>
-                {(typedPost.stats?.reposts || 0) +
-                  (typedPost.stats?.quotes || 0)}
-              </span>
+              <span>{(typedPost.stats?.reposts || 0) + (typedPost.stats?.quotes || 0)}</span>
             </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="gap-1 px-2 text-muted-foreground"
-            >
+            <Button size="sm" variant="ghost" className="gap-1 px-2 text-muted-foreground">
               <HeartIcon className="size-4" />
               <span>{typedPost.stats?.bookmarks || 0}</span>
             </Button>
@@ -186,9 +153,7 @@ export function PostCard({ post }: PostCardProps) {
 
           <div className="flex gap-2">
             <BookmarkToggleButton postId={typedPost.id} />
-            {hasCollectAction && (
-              <BelieveButton postId={typedPost.id} username={username} />
-            )}
+            {hasCollectAction && <BelieveButton postId={typedPost.id} username={username} />}
           </div>
         </div>
       </CardFooter>

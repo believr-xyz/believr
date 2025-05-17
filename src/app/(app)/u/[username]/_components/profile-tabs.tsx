@@ -30,11 +30,7 @@ interface ProfileTabsProps {
   onTabChange?: (tab: string) => void;
 }
 
-export function ProfileTabs({
-  posts,
-  activeTab = "posts",
-  onTabChange,
-}: ProfileTabsProps) {
+export function ProfileTabs({ posts, activeTab = "posts", onTabChange }: ProfileTabsProps) {
   const router = useRouter();
   const collectiblePosts = posts.filter((post) => post.collectible);
 

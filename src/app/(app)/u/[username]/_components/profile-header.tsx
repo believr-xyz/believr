@@ -1,8 +1,8 @@
 "use client";
 
+import { FollowButton } from "@/components/shared/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { BadgeCheck, ExternalLink, Loader2, MapPin } from "lucide-react";
+import { ExternalLink, MapPin } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -31,38 +31,21 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ profile, onFollowChange }: ProfileHeaderProps) {
   const router = useRouter();
-  const [isFollowing, setIsFollowing] = useState(profile.isFollowing || false);
-  const [isFollowLoading, setIsFollowLoading] = useState(false);
   const [followerCount, setFollowerCount] = useState(profile.stats.followers);
 
-  const handleFollow = async () => {
-    setIsFollowLoading(true);
-    try {
-      // This would be replaced with actual follow/unfollow logic in production
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate transaction
+  const handleFollowChange = (isFollowing: boolean) => {
+    const newFollowerCount = isFollowing ? followerCount + 1 : followerCount - 1;
 
-      const newIsFollowing = !isFollowing;
-      const newFollowerCount = isFollowing ? followerCount - 1 : followerCount + 1;
+    setFollowerCount(newFollowerCount);
 
-      setIsFollowing(newIsFollowing);
-      setFollowerCount(newFollowerCount);
-
-      toast.success(isFollowing ? "Unfollowed successfully" : "Followed successfully");
-
-      // Notify parent component
-      onFollowChange(newIsFollowing, newFollowerCount);
-    } catch (error) {
-      console.error("Error following/unfollowing:", error);
-      toast.error("Failed to update follow status. Please try again.");
-    } finally {
-      setIsFollowLoading(false);
-    }
+    // Notify parent component
+    onFollowChange(isFollowing, newFollowerCount);
   };
 
   return (
     <div>
       {/* Cover image */}
-      <div className="relative mb-16 h-48 w-full overflow-hidden rounded-xl md:h-64">
+      <div className="relative mb-8 h-48 w-full overflow-hidden rounded-xl md:h-64">
         {profile.coverImage ? (
           <img src={profile.coverImage} alt="Cover" className="h-full w-full object-cover" />
         ) : (
@@ -70,7 +53,7 @@ export function ProfileHeader({ profile, onFollowChange }: ProfileHeaderProps) {
         )}
 
         {/* Profile avatar - positioned to overlap cover and content */}
-        <div className="-bottom-16 absolute left-4 rounded-full border-4 border-background md:left-8">
+        <div className="absolute bottom-[-24px] left-4 rounded-full border-4 border-background md:left-8">
           <Avatar className="size-32">
             <AvatarImage src={profile.avatar} alt={profile.name} />
             <AvatarFallback className="text-2xl">{profile.name[0]}</AvatarFallback>
@@ -79,18 +62,12 @@ export function ProfileHeader({ profile, onFollowChange }: ProfileHeaderProps) {
 
         {/* Follow button */}
         <div className="absolute right-4 bottom-4 md:right-8">
-          <Button
-            onClick={handleFollow}
-            disabled={isFollowLoading}
-            className={
-              isFollowing
-                ? "bg-background text-foreground hover:bg-muted"
-                : "bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
-            }
-          >
-            {isFollowLoading ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
-            {isFollowing ? "Following" : "Follow"}
-          </Button>
+          <FollowButton
+            userId={profile.id}
+            username={profile.username}
+            isFollowing={profile.isFollowing}
+            onFollowChange={handleFollowChange}
+          />
         </div>
       </div>
 
@@ -100,7 +77,6 @@ export function ProfileHeader({ profile, onFollowChange }: ProfileHeaderProps) {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="font-bold text-2xl">{profile.name}</h1>
-              {profile.verified && <BadgeCheck className="size-5 text-[#00A8FF]" />}
             </div>
             <p className="text-muted-foreground">@{profile.username}</p>
           </div>

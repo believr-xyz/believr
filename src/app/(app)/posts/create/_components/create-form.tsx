@@ -22,7 +22,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ImageIcon, Loader2 } from "lucide-react";
+import { ImageIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
@@ -234,7 +234,7 @@ export function CreateForm() {
                 isLoading={isSubmitting}
                 className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
               >
-                {isSubmitting ? "Publishing..." : "Publish Post"}
+                Publish Post
               </Button>
             </div>
           </form>

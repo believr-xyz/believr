@@ -4,10 +4,10 @@ import { Account } from "@lens-protocol/client";
 import { useAccountsAvailable, useLogin } from "@lens-protocol/react";
 import { useRouter } from "next/navigation";
 import { useAccount, useWalletClient } from "wagmi";
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { Button } from "./ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
-import { ScrollArea } from "./ui/scroll-area";
+import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
+import { ScrollArea } from "../ui/scroll-area";
 
 import { ConnectKitButton } from "connectkit";
 import { Loader2 } from "lucide-react";

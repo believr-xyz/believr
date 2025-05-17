@@ -24,17 +24,19 @@ interface Comment {
 interface CommentSectionProps {
   postId: string;
   comments: Comment[];
-  onCommentAdded: (newComment: Comment) => void;
+  onCommentAdded: (comment: Comment) => void;
 }
 
 export function CommentSection({ postId, comments, onCommentAdded }: CommentSectionProps) {
   const router = useRouter();
   const [commentText, setCommentText] = useState("");
+  const [isCommenting, setIsCommenting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentText.trim()) return;
 
+    setIsCommenting(true);
     try {
       // This would be replaced with actual comment creation in production
       await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
@@ -62,6 +64,8 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
     } catch (error) {
       console.error("Error posting comment:", error);
       toast.error("Failed to post comment. Please try again.");
+    } finally {
+      setIsCommenting(false);
     }
   };
 
@@ -89,7 +93,8 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
               <Button
                 type="submit"
                 size="sm"
-                disabled={!commentText.trim()}
+                disabled={!commentText.trim() || isCommenting}
+                isLoading={isCommenting}
                 className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
               >
                 Comment

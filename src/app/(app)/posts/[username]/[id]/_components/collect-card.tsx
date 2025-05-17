@@ -1,11 +1,11 @@
 "use client";
 
+import { BelieveButton } from "@/components/shared/believe-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { BadgeCheck, Loader2 } from "lucide-react";
+import { BadgeCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -52,35 +52,17 @@ export function CollectCard({
   onCollect,
 }: CollectCardProps) {
   const router = useRouter();
-  const [isCollecting, setIsCollecting] = useState(false);
   const [hasCollected, setHasCollected] = useState(false);
 
   // Calculate collection progress
   const percentCollected = Math.min(100, Math.round((collected / total) * 100));
 
-  const handleCollect = async () => {
-    if (hasCollected) {
-      router.push(`/u/${creator.username}`);
-      return;
-    }
+  const handleCollectStateChange = (isBelieved: boolean) => {
+    setHasCollected(isBelieved);
 
-    setIsCollecting(true);
-    try {
-      // This would be replaced with actual Lens collect logic in production
-      await new Promise((resolve) => setTimeout(resolve, 1500)); // Simulate transaction
-
-      toast.success("Successfully collected this post!");
-      setHasCollected(true);
-
-      // Notify parent component
-      if (onCollect) {
-        onCollect();
-      }
-    } catch (error) {
-      console.error("Error collecting post:", error);
-      toast.error("Failed to collect post. Please try again.");
-    } finally {
-      setIsCollecting(false);
+    // Notify parent component
+    if (onCollect && isBelieved) {
+      onCollect();
     }
   };
 
@@ -145,24 +127,15 @@ export function CollectCard({
         <Separator className="my-4" />
 
         {/* Collect button */}
-        <Button
-          className="w-full bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
-          onClick={handleCollect}
-          disabled={isCollecting}
-        >
-          {isCollecting ? (
-            <>
-              <Loader2 className="mr-2 size-4 animate-spin" />
-              Processing...
-            </>
-          ) : hasCollected ? (
-            "View Creator Profile"
-          ) : (
-            <>
-              Believe ({price} {currency})
-            </>
-          )}
-        </Button>
+        <BelieveButton
+          postId={postId}
+          creatorUsername={creator.username}
+          isBelieved={hasCollected}
+          price={price}
+          currency={currency}
+          className="w-full"
+          onBelieveChange={handleCollectStateChange}
+        />
 
         {/* Benefits */}
         <div className="mt-4">

@@ -182,7 +182,7 @@ export function SearchBar({ className }: SearchBarProps) {
   };
 
   return (
-    <div className={cn("relative", className)}>
+    <div className={cn("relative w-full", className)}>
       {/* Mobile search icon button */}
       <Button
         variant="ghost"
@@ -195,7 +195,7 @@ export function SearchBar({ className }: SearchBarProps) {
       </Button>
 
       {/* Search bar - hidden on mobile unless toggled */}
-      <div className={`relative ${isSearchOpen ? "block" : "hidden"} md:block`}>
+      <div className={`relative ${isSearchOpen ? "block" : "hidden"} w-full md:block`}>
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
           <SearchIcon className="size-4 text-muted-foreground" />
         </div>
@@ -206,8 +206,8 @@ export function SearchBar({ className }: SearchBarProps) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setShowResults(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search..."
-          className="h-9 w-full pl-10 text-sm focus-visible:ring-[#00A8FF]/50 md:w-[280px]"
+          placeholder="Search Creators & Campaigns..."
+          className="h-10 w-full rounded-md border-border/60 bg-background pl-10 text-sm shadow-sm focus-visible:border-[#00A8FF]/30 focus-visible:ring-[#00A8FF]/20"
         />
       </div>
 
@@ -249,88 +249,39 @@ export function SearchBar({ className }: SearchBarProps) {
       {showResults && (query.length > 1 || results.length > 0) && !isSearchOpen && (
         <div
           ref={resultsRef}
-          className="absolute z-10 mt-1 w-full overflow-hidden rounded-md bg-popover shadow-md"
+          className="absolute top-full left-0 z-10 mt-1 w-full overflow-hidden rounded-md border bg-background shadow-md"
         >
-          {loading ? (
-            <div className="flex items-center justify-center p-4">
-              <Loader2 className="size-4 animate-spin text-muted-foreground" />
-            </div>
-          ) : results.length > 0 ? (
-            <ul className="py-1">
-              {results.map((profile, index) => (
-                <li
-                  key={profile.id}
-                  className={`cursor-pointer px-3 py-2 hover:bg-accent ${
-                    index === selectedIndex ? "bg-accent" : ""
-                  }`}
-                  onClick={() => navigateToProfile(profile.handle.localName)}
-                  onMouseEnter={() => setSelectedIndex(index)}
-                >
-                  <div className="flex items-center gap-2">
-                    <Avatar className="h-6 w-6">
-                      <AvatarImage src={profile.metadata.picture} />
-                      <AvatarFallback>
-                        {profile.handle.localName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-sm">{profile.metadata.displayName}</span>
-                      <span className="text-muted-foreground text-xs">
-                        @{profile.handle.localName}
-                      </span>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          ) : query.length > 1 ? (
-            <div className="px-3 py-4 text-center text-muted-foreground text-sm">
-              No users found
-            </div>
-          ) : null}
-        </div>
-      )}
-
-      {/* Mobile search results - full screen */}
-      {isSearchOpen && showResults && (query.length > 1 || results.length > 0) && (
-        <div className="fixed inset-0 top-16 z-50 bg-background p-4 md:hidden">
           {loading ? (
             <div className="flex items-center justify-center p-4">
               <Loader2 className="size-5 animate-spin text-muted-foreground" />
             </div>
           ) : results.length > 0 ? (
-            <ul className="space-y-3">
+            <div className="max-h-[300px] overflow-y-auto py-1">
               {results.map((profile, index) => (
-                <li
+                <div
                   key={profile.id}
-                  className={`cursor-pointer rounded-lg p-3 hover:bg-accent ${
-                    index === selectedIndex ? "bg-accent" : ""
-                  }`}
+                  className={cn(
+                    "flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-accent",
+                    selectedIndex === index && "bg-accent",
+                  )}
                   onClick={() => navigateToProfile(profile.handle.localName)}
                 >
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10">
-                      <AvatarImage src={profile.metadata.picture} />
-                      <AvatarFallback>
-                        {profile.handle.localName.charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col">
-                      <span className="font-medium">{profile.metadata.displayName}</span>
-                      <span className="text-muted-foreground text-sm">
-                        @{profile.handle.localName}
-                      </span>
-                    </div>
+                  <Avatar className="size-8">
+                    <AvatarImage src={profile.metadata.picture as string} />
+                    <AvatarFallback>
+                      {profile.metadata.displayName.substring(0, 2).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-medium">{profile.metadata.displayName}</p>
+                    <p className="text-muted-foreground text-sm">@{profile.handle.localName}</p>
                   </div>
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           ) : query.length > 1 ? (
-            <div className="flex h-full items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <p>No users found</p>
-                <p className="mt-1 text-sm">Try searching with a different term</p>
-              </div>
+            <div className="p-4 text-center text-muted-foreground text-sm">
+              No results found for &quot;{query}&quot;
             </div>
           ) : null}
         </div>

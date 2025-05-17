@@ -1,10 +1,10 @@
 "use client";
 
+import { Login } from "@/components/auth/login";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
-import { Loader } from "@/components/loader";
-import { Login } from "@/components/login";
 import { Badge } from "@/components/ui/badge";
+import { Loader } from "@/components/ui/loader";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { motion } from "framer-motion";
 import Image from "next/image";

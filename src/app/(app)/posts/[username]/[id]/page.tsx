@@ -1,6 +1,6 @@
 "use client";
 
-import { BookmarkButton } from "@/app/(app)/bookmarks/_components/bookmark-button";
+import { BookmarkToggleButton } from "@/components/shared/bookmark-toggle-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,11 +11,11 @@ import { formatDistanceToNow } from "date-fns";
 import {
   ArrowLeft,
   BadgeCheck,
+  DollarSign,
   HeartIcon,
   Loader2,
   MessageCircleIcon,
   RefreshCwIcon,
-  ShareIcon,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -283,15 +283,18 @@ export default function PostPage() {
 
                 <div className="flex items-center gap-2">
                   <Button variant="ghost" size="icon" className="text-muted-foreground">
-                    <HeartIcon className="size-4" />
+                    <MessageCircleIcon className="size-4" />
                   </Button>
                   <Button variant="ghost" size="icon" className="text-muted-foreground">
                     <RefreshCwIcon className="size-4" />
                   </Button>
                   <Button variant="ghost" size="icon" className="text-muted-foreground">
-                    <ShareIcon className="size-4" />
+                    <HeartIcon className="size-4" />
                   </Button>
-                  <BookmarkButton postId={post.id} />
+                  <Button variant="ghost" size="icon" className="text-muted-foreground">
+                    <DollarSign className="size-4" />
+                  </Button>
+                  <BookmarkToggleButton postId={post.id} />
                 </div>
               </div>
 
@@ -309,7 +312,7 @@ export default function PostPage() {
                       <Badge className="mr-2 bg-[#00A8FF]">
                         {post.collectible.collectors.length}
                       </Badge>
-                      Collectors
+                      Believers
                     </TabsTrigger>
                   </TabsList>
                   <Separator className="my-4" />

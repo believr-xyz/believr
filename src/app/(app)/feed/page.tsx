@@ -1,9 +1,8 @@
 "use client";
 
+import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlusIcon, SparklesIcon } from "lucide-react";
 import Link from "next/link";
 import { Suspense } from "react";
 import { useState } from "react";
@@ -173,38 +172,25 @@ export default function FeedPage() {
 
   return (
     <div className="container mx-auto max-w-5xl pb-12">
-      <div className="grid grid-cols-1 gap-10 md:grid-cols-3">
+      {/* Mobile Search - Only visible on mobile */}
+      <div className="mb-6 block md:hidden">
+        <SearchBar className="w-full" />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
+        {/* Main Content - Left Column (Scrollable) */}
         <div className="md:col-span-2">
-          <Tabs defaultValue="for-you" onValueChange={setActiveTab} className="w-full md:w-auto">
-            <TabsList className="mb-6 grid w-full grid-cols-3">
+          <Tabs
+            defaultValue="for-you"
+            onValueChange={setActiveTab}
+            className="mt-1 mb-6 w-full md:w-auto"
+          >
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="for-you">For You</TabsTrigger>
               <TabsTrigger value="following">Following</TabsTrigger>
               <TabsTrigger value="popular">Popular</TabsTrigger>
             </TabsList>
           </Tabs>
-
-          {/* Create Campaign Card */}
-          <Card className="mb-8 overflow-hidden border-[#00A8FF]/20 bg-gradient-to-br from-[#00A8FF]/5 to-[#00A8FF]/10">
-            <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00A8FF]/20">
-                  <SparklesIcon className="size-5 text-[#00A8FF]" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">Create a tokenized post</h3>
-                  <p className="text-muted-foreground text-sm">
-                    Launch a campaign for your believers to support
-                  </p>
-                </div>
-              </div>
-              <Button asChild className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90">
-                <Link href="/posts/create">
-                  <PlusIcon className="mr-2 size-4" />
-                  Create Campaign
-                </Link>
-              </Button>
-            </div>
-          </Card>
 
           <Tabs defaultValue="for-you" value={activeTab} className="w-full md:w-auto">
             <TabsContent value="for-you">
@@ -225,10 +211,18 @@ export default function FeedPage() {
           </Tabs>
         </div>
 
+        {/* Right Sidebar - Sticky */}
         <div className="hidden md:block">
-          <Suspense fallback={<TrendingSkeleton />}>
-            <TrendingContent />
-          </Suspense>
+          <div className="sticky top-16 space-y-6">
+            {/* Search bar in the sidebar */}
+            <div className="mt-1">
+              <SearchBar className="w-full" />
+            </div>
+
+            <Suspense fallback={<TrendingSkeleton />}>
+              <TrendingContent />
+            </Suspense>
+          </div>
         </div>
       </div>
     </div>

@@ -11,6 +11,84 @@ import { toast } from "sonner";
 import { ProfileHeader } from "./_components/profile-header";
 import { ProfileSkeleton } from "./_components/profile-skeleton";
 import { ProfileTabs } from "./_components/profile-tabs";
+import { SearchBar } from "@/components/shared/search-bar";
+import { Trending } from "../../feed/_components/trending";
+import { TrendingSkeleton } from "../../feed/_components/trending-skeleton";
+
+// Mock data - this will be replaced with real data from the API
+const MOCK_TRENDING_CREATORS = [
+  {
+    id: "creator-1",
+    name: "Sarah Web3",
+    username: "web3sarah",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+    stats: {
+      followers: 1245,
+      believers: 78,
+    },
+  },
+  {
+    id: "creator-2",
+    name: "Indie Game Studio",
+    username: "gamerbuild",
+    avatar:
+      "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+    stats: {
+      followers: 876,
+      believers: 52,
+    },
+  },
+  {
+    id: "creator-3",
+    name: "Tech Podcaster",
+    username: "techpodcaster",
+    avatar:
+      "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=400&auto=format",
+    stats: {
+      followers: 3422,
+      believers: 156,
+    },
+  },
+];
+
+// Mock trending campaigns
+const MOCK_TRENDING_CAMPAIGNS = [
+  {
+    id: "post-1",
+    title: "New SaaS Productivity Tool",
+    creator: {
+      id: "creator-1",
+      name: "Sarah Web3",
+      username: "web3sarah",
+      avatar:
+        "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
+    },
+    collectible: {
+      price: "5",
+      currency: "GHO",
+      collected: 28,
+      total: 50,
+    },
+  },
+  {
+    id: "post-2",
+    title: "Story-Driven RPG Game",
+    creator: {
+      id: "creator-2",
+      name: "Indie Game Studio",
+      username: "gamerbuild",
+      avatar:
+        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+    },
+    collectible: {
+      price: "10",
+      currency: "GHO",
+      collected: 72,
+      total: 100,
+    },
+  },
+];
 
 // Mock data for the MVP - will be removed once the posts feature is implemented
 const MOCK_POSTS = [
@@ -19,7 +97,8 @@ const MOCK_POSTS = [
     content:
       "My indie game studio is creating a new story-driven RPG. Early believers get alpha access and in-game recognition!",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-    image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=800&auto=format",
     collectible: {
       price: "10",
       currency: "GHO",
@@ -30,7 +109,8 @@ const MOCK_POSTS = [
       id: "creator-2",
       username: "gamerbuild",
       name: "Indie Game Studio",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar:
+        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
   {
@@ -38,12 +118,14 @@ const MOCK_POSTS = [
     content:
       "Just released a new demo of our character customization system. Check it out and let us know what you think!",
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2), // 2 days ago
-    image: "https://images.unsplash.com/photo-1511882150382-421056c89033?w=800&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1511882150382-421056c89033?w=800&auto=format",
     creator: {
       id: "creator-2",
       username: "gamerbuild",
       name: "Indie Game Studio",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar:
+        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
   {
@@ -61,10 +143,21 @@ const MOCK_POSTS = [
       id: "creator-2",
       username: "gamerbuild",
       name: "Indie Game Studio",
-      avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
+      avatar:
+        "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
     },
   },
 ];
+
+function TrendingContent() {
+  // This function would fetch and display trending content from Lens API in a real app
+  return (
+    <Trending
+      creators={MOCK_TRENDING_CREATORS}
+      campaigns={MOCK_TRENDING_CAMPAIGNS}
+    />
+  );
+}
 
 function ProfileContent({ username }: { username: string }) {
   const router = useRouter();
@@ -113,7 +206,9 @@ function ProfileContent({ username }: { username: string }) {
           setStatsError(result.error);
         }
       } catch (error) {
-        setStatsError(error instanceof Error ? error : new Error(String(error)));
+        setStatsError(
+          error instanceof Error ? error : new Error(String(error))
+        );
       } finally {
         setStatsLoading(false);
       }
@@ -132,7 +227,10 @@ function ProfileContent({ username }: { username: string }) {
     }
   }, [accountError, statsError]);
 
-  const handleFollowChange = (isFollowing: boolean, newFollowerCount: number) => {
+  const handleFollowChange = (
+    isFollowing: boolean,
+    newFollowerCount: number
+  ) => {
     // This will be implemented properly with the follow feature
     // For now, just update the UI state
     if (accountStats) {
@@ -182,10 +280,41 @@ function ProfileContent({ username }: { username: string }) {
 
   return (
     <div className="mx-auto max-w-5xl">
-      <ProfileHeader account={account} stats={accountStats} onFollowChange={handleFollowChange} />
+      <ProfileHeader
+        account={account}
+        stats={accountStats}
+        onFollowChange={handleFollowChange}
+      />
 
-      <div className="px-5">
-        <ProfileTabs posts={posts} activeTab={activeTab} onTabChange={handleTabChange} />
+      {/* Mobile Search - Only visible on mobile */}
+      <div className="mb-6 block md:hidden px-5">
+        <SearchBar className="w-full" />
+      </div>
+
+      {/* Grid layout for main content and sidebar */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8 px-5">
+        {/* Main Profile Content */}
+        <div className="md:col-span-2">
+          <ProfileTabs
+            posts={posts}
+            activeTab={activeTab}
+            onTabChange={handleTabChange}
+          />
+        </div>
+
+        {/* Right Sidebar - Sticky */}
+        <div className="hidden md:block">
+          <div className="sticky top-16 space-y-6">
+            {/* Search bar in the sidebar */}
+            <div className="mt-1">
+              <SearchBar className="w-full" />
+            </div>
+
+            <Suspense fallback={<TrendingSkeleton />}>
+              <TrendingContent />
+            </Suspense>
+          </div>
+        </div>
       </div>
     </div>
   );

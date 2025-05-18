@@ -17,8 +17,8 @@ import { toast } from "sonner";
  */
 export function usePostBookmark(
   postIdValue: string,
-  initialBookmarked: boolean = false,
-  onRemove?: () => void
+  initialBookmarked = false,
+  onRemove?: () => void,
 ) {
   const { data: user } = useAuthenticatedUser();
   const [isBookmarked, setIsBookmarked] = useState(initialBookmarked);

@@ -29,7 +29,7 @@ export function ReactionButton({
   const { isReacted, isLoading, toggleReaction } = usePostReaction(
     postId,
     initialReacted,
-    onReactionChange
+    onReactionChange,
   );
 
   // Handle click and prevent event propagation
@@ -50,10 +50,7 @@ export function ReactionButton({
     >
       {!isLoading && (
         <>
-          <HeartIcon
-            className="size-4"
-            fill={isReacted ? "currentColor" : "none"}
-          />
+          <HeartIcon className="size-4" fill={isReacted ? "currentColor" : "none"} />
           {showCount && <span>{reactionCount}</span>}
         </>
       )}

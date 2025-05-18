@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { usePostComment } from "@/hooks/use-post-comment";
 import {
   Dialog,
   DialogContent,
@@ -11,6 +10,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { usePostComment } from "@/hooks/use-post-comment";
 import { MessageCircleIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -73,11 +73,7 @@ export function CommentButton({
           className="mt-2"
         />
         <DialogFooter>
-          <Button
-            onClick={handleSubmit}
-            disabled={isLoading || !comment.trim()}
-            className="mt-4"
-          >
+          <Button onClick={handleSubmit} disabled={isLoading || !comment.trim()} className="mt-4">
             {isLoading ? "Submitting..." : "Comment"}
           </Button>
         </DialogFooter>

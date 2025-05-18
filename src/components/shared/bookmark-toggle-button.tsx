@@ -19,7 +19,7 @@ export function BookmarkToggleButton({
   const { isBookmarked, isLoading, toggleBookmark } = usePostBookmark(
     postId,
     initialState,
-    onRemove
+    onRemove,
   );
 
   // Handle click and prevent event propagation
@@ -33,19 +33,12 @@ export function BookmarkToggleButton({
       variant="ghost"
       size="icon"
       className={`size-8 rounded-full ${
-        isBookmarked
-          ? "text-primary"
-          : "text-muted-foreground hover:text-primary"
+        isBookmarked ? "text-primary" : "text-muted-foreground hover:text-primary"
       }`}
       onClick={handleClick}
       isLoading={isLoading}
     >
-      {!isLoading && (
-        <Bookmark
-          className="size-5"
-          fill={isBookmarked ? "currentColor" : "none"}
-        />
-      )}
+      {!isLoading && <Bookmark className="size-5" fill={isBookmarked ? "currentColor" : "none"} />}
     </Button>
   );
 }

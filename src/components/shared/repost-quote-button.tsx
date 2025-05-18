@@ -1,8 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { usePostQuote } from "@/hooks/use-post-quote";
-import { usePostRepost } from "@/hooks/use-post-repost";
 import {
   Dialog,
   DialogContent,
@@ -18,6 +16,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Textarea } from "@/components/ui/textarea";
+import { usePostQuote } from "@/hooks/use-post-quote";
+import { usePostRepost } from "@/hooks/use-post-repost";
 import { MessageSquareQuoteIcon, RefreshCwIcon } from "lucide-react";
 import { useState } from "react";
 
@@ -42,14 +42,8 @@ export function RepostQuoteButton({
   onRepostSubmit,
   onQuoteSubmit,
 }: RepostQuoteButtonProps) {
-  const { isLoading: isRepostLoading, createRepost } = usePostRepost(
-    postId,
-    onRepostSubmit
-  );
-  const { isLoading: isQuoteLoading, createQuote } = usePostQuote(
-    postId,
-    onQuoteSubmit
-  );
+  const { isLoading: isRepostLoading, createRepost } = usePostRepost(postId, onRepostSubmit);
+  const { isLoading: isQuoteLoading, createQuote } = usePostQuote(postId, onQuoteSubmit);
   const [quote, setQuote] = useState("");
   const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
 
@@ -83,11 +77,7 @@ export function RepostQuoteButton({
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
-          <DropdownMenuItem
-            className="gap-2"
-            onClick={handleRepost}
-            disabled={isRepostLoading}
-          >
+          <DropdownMenuItem className="gap-2" onClick={handleRepost} disabled={isRepostLoading}>
             <RefreshCwIcon className="size-4" />
             <span>Repost</span>
           </DropdownMenuItem>

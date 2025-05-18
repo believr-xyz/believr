@@ -329,9 +329,16 @@ export default function FeedPage() {
 
         {/* Sidebar - Right Column (Trending, Recommendations) */}
         <div className="hidden md:block">
-          <Suspense fallback={<TrendingSkeleton />}>
-            <TrendingContent />
-          </Suspense>
+          <div className="sticky top-16 space-y-6">
+            {/* Search bar in the sidebar */}
+            <div className="mt-1">
+              <SearchBar className="w-full" />
+            </div>
+
+            <Suspense fallback={<TrendingSkeleton />}>
+              <TrendingContent />
+            </Suspense>
+          </div>
         </div>
       </div>
     </div>

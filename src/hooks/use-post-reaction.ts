@@ -1,12 +1,7 @@
 "use client";
 
 import { getLensClient } from "@/lib/lens/client";
-import {
-  PostId,
-  PostReactionType,
-  SessionClient,
-  postId,
-} from "@lens-protocol/client";
+import { PostId, PostReactionType, SessionClient, postId } from "@lens-protocol/client";
 import { addReaction, undoReaction } from "@lens-protocol/client/actions";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { useState } from "react";
@@ -22,8 +17,8 @@ import { toast } from "sonner";
  */
 export function usePostReaction(
   postIdValue: string,
-  initialReacted: boolean = false,
-  onSuccess?: (newState: boolean) => void
+  initialReacted = false,
+  onSuccess?: (newState: boolean) => void,
 ) {
   const { data: user } = useAuthenticatedUser();
   const [isReacted, setIsReacted] = useState(initialReacted);

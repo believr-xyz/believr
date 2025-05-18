@@ -1,69 +1,18 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useLensGroups } from "@/hooks/use-lens-groups";
+import { Group } from "@lens-protocol/client";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { GroupPageClient } from "./_components/group-page-client";
 
-// Types
-export interface Group {
-  id: string;
-  name: string;
-  description: string;
-  members: number;
-  image?: string;
-  creator: {
-    handle: string;
-    avatar?: string;
-  };
-  posts: Array<{
-    id: string;
-    content: string;
-    createdAt: Date;
-    image?: string;
-    creator: {
-      id: string;
-      handle: string;
-      name: string;
-      avatar?: string;
-    };
-  }>;
-  isMember: boolean;
-}
-
-// Single mock group for UI display
-const MOCK_GROUP: Group = {
-  id: "group-1",
-  name: "SaaS Believers",
-  description:
-    "A community for believers in SaaS startups and projects. We focus on supporting early-stage SaaS founders.",
-  members: 156,
-  image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=1200&auto=format",
-  creator: {
-    handle: "web3sarah",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format",
-  },
-  posts: [
-    {
-      id: "post-1",
-      content: "New SaaS Productivity Tool - early believers get lifetime access!",
-      createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3), // 3 days ago
-      creator: {
-        id: "creator-1",
-        handle: "web3sarah",
-        name: "Sarah Web3",
-        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&auto=format",
-      },
-    },
-  ],
-  isMember: false,
-};
-
 export default function GroupPage() {
   const router = useRouter();
   const params = useParams();
   const groupId = params.id as string;
+  const { fetchSingleGroup } = useLensGroups();
 
   const [group, setGroup] = useState<Group | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,9 +21,13 @@ export default function GroupPage() {
     const loadGroup = async () => {
       setIsLoading(true);
       try {
-        // Simulate API fetch
-        await new Promise((resolve) => setTimeout(resolve, 500));
-        setGroup(MOCK_GROUP);
+        const lensGroup = await fetchSingleGroup(groupId);
+
+        if (lensGroup) {
+          setGroup(lensGroup);
+        } else {
+          throw new Error("Group not found");
+        }
       } catch (error) {
         console.error("Error loading group:", error);
         toast.error("Failed to load group details");
@@ -84,7 +37,7 @@ export default function GroupPage() {
     };
 
     loadGroup();
-  }, [groupId]);
+  }, [groupId, fetchSingleGroup]);
 
   if (isLoading) {
     return (

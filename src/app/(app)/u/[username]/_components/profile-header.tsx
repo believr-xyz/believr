@@ -16,11 +16,7 @@ interface ProfileHeaderProps {
   onFollowChange: (isFollowing: boolean, newFollowerCount: number) => void;
 }
 
-export function ProfileHeader({
-  account,
-  stats,
-  onFollowChange,
-}: ProfileHeaderProps) {
+export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderProps) {
   const router = useRouter();
   const { followers, following, isLoadingFollowers } = useFollowers({
     accountAddress: account.address,
@@ -28,10 +24,10 @@ export function ProfileHeader({
   });
   // Use stats from Lens API or fallback to local state if not yet loaded
   const [followerCount, setFollowerCount] = useState(
-    stats?.graphFollowStats?.followers || followers.total || 0
+    stats?.graphFollowStats?.followers || followers.total || 0,
   );
   const [followingCount, setFollowingCount] = useState(
-    stats?.graphFollowStats?.following || following.total || 0
+    stats?.graphFollowStats?.following || following.total || 0,
   );
 
   // Update follower counts when data changes
@@ -48,9 +44,7 @@ export function ProfileHeader({
   }, [following.total]);
 
   const handleFollowChange = (isFollowing: boolean) => {
-    const newFollowerCount = isFollowing
-      ? followerCount + 1
-      : followerCount - 1;
+    const newFollowerCount = isFollowing ? followerCount + 1 : followerCount - 1;
     setFollowerCount(newFollowerCount);
     onFollowChange(isFollowing, newFollowerCount);
   };
@@ -64,15 +58,13 @@ export function ProfileHeader({
   const picture =
     typeof account.metadata?.picture === "string"
       ? account.metadata.picture
-      : account.metadata?.picture?.optimized?.uri ||
-        account.metadata?.picture?.raw?.uri;
+      : account.metadata?.picture?.optimized?.uri || account.metadata?.picture?.raw?.uri;
 
   // Cover picture handling
   const coverPicture =
     typeof account.metadata?.coverPicture === "string"
       ? account.metadata.coverPicture
-      : account.metadata?.coverPicture?.optimized?.uri ||
-        account.metadata?.coverPicture?.raw?.uri;
+      : account.metadata?.coverPicture?.optimized?.uri || account.metadata?.coverPicture?.raw?.uri;
 
   return (
     <div>
@@ -97,9 +89,7 @@ export function ProfileHeader({
             {picture ? (
               <AvatarImage src={picture} alt={name} />
             ) : (
-              <AvatarFallback className="text-2xl">
-                {name?.[0] || username[0]}
-              </AvatarFallback>
+              <AvatarFallback className="text-2xl">{name?.[0] || username[0]}</AvatarFallback>
             )}
           </Avatar>
         </div>
@@ -126,9 +116,7 @@ export function ProfileHeader({
 
           <div className="mt-4 flex flex-wrap gap-8 text-sm md:mt-0">
             <div>
-              <span className="font-semibold">
-                {stats?.feedStats?.posts || 0}
-              </span>
+              <span className="font-semibold">{stats?.feedStats?.posts || 0}</span>
               <span className="ml-1 text-muted-foreground">Posts</span>
             </div>
             <div>
@@ -141,9 +129,7 @@ export function ProfileHeader({
             </div>
             {/* Display collects as believers */}
             <div>
-              <span className="font-semibold">
-                {stats?.feedStats?.collects || 0}
-              </span>
+              <span className="font-semibold">{stats?.feedStats?.collects || 0}</span>
               <span className="ml-1 text-muted-foreground">Believers</span>
             </div>
           </div>

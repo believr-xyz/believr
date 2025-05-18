@@ -5,13 +5,13 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function TrendingSkeleton() {
   return (
     <div className="space-y-8">
-      {/* Trending Creators skeleton */}
+      {/* Trending Accounts skeleton */}
       <div>
         <Skeleton className="mb-4 h-6 w-32" />
         <div className="space-y-4">
           {Array.from({ length: 3 }).map((_, i) => (
             <div
-              key={`trending-creator-${i}-${Math.random().toString(36).substring(2, 9)}`}
+              key={`trending-account-${i}-${Math.random().toString(36).substring(2, 9)}`}
               className="flex items-center justify-between"
             >
               <div className="flex items-center gap-3">

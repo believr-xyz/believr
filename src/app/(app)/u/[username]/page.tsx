@@ -2,18 +2,22 @@
 
 import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getLensClient } from "@/lib/lens/client";
 import { Account, AccountStats, PageSize, Post, evmAddress } from "@lens-protocol/client";
 import { fetchAccountStats } from "@lens-protocol/client/actions";
+import { fetchAccount } from "@lens-protocol/client/actions";
 import { useAccount, usePosts } from "@lens-protocol/react";
 import { useParams, useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
+import { PostCard } from "../../feed/_components/post-card";
 import { type Campaign, type Creator, Trending } from "../../feed/_components/trending";
 import { TrendingSkeleton } from "../../feed/_components/trending-skeleton";
 import { ProfileHeader } from "./_components/profile-header";
 import { ProfileSkeleton } from "./_components/profile-skeleton";
-import { ProfileTabs } from "./_components/profile-tabs";
 
 function TrendingContent() {
   // Use real Lens data instead of mock data for trending posts
@@ -115,9 +119,13 @@ function TrendingContent() {
 
 function ProfileContent({ username }: { username: string }) {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const tab = searchParams.get("tab") || "posts";
   const [account, setAccount] = useState<Account | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
   const [accountStats, setAccountStats] = useState<AccountStats | null>(null);
-  const [activeTab, setActiveTab] = useState<"posts" | "collectibles">("posts");
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // Use the Lens useAccount hook directly
   const {
@@ -192,9 +200,90 @@ function ProfileContent({ username }: { username: string }) {
     }
   }, [accountError, statsError, postsError]);
 
+  const loadUserData = async (username: string) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const client = await getLensClient();
+      // Try to find the account by username or address
+      const accountResult = await fetchAccount(client, {
+        // Check if it looks like an address
+        ...(username.startsWith("0x") && username.length >= 40
+          ? { address: username }
+          : { username: { localName: username.replace(/^lens\//, "") } }),
+      });
+
+      if (accountResult.isErr()) {
+        // Try alternative lookup method
+        const alternativeResult = await fetchAccount(client, {
+          // If we tried username first, now try as address
+          ...(username.startsWith("0x") && username.length >= 40
+            ? { username: { localName: username.replace(/^lens\//, "") } }
+            : { address: username }),
+        });
+
+        if (alternativeResult.isErr()) {
+          throw new Error(`Could not find account: ${accountResult.error.message}`);
+        }
+
+        // Use the alternate lookup result
+        if (!alternativeResult.value) {
+          throw new Error(`Account not found: ${username}`);
+        }
+
+        setAccount(alternativeResult.value);
+
+        // Get account stats
+        const statsResult = await fetchAccountStats(client, {
+          ...(alternativeResult.value.address ? { account: alternativeResult.value.address } : {}),
+        });
+
+        if (statsResult.isErr()) {
+          console.error("Error fetching account stats:", statsResult.error);
+        } else {
+          setAccountStats(statsResult.value);
+        }
+      } else {
+        // Success with primary lookup method
+        if (!accountResult.value) {
+          throw new Error(`Account not found: ${username}`);
+        }
+
+        setAccount(accountResult.value);
+
+        // Get account stats
+        const statsResult = await fetchAccountStats(client, {
+          ...(accountResult.value.address ? { account: accountResult.value.address } : {}),
+        });
+
+        if (statsResult.isErr()) {
+          console.error("Error fetching account stats:", statsResult.error);
+        } else {
+          setAccountStats(statsResult.value);
+        }
+      }
+
+      // Get account posts (mock data for now)
+      // TODO: Implement real post fetching using Lens SDK
+      setPosts([]);
+    } catch (err) {
+      console.error("Error loading user data:", err);
+      setError(`Failed to load user profile. ${err instanceof Error ? err.message : ""}`);
+      toast.error(`Failed to load user profile. ${err instanceof Error ? err.message : ""}`);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    // Decode username as it may be URL-encoded
+    const decodedUsername = decodeURIComponent(username);
+    loadUserData(decodedUsername);
+  }, [username]);
+
+  // Handle follow state changes
   const handleFollowChange = (isFollowing: boolean, newFollowerCount: number) => {
-    // This will be implemented properly with the follow feature
-    // For now, just update the UI state
     if (accountStats) {
       setAccountStats({
         ...accountStats,
@@ -204,10 +293,6 @@ function ProfileContent({ username }: { username: string }) {
         },
       });
     }
-  };
-
-  const handleTabChange = (tab: string) => {
-    setActiveTab(tab as "posts" | "collectibles");
   };
 
   const loading = accountLoading || statsLoading;
@@ -258,12 +343,59 @@ function ProfileContent({ username }: { username: string }) {
           />
 
           <div className="mt-6">
-            <ProfileTabs
-              posts={postsData?.items || []}
-              activeTab={activeTab}
-              onTabChange={handleTabChange}
-              loading={postsLoading}
-            />
+            <Tabs defaultValue={tab}>
+              <TabsList className="mb-6 w-full">
+                <TabsTrigger className="flex-1" value="posts">
+                  Posts
+                </TabsTrigger>
+                <TabsTrigger className="flex-1" value="collects">
+                  Collections
+                </TabsTrigger>
+                <TabsTrigger className="flex-1" value="about">
+                  About
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="posts">
+                {posts.length > 0 ? (
+                  <div className="space-y-6">
+                    {posts.map((post) => (
+                      <PostCard key={post.id} post={post} />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="rounded-lg border border-dashed p-8 text-center">
+                    <p className="text-muted-foreground">No posts yet</p>
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="collects">
+                <div className="rounded-lg border border-dashed p-8 text-center">
+                  <p className="text-muted-foreground">No collections yet</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="about">
+                <div className="space-y-6 rounded-lg border p-6">
+                  <div>
+                    <h2 className="mb-4 font-bold text-xl">About</h2>
+                    <p>{account.metadata?.bio || "No bio available"}</p>
+                  </div>
+
+                  <Separator />
+
+                  <div>
+                    <h3 className="mb-4 font-semibold text-lg">On-chain Info</h3>
+                    <div className="rounded-lg bg-muted p-4">
+                      <p className="break-all font-mono text-muted-foreground text-xs">
+                        {account.address}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
         </div>
 

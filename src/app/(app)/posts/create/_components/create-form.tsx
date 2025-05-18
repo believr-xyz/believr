@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { useCreatePost } from "@/hooks/use-create-post";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -45,8 +46,8 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function CreateForm() {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const { createPost, isLoading } = useCreatePost();
 
   // Initialize form with default values
   const form = useForm<FormValues>({
@@ -79,22 +80,29 @@ export function CreateForm() {
 
   // Submit form data
   const onSubmit = async (values: FormValues) => {
-    setIsSubmitting(true);
-
     try {
-      // Simulate API request
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      // Call our createPost hook with the form values
+      const result = await createPost({
+        title: values.title,
+        content: values.content,
+        imageFile: values.image,
+        collectible: values.enableCollectible,
+        collectSettings: values.enableCollectible
+          ? {
+              price: values.price,
+              currency: values.currency,
+              supply: values.supply,
+            }
+          : undefined,
+      });
 
-      // In a real app, this would be replaced with actual Lens Protocol publishing logic
-      console.log("Form submitted:", values);
-
-      toast.success("Post created successfully!");
-      router.push("/feed");
+      if (result) {
+        // Success! Redirect to the feed
+        router.push("/feed");
+      }
     } catch (error) {
       console.error("Error creating post:", error);
       toast.error("Failed to create post. Please try again.");
-    } finally {
-      setIsSubmitting(false);
     }
   };
 
@@ -231,7 +239,7 @@ export function CreateForm() {
             <div className="flex justify-end">
               <Button
                 type="submit"
-                isLoading={isSubmitting}
+                isLoading={isLoading}
                 className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
               >
                 Publish Post

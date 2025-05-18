@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Award, DollarSignIcon, TrendingUp, Users } from "lucide-react";
+import { Award, TrendingUp, Users } from "lucide-react";
 import { Bar, BarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 
 // Temporary type definition
@@ -69,13 +69,6 @@ export function CreatorStats({
       icon: TrendingUp,
       color: "#F59E0B",
     },
-    {
-      title: "Raised",
-      value: `${campaigns.raised} GHO`,
-      description: "Total funding",
-      icon: DollarSignIcon,
-      color: "#8B5CF6",
-    },
   ];
 
   return (
@@ -123,10 +116,10 @@ export function CreatorStats({
                     fontSize={12}
                     tickLine={false}
                     axisLine={false}
-                    tickFormatter={(value) => `${value} GHO`}
+                    tickFormatter={(value) => `${value}`}
                   />
                   <Tooltip
-                    formatter={(value) => [`${value} GHO`, "Amount"]}
+                    formatter={(value) => [`${value}`, "Amount"]}
                     labelFormatter={(label) => `${label} 2023`}
                   />
                   <Bar dataKey="amount" fill="#00A8FF" radius={[4, 4, 0, 0]} />

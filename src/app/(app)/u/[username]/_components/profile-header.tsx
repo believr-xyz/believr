@@ -2,11 +2,12 @@
 
 import { FollowButton } from "@/components/shared/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useFollowers } from "@/hooks/use-followers";
 import { Account, AccountStats } from "@lens-protocol/client";
 import { ExternalLink, MapPin } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface ProfileHeaderProps {
@@ -17,7 +18,30 @@ interface ProfileHeaderProps {
 
 export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderProps) {
   const router = useRouter();
-  const [followerCount, setFollowerCount] = useState(stats?.graphFollowStats?.followers || 0);
+  const { followers, following, isLoadingFollowers } = useFollowers({
+    accountAddress: account.address,
+    pageSize: 5, // Load just a small amount to get the count
+  });
+  // Use stats from Lens API or fallback to local state if not yet loaded
+  const [followerCount, setFollowerCount] = useState(
+    stats?.graphFollowStats?.followers || followers.total || 0,
+  );
+  const [followingCount, setFollowingCount] = useState(
+    stats?.graphFollowStats?.following || following.total || 0,
+  );
+
+  // Update follower counts when data changes
+  useEffect(() => {
+    if (followers.total > 0) {
+      setFollowerCount(followers.total);
+    }
+  }, [followers.total]);
+
+  useEffect(() => {
+    if (following.total > 0) {
+      setFollowingCount(following.total);
+    }
+  }, [following.total]);
 
   const handleFollowChange = (isFollowing: boolean) => {
     const newFollowerCount = isFollowing ? followerCount + 1 : followerCount - 1;
@@ -75,7 +99,6 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
           <FollowButton
             userId={account.address}
             username={username}
-            isFollowing={false}
             onFollowChange={handleFollowChange}
           />
         </div>
@@ -101,7 +124,7 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
               <span className="ml-1 text-muted-foreground">Followers</span>
             </div>
             <div>
-              <span className="font-semibold">{stats?.graphFollowStats?.following || 0}</span>
+              <span className="font-semibold">{followingCount}</span>
               <span className="ml-1 text-muted-foreground">Following</span>
             </div>
             {/* Display collects as believers */}

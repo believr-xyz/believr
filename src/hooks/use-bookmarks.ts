@@ -83,10 +83,7 @@ export function useBookmarks(limit = 20): UseBookmarksResult {
         if (result.isErr()) {
           console.error("Bookmark fetch error:", result.error);
           setError(
-            new Error(
-              result.error.message ||
-                "Failed to fetch bookmarks. Please try again later."
-            )
+            new Error(result.error.message || "Failed to fetch bookmarks. Please try again later."),
           );
           return;
         }
@@ -115,7 +112,7 @@ export function useBookmarks(limit = 20): UseBookmarksResult {
         setIsLoading(false);
       }
     },
-    [user, cursor, isLoading, limit]
+    [user, cursor, isLoading, limit],
   );
 
   const loadMore = useCallback(async () => {

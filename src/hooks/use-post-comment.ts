@@ -1,7 +1,7 @@
 "use client";
 
 import { getLensClient } from "@/lib/lens/client";
-import { type Post, type Result, SessionClient, postId } from "@lens-protocol/client";
+import { type Post, type Result, SessionClient, postId, uri } from "@lens-protocol/client";
 import { post } from "@lens-protocol/client/actions";
 import { textOnly } from "@lens-protocol/metadata";
 import { useAuthenticatedUser } from "@lens-protocol/react";
@@ -46,14 +46,26 @@ export function usePostComment(postIdValue: string, onSuccess?: () => void) {
       const sessionClient = client as SessionClient;
       const targetPostId = postId(postIdValue);
 
-      // Create proper metadata for the comment
-      const metadata = textOnly({
-        content: content,
-      });
+      // Determine if the content is already a metadata URI or needs to be converted to metadata
+      let contentUri: string;
+
+      // If content looks like a metadata URI (starts with lens://) use it directly
+      if (content.startsWith("lens://")) {
+        contentUri = content;
+      } else if (content.startsWith("{") && content.endsWith("}")) {
+        // If content is already a serialized metadata object, use it directly
+        contentUri = content;
+      } else {
+        // Create proper metadata for the comment as text only
+        const metadata = textOnly({
+          content: content,
+        });
+        contentUri = await metadata.toString();
+      }
 
       // Create the comment
       const result = await post(sessionClient, {
-        contentUri: await metadata.toString(),
+        contentUri: contentUri,
         commentOn: {
           post: targetPostId,
         },
@@ -76,7 +88,7 @@ export function usePostComment(postIdValue: string, onSuccess?: () => void) {
         id: `mock-${Date.now()}`,
         __typename: "Post",
         metadata: {
-          __typename: "TextOnlyMetadata",
+          __typename: "TextOnlyMetadata", // This is a simplification, might actually be another type
           content: content,
         } as any,
         author: user,

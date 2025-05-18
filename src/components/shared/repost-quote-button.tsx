@@ -7,7 +7,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -19,7 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { usePostQuote } from "@/hooks/use-post-quote";
 import { usePostRepost } from "@/hooks/use-post-repost";
 import { MessageSquareQuoteIcon, RefreshCwIcon } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface RepostQuoteButtonProps {
   postId: string;
@@ -34,7 +33,7 @@ interface RepostQuoteButtonProps {
 
 export function RepostQuoteButton({
   postId,
-  count = 0,
+  count: initialCount = 0,
   showCount = true,
   size = "sm",
   variant = "ghost",
@@ -42,19 +41,46 @@ export function RepostQuoteButton({
   onRepostSubmit,
   onQuoteSubmit,
 }: RepostQuoteButtonProps) {
-  const { isLoading: isRepostLoading, createRepost } = usePostRepost(postId, onRepostSubmit);
-  const { isLoading: isQuoteLoading, createQuote } = usePostQuote(postId, onQuoteSubmit);
+  // Track count locally
+  const [currentCount, setCurrentCount] = useState(initialCount);
+
+  // Update count if props change
+  useEffect(() => {
+    setCurrentCount(initialCount);
+  }, [initialCount]);
+
+  const incrementCount = () => {
+    setCurrentCount((prev) => prev + 1);
+  };
+
+  const { isLoading: isRepostLoading, createRepost } = usePostRepost(postId, () => {
+    incrementCount();
+    onRepostSubmit?.();
+  });
+
+  const { isLoading: isQuoteLoading, createQuote } = usePostQuote(postId, () => {
+    incrementCount();
+    onQuoteSubmit?.();
+  });
+
   const [quote, setQuote] = useState("");
   const [isQuoteDialogOpen, setIsQuoteDialogOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
   const handleRepost = async () => {
     await createRepost();
+    setIsDropdownOpen(false);
   };
 
   const handleQuoteSubmit = async () => {
     await createQuote(quote);
     setQuote("");
     setIsQuoteDialogOpen(false);
+  };
+
+  const openQuoteDialog = () => {
+    setIsQuoteDialogOpen(true);
+    setIsDropdownOpen(false);
   };
 
   // Handle click and prevent event propagation
@@ -64,7 +90,7 @@ export function RepostQuoteButton({
 
   return (
     <>
-      <DropdownMenu>
+      <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger asChild>
           <Button
             size={size}
@@ -73,7 +99,7 @@ export function RepostQuoteButton({
             onClick={handleClick}
           >
             <RefreshCwIcon className="size-4" />
-            {showCount && <span>{count}</span>}
+            {showCount && <span>{currentCount}</span>}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
@@ -81,12 +107,10 @@ export function RepostQuoteButton({
             <RefreshCwIcon className="size-4" />
             <span>Repost</span>
           </DropdownMenuItem>
-          <DialogTrigger asChild>
-            <DropdownMenuItem className="gap-2">
-              <MessageSquareQuoteIcon className="size-4" />
-              <span>Quote post</span>
-            </DropdownMenuItem>
-          </DialogTrigger>
+          <DropdownMenuItem className="gap-2" onClick={openQuoteDialog}>
+            <MessageSquareQuoteIcon className="size-4" />
+            <span>Quote post</span>
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 

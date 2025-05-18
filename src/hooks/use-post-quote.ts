@@ -1,8 +1,9 @@
 "use client";
 
 import { getLensClient } from "@/lib/lens/client";
-import { SessionClient, postId, uri } from "@lens-protocol/client";
+import { SessionClient, postId } from "@lens-protocol/client";
 import { post } from "@lens-protocol/client/actions";
+import { textOnly } from "@lens-protocol/metadata";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -49,13 +50,14 @@ export function usePostQuote(postIdValue: string, onSuccess?: () => void) {
       // First we should check if we can quote this post by checking post.operations.canQuote
       // But for simplicity, we'll proceed directly to the quote action
 
-      // Create a simple text-only metadata for the quote
-      // In a real app, you'd need to upload this metadata to IPFS or Lens storage service
-      // For simplicity, we're using a placeholder URI - this would need to be replaced
-      // with a real implementation that uploads content properly
+      // Create proper metadata for the quote
+      const metadata = textOnly({
+        content: content,
+      });
 
+      // Create the post with quoteOf
       const result = await post(sessionClient, {
-        contentUri: uri(`lens://placeholder-quote-${Date.now()}`), // Placeholder
+        contentUri: await metadata.toString(),
         quoteOf: {
           post: targetPostId,
         },

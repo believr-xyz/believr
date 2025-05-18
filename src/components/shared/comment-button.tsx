@@ -1,18 +1,8 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { usePostComment } from "@/hooks/use-post-comment";
 import { MessageCircleIcon } from "lucide-react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface CommentButtonProps {
   postId: string;
@@ -21,7 +11,7 @@ interface CommentButtonProps {
   size?: "sm" | "default" | "lg" | "icon";
   variant?: "default" | "ghost" | "outline" | "secondary";
   className?: string;
-  onCommentSubmit?: () => void;
+  username?: string;
 }
 
 export function CommentButton({
@@ -31,53 +21,25 @@ export function CommentButton({
   size = "sm",
   variant = "ghost",
   className = "",
-  onCommentSubmit,
+  username,
 }: CommentButtonProps) {
-  const { isLoading, createComment } = usePostComment(postId, onCommentSubmit);
-  const [comment, setComment] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
+  const router = useRouter();
 
-  const handleSubmit = async () => {
-    await createComment(comment);
-    setComment("");
-    setIsOpen(false);
-  };
-
-  // Handle click and prevent event propagation
-  const handleClick = (e: React.MouseEvent) => {
+  // Navigate to post detail page for commenting
+  const navigateToPostDetail = (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent card click when clicking button
+    router.push(`/posts/${username}/${postId}`);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button
-          size={size}
-          variant={variant}
-          className={`gap-1 px-2 text-muted-foreground ${className}`}
-          onClick={handleClick}
-        >
-          <MessageCircleIcon className="size-4" />
-          {showCount && <span>{commentCount}</span>}
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Add a comment</DialogTitle>
-        </DialogHeader>
-        <Textarea
-          placeholder="Write your comment..."
-          value={comment}
-          onChange={(e) => setComment(e.target.value)}
-          rows={5}
-          className="mt-2"
-        />
-        <DialogFooter>
-          <Button onClick={handleSubmit} disabled={isLoading || !comment.trim()} className="mt-4">
-            {isLoading ? "Submitting..." : "Comment"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    <Button
+      size={size}
+      variant={variant}
+      className={`gap-1 px-2 text-muted-foreground ${className}`}
+      onClick={navigateToPostDetail}
+    >
+      <MessageCircleIcon className="size-4" />
+      {showCount && <span>{commentCount}</span>}
+    </Button>
   );
 }

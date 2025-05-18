@@ -1,22 +1,20 @@
 "use client";
 
 import { BookmarkToggleButton } from "@/components/shared/bookmark-toggle-button";
+import { ReactionButton } from "@/components/shared/reaction-button";
+import { RepostQuoteButton } from "@/components/shared/repost-quote-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { getLensClient } from "@/lib/lens/client";
+import { Post, PostReferenceType, postId } from "@lens-protocol/client";
+import { fetchPost, fetchPostReferences } from "@lens-protocol/client/actions";
 import { formatDistanceToNow } from "date-fns";
-import {
-  ArrowLeft,
-  BadgeCheck,
-  DollarSign,
-  HeartIcon,
-  Loader2,
-  MessageCircleIcon,
-  RefreshCwIcon,
-} from "lucide-react";
+import { ArrowLeft, DollarSign, Loader2, MessageCircleIcon } from "lucide-react";
+import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -24,159 +22,65 @@ import { CollectCard } from "./_components/collect-card";
 import { CollectorsList } from "./_components/collectors-list";
 import { CommentSection } from "./_components/comment-section";
 
-// Types
-interface Comment {
-  id: string;
-  content: string;
-  createdAt: Date;
-  author: {
-    id: string;
-    username: string;
-    name: string;
-    avatar?: string;
-    verified?: boolean;
-  };
-}
-
-interface Collector {
-  id: string;
-  username: string;
-  name: string;
-  avatar?: string;
-  collectedAt: Date;
-  verified?: boolean;
-}
-
-interface PostDetail {
-  id: string;
-  title: string;
-  content: string;
-  createdAt: Date;
-  image?: string;
-  collectible: {
-    price: string;
-    currency: string;
-    collected: number;
-    total: number;
-    collectors: Collector[];
-  };
-  creator: {
-    id: string;
-    username: string;
-    name: string;
-    avatar?: string;
-    bio?: string;
-    verified?: boolean;
-    stats: {
-      followers: number;
-      believers: number;
-    };
-  };
-  comments: Comment[];
-}
-
-// Mock data for the post - this would be fetched from an API in a real app
-const MOCK_POST: PostDetail = {
-  id: "post-2",
-  title: "New Story-Driven RPG Game",
-  content:
-    "My indie game studio is creating a new story-driven RPG. Early believers get alpha access and in-game recognition!\n\nWe're building a world where your choices truly matter, with branching storylines and dynamic character development. Our team has been working on this concept for over a year, and we're excited to finally share it with the community.\n\nBy believing in this project early, you'll receive:\n- Exclusive alpha access before public release\n- Your name in the game credits as an 'Early Believer'\n- A special in-game item named after you\n- Access to our private Discord for early feedback\n\nJoin us on this journey to create something special!",
-  createdAt: new Date(Date.now() - 1000 * 60 * 60 * 5), // 5 hours ago
-  image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?w=1200&auto=format",
-  collectible: {
-    price: "10",
-    currency: "GHO",
-    collected: 72,
-    total: 100,
-    collectors: [
-      {
-        id: "user-1",
-        username: "cryptofan",
-        name: "Crypto Fan",
-        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format",
-        collectedAt: new Date(Date.now() - 1000 * 60 * 30), // 30 minutes ago
-        verified: true,
-      },
-      {
-        id: "user-2",
-        username: "gamerlover",
-        name: "Gamer Enthusiast",
-        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format",
-        collectedAt: new Date(Date.now() - 1000 * 60 * 45), // 45 minutes ago
-      },
-      {
-        id: "user-3",
-        username: "techbuilder",
-        name: "Tech Builder",
-        avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&auto=format",
-        collectedAt: new Date(Date.now() - 1000 * 60 * 60), // 1 hour ago
-        verified: true,
-      },
-    ],
-  },
-  creator: {
-    id: "creator-2",
-    username: "gamerbuild",
-    name: "Indie Game Studio",
-    avatar: "https://images.unsplash.com/photo-1568602471122-7832951cc4c5?w=400&auto=format",
-    bio: "Creating the next generation of story-driven games. Building in public.",
-    verified: true,
-    stats: {
-      followers: 876,
-      believers: 52,
-    },
-  },
-  comments: [
-    {
-      id: "comment-1",
-      content: "This looks amazing! Can't wait to play the alpha version.",
-      createdAt: new Date(Date.now() - 1000 * 60 * 120), // 2 hours ago
-      author: {
-        id: "user-1",
-        username: "cryptofan",
-        name: "Crypto Fan",
-        avatar: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=200&auto=format",
-        verified: true,
-      },
-    },
-    {
-      id: "comment-2",
-      content: "Will there be multiplayer features in the future?",
-      createdAt: new Date(Date.now() - 1000 * 60 * 180), // 3 hours ago
-      author: {
-        id: "user-2",
-        username: "gamerlover",
-        name: "Gamer Enthusiast",
-        avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&auto=format",
-      },
-    },
-  ],
-};
-
 export default function PostPage() {
   const router = useRouter();
   const params = useParams();
-  const postId = params.id as string;
+  const lensPostId = params.id as string;
   const creatorUsername = params.username as string;
 
-  const [post, setPost] = useState<PostDetail | null>(null);
+  const [post, setPost] = useState<Post | null>(null);
+  const [comments, setComments] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasCollected, setHasCollected] = useState(false);
 
-  // In a real app, you would fetch the post data based on the ID and creator username
+  // Fetch the post data from Lens Protocol
   useEffect(() => {
-    // Simulate API fetch
     const loadPost = async () => {
       setIsLoading(true);
       try {
-        // This would be an API call in a real app
-        await new Promise((resolve) => setTimeout(resolve, 500)); // Simulate network delay
+        // Get the Lens client
+        const client = await getLensClient();
 
-        // For the MVP, we'll use the mock data
-        setPost(MOCK_POST);
+        // Fetch the post data using the fetchPost function from the SDK
+        const result = await fetchPost(client, {
+          post: postId(lensPostId),
+        });
 
-        // Check if current user has collected this post
-        // This would be a real check in production
+        if (result.isErr()) {
+          toast.error("Failed to load post");
+          console.error(result.error);
+          setIsLoading(false);
+          return;
+        }
+
+        const postData = result.value as Post;
+        if (!postData) {
+          toast.error("Post not found");
+          setIsLoading(false);
+          return;
+        }
+
+        // Store the post
+        setPost(postData);
+
+        // Fetch comments for the post
+        const commentsResult = await fetchPostReferences(client, {
+          referenceTypes: [PostReferenceType.CommentOn],
+          referencedPost: postId(lensPostId),
+        });
+
+        if (commentsResult.isOk()) {
+          // Filter to get only Post type comments
+          const commentPosts = commentsResult.value.items.filter(
+            (item) => item.__typename === "Post",
+          ) as Post[];
+
+          setComments(commentPosts);
+        } else {
+          console.error("Failed to fetch comments:", commentsResult.error);
+        }
+
+        // Check if user has collected this post (simplified implementation for now)
         setHasCollected(false);
       } catch (error) {
         console.error("Error loading post:", error);
@@ -187,27 +91,37 @@ export default function PostPage() {
     };
 
     loadPost();
-  }, [postId, creatorUsername]);
+  }, [lensPostId, creatorUsername]);
 
+  // Handle collect action
   const handleCollect = () => {
     if (post) {
-      // Update the post data to reflect the new collection
-      setPost({
-        ...post,
-        collectible: {
-          ...post.collectible,
-          collected: post.collectible.collected + 1,
-        },
-      });
+      // Update local state to reflect collection (simplified)
+      // In a real implementation, this would trigger an actual collect transaction
+      toast.success("Collected post!");
     }
   };
 
-  const handleCommentAdded = (newComment: Comment) => {
+  // Handle adding a new comment
+  const handleCommentAdded = (newComment: Post) => {
+    setComments((prev) => [newComment, ...prev]);
+  };
+
+  // Handle reaction change
+  const handleReactionChange = (isReacted: boolean) => {
     if (post) {
-      setPost({
-        ...post,
-        comments: [newComment, ...post.comments],
-      });
+      // Update local reaction count (simplified)
+      // In a real implementation, this would be handled by a query refresh
+      toast.success(isReacted ? "Reaction added!" : "Reaction removed!");
+    }
+  };
+
+  // Handle repost/quote count change
+  const handleRepostChange = () => {
+    if (post) {
+      // Update local repost count (simplified)
+      // In a real implementation, this would be handled by a query refresh
+      toast.success("Post shared!");
     }
   };
 
@@ -231,7 +145,69 @@ export default function PostPage() {
     );
   }
 
-  const timeAgo = formatDistanceToNow(post.createdAt, { addSuffix: true });
+  // Extract post metadata
+  const timestamp = new Date(post.timestamp);
+  const timeAgo = formatDistanceToNow(timestamp, { addSuffix: true });
+
+  // Get username
+  const username =
+    post.author.username?.value?.split("/").pop() || post.author.address.substring(0, 8);
+
+  // Get collect action if any
+  const collectAction = post.actions?.find((action) => action.__typename === "SimpleCollectAction");
+
+  // Get image URL if available
+  const imageUrl = (() => {
+    if (post.metadata?.__typename === "ImageMetadata" && post.metadata.image) {
+      if (typeof post.metadata.image === "string") {
+        return post.metadata.image;
+      }
+      return post.metadata.image.item || "";
+    }
+    return "";
+  })();
+
+  // Get content based on metadata type
+  const content = (() => {
+    if (!post.metadata) return "";
+
+    if (post.metadata.__typename === "TextOnlyMetadata") {
+      return post.metadata.content;
+    } else if (post.metadata.__typename === "ArticleMetadata") {
+      return post.metadata.content;
+    } else if (post.metadata.__typename === "ImageMetadata") {
+      return post.metadata.content;
+    } else if (post.metadata.__typename === "VideoMetadata") {
+      return post.metadata.content;
+    } else if (post.metadata.__typename === "AudioMetadata") {
+      return post.metadata.content;
+    } else {
+      return (post.metadata as any)?.content || "";
+    }
+  })();
+
+  // Get title based on metadata type
+  const title = (() => {
+    if (!post.metadata) return "Untitled Post";
+
+    if (post.metadata.__typename === "ArticleMetadata") {
+      return post.metadata.title || "Untitled Post";
+    } else if (post.metadata.__typename === "VideoMetadata") {
+      return post.metadata.title || "Untitled Post";
+    } else if (post.metadata.__typename === "AudioMetadata") {
+      return post.metadata.title || "Untitled Post";
+    } else {
+      return (post.metadata as any)?.title || "Untitled Post";
+    }
+  })();
+
+  // Get author picture
+  const authorPicture = (() => {
+    const pic = post.author.metadata?.picture;
+    if (!pic) return "";
+    if (typeof pic === "string") return pic;
+    return pic.item || "";
+  })();
 
   return (
     <div className="container mx-auto max-w-5xl pb-12">
@@ -247,9 +223,11 @@ export default function PostPage() {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <Card className="overflow-hidden">
-            {post.image && (
+            {imageUrl && (
               <div className="w-full overflow-hidden">
-                <img src={post.image} alt={post.title} className="h-auto w-full object-cover" />
+                <div className="relative aspect-video w-full">
+                  <Image src={imageUrl} alt={title} fill className="object-cover" />
+                </div>
               </div>
             )}
 
@@ -258,23 +236,24 @@ export default function PostPage() {
                 <div className="flex items-start gap-3">
                   <Avatar
                     className="size-10 cursor-pointer"
-                    onClick={() => router.push(`/u/${post.creator.username}`)}
+                    onClick={() => router.push(`/u/${username}`)}
                   >
-                    <AvatarImage src={post.creator.avatar} alt={post.creator.name} />
-                    <AvatarFallback>{post.creator.name[0].toUpperCase()}</AvatarFallback>
+                    <AvatarImage src={authorPicture} alt={post.author.metadata?.name || username} />
+                    <AvatarFallback>
+                      {(post.author.metadata?.name?.[0] || username[0]).toUpperCase()}
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-1">
                       <h3
                         className="font-semibold hover:underline"
-                        onClick={() => router.push(`/u/${post.creator.username}`)}
+                        onClick={() => router.push(`/u/${username}`)}
                       >
-                        {post.creator.name}
+                        {post.author.metadata?.name || username}
                       </h3>
-                      {post.creator.verified && <BadgeCheck className="size-4 text-[#00A8FF]" />}
                     </div>
                     <div className="flex items-center gap-1">
-                      <p className="text-muted-foreground text-sm">@{post.creator.username}</p>
+                      <p className="text-muted-foreground text-sm">@{username}</p>
                       <span className="text-muted-foreground text-xs">•</span>
                       <span className="text-muted-foreground text-xs">{timeAgo}</span>
                     </div>
@@ -282,36 +261,44 @@ export default function PostPage() {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="icon" className="text-muted-foreground">
-                    <MessageCircleIcon className="size-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="text-muted-foreground">
-                    <RefreshCwIcon className="size-4" />
-                  </Button>
-                  <Button variant="ghost" size="icon" className="text-muted-foreground">
-                    <HeartIcon className="size-4" />
-                  </Button>
+                  <ReactionButton
+                    postId={post.id}
+                    reactionCount={post.stats?.upvotes || 0}
+                    isReacted={post.operations?.hasUpvoted || false}
+                    onReactionChange={handleReactionChange}
+                    variant="ghost"
+                    size="icon"
+                  />
+                  <RepostQuoteButton
+                    postId={post.id}
+                    count={(post.stats?.reposts || 0) + (post.stats?.quotes || 0)}
+                    variant="ghost"
+                    size="icon"
+                    onRepostSubmit={handleRepostChange}
+                    onQuoteSubmit={handleRepostChange}
+                  />
                   <Button variant="ghost" size="icon" className="text-muted-foreground">
                     <DollarSign className="size-4" />
                   </Button>
-                  <BookmarkToggleButton postId={post.id} />
+                  <BookmarkToggleButton
+                    postId={post.id}
+                    isBookmarked={post.operations?.hasBookmarked}
+                  />
                 </div>
               </div>
 
-              <h1 className="mb-4 font-bold text-2xl">{post.title}</h1>
-              <div className="whitespace-pre-line text-base">{post.content}</div>
+              <h1 className="mb-4 font-bold text-2xl">{title}</h1>
+              <div className="whitespace-pre-line text-base">{content}</div>
 
               <div className="mt-8">
                 <Tabs defaultValue="comments">
                   <TabsList className="grid w-full grid-cols-2">
                     <TabsTrigger value="comments">
                       <MessageCircleIcon className="mr-2 size-4" />
-                      Comments ({post.comments.length})
+                      Comments ({comments.length})
                     </TabsTrigger>
                     <TabsTrigger value="collectors">
-                      <Badge className="mr-2 bg-[#00A8FF]">
-                        {post.collectible.collectors.length}
-                      </Badge>
+                      <Badge className="mr-2 bg-[#00A8FF]">{post.stats?.collects || 0}</Badge>
                       Believers
                     </TabsTrigger>
                   </TabsList>
@@ -319,12 +306,12 @@ export default function PostPage() {
                   <TabsContent value="comments" className="mt-0 pt-4">
                     <CommentSection
                       postId={post.id}
-                      comments={post.comments}
+                      comments={comments}
                       onCommentAdded={handleCommentAdded}
                     />
                   </TabsContent>
                   <TabsContent value="collectors" className="mt-0 pt-4">
-                    <CollectorsList collectors={post.collectible.collectors} />
+                    <CollectorsList collectors={[]} />
                   </TabsContent>
                 </Tabs>
               </div>
@@ -335,11 +322,24 @@ export default function PostPage() {
         <div>
           <CollectCard
             postId={post.id}
-            price={post.collectible.price}
-            currency={post.collectible.currency}
-            collected={post.collectible.collected}
-            total={post.collectible.total}
-            creator={post.creator}
+            price={"0"}
+            currency={"ETH"}
+            collected={post.stats?.collects || 0}
+            total={
+              collectAction?.__typename === "SimpleCollectAction"
+                ? collectAction.collectLimit || 100
+                : 100
+            }
+            creator={{
+              id: post.author.address,
+              username,
+              name: post.author.metadata?.name || username,
+              avatar: authorPicture,
+              stats: {
+                followers: 0, // Would need an additional API call
+                believers: post.stats?.collects || 0,
+              },
+            }}
             onCollect={handleCollect}
           />
         </div>

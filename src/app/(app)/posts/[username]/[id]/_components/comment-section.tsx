@@ -2,72 +2,90 @@
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { usePostComment } from "@/hooks/use-post-comment";
+import { type Post } from "@lens-protocol/client";
+import { useAuthenticatedUser } from "@lens-protocol/react";
 import { formatDistanceToNow } from "date-fns";
-import { BadgeCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 
-interface Comment {
-  id: string;
-  content: string;
-  createdAt: Date;
-  author: {
-    id: string;
-    username: string;
-    name: string;
-    avatar?: string;
-    verified?: boolean;
-  };
-}
-
 interface CommentSectionProps {
   postId: string;
-  comments: Comment[];
-  onCommentAdded: (comment: Comment) => void;
+  comments: Post[];
+  onCommentAdded: (comment: Post) => void;
 }
 
 export function CommentSection({ postId, comments, onCommentAdded }: CommentSectionProps) {
   const router = useRouter();
+  const { data: currentUser } = useAuthenticatedUser();
+  const { isLoading, createComment } = usePostComment(postId);
   const [commentText, setCommentText] = useState("");
-  const [isCommenting, setIsCommenting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!commentText.trim()) return;
 
-    setIsCommenting(true);
+    if (!currentUser) {
+      toast.error("Please log in to comment");
+      return;
+    }
+
     try {
-      // This would be replaced with actual comment creation in production
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulate API call
+      const result = await createComment(commentText);
 
-      // Create a new comment object
-      const newComment: Comment = {
-        id: `comment-${Date.now()}`,
-        content: commentText,
-        createdAt: new Date(),
-        author: {
-          // This would be the current user in production
-          id: "current-user",
-          username: "current.lens",
-          name: "Current User",
-          avatar: "https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&auto=format",
-        },
-      };
+      if (result && typeof result === "object" && "value" in result) {
+        // In a production app, we'd use the actual returned comment data
+        // This is a temporary solution until we implement proper comment fetching
+        const newComment = result.value as unknown as Post;
+        onCommentAdded(newComment);
 
-      // Call the callback to update parent component
-      onCommentAdded(newComment);
-
-      // Reset the form
-      setCommentText("");
-      toast.success("Comment posted!");
+        // Reset the form
+        setCommentText("");
+      } else {
+        toast.error("Failed to post comment");
+      }
     } catch (error) {
       console.error("Error posting comment:", error);
-      toast.error("Failed to post comment. Please try again.");
-    } finally {
-      setIsCommenting(false);
+      toast.error("Error posting comment");
     }
   };
+
+  // Get username from user object
+  function getUsernameValue(user: any): string {
+    if (!user) return "";
+    return (
+      user.handle?.fullHandle?.split("/").pop() ||
+      user.handle?.localName ||
+      user.address?.substring(0, 8) ||
+      ""
+    );
+  }
+
+  // Get name from user metadata
+  function getUserDisplayName(user: any): string {
+    if (!user) return "";
+    return user.metadata?.displayName || user.metadata?.name || getUsernameValue(user);
+  }
+
+  // Get profile picture from user metadata
+  function getUserPicture(user: any): string {
+    if (!user || !user.metadata?.picture) return "";
+
+    const picture = user.metadata.picture;
+
+    if (typeof picture === "string") {
+      return picture;
+    }
+
+    return picture.optimized?.uri || picture.raw?.uri || picture.uri || picture.item || "";
+  }
+
+  // Get current user's picture and initial
+  const currentUserPicture = currentUser ? getUserPicture(currentUser) : "";
+  const currentUserInitial = currentUser
+    ? (getUserDisplayName(currentUser)[0] || "U").toUpperCase()
+    : "U";
 
   return (
     <div>
@@ -75,11 +93,8 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
       <form onSubmit={handleSubmit} className="mb-6">
         <div className="flex gap-3">
           <Avatar className="size-10">
-            <AvatarImage
-              src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?w=200&auto=format"
-              alt="Your avatar"
-            />
-            <AvatarFallback>You</AvatarFallback>
+            <AvatarImage src={currentUserPicture} alt="Your profile" />
+            <AvatarFallback>{currentUserInitial}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <textarea
@@ -93,8 +108,8 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
               <Button
                 type="submit"
                 size="sm"
-                disabled={!commentText.trim() || isCommenting}
-                isLoading={isCommenting}
+                disabled={!commentText.trim() || isLoading || !currentUser}
+                isLoading={isLoading}
                 className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
               >
                 Comment
@@ -111,40 +126,71 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
         </div>
       ) : (
         <div className="space-y-4">
-          {comments.map((comment) => (
-            <div key={comment.id} className="rounded-lg border p-4">
-              <div className="mb-2 flex items-center gap-2">
-                <Avatar
-                  className="size-8 cursor-pointer"
-                  onClick={() => router.push(`/u/${comment.author.username}`)}
-                >
-                  <AvatarImage src={comment.author.avatar} alt={comment.author.name} />
-                  <AvatarFallback>{comment.author.name[0]}</AvatarFallback>
-                </Avatar>
-                <div>
-                  <div className="flex items-center gap-1">
-                    <span
-                      className="cursor-pointer font-semibold hover:underline"
-                      onClick={() => router.push(`/u/${comment.author.username}`)}
-                    >
-                      {comment.author.name}
-                    </span>
-                    {comment.author.verified && <BadgeCheck className="size-3 text-[#00A8FF]" />}
-                  </div>
-                  <div className="flex items-center gap-1 text-muted-foreground text-xs">
-                    <span>@{comment.author.username}</span>
-                    <span>•</span>
-                    <span>
-                      {formatDistanceToNow(comment.createdAt, {
-                        addSuffix: true,
-                      })}
-                    </span>
+          {comments.map((comment) => {
+            // Extract username without namespace
+            const username =
+              comment.author.username?.value?.split("/").pop() ||
+              comment.author.address.substring(0, 8);
+
+            // Get author picture
+            const picture = (() => {
+              const pic = comment.author.metadata?.picture;
+              if (!pic) return "";
+              if (typeof pic === "string") return pic;
+              return pic.item || "";
+            })();
+
+            // Extract content based on metadata type
+            const content = (() => {
+              if (!comment.metadata) return "";
+
+              if (comment.metadata.__typename === "TextOnlyMetadata") {
+                return comment.metadata.content;
+              } else if (comment.metadata.__typename === "ArticleMetadata") {
+                return comment.metadata.content;
+              } else if (comment.metadata.__typename === "ImageMetadata") {
+                return comment.metadata.content;
+              } else {
+                return (comment.metadata as any)?.content || "";
+              }
+            })();
+
+            return (
+              <div key={comment.id} className="rounded-lg border p-4">
+                <div className="mb-2 flex items-center gap-2">
+                  <Avatar
+                    className="size-8 cursor-pointer"
+                    onClick={() => router.push(`/u/${username}`)}
+                  >
+                    <AvatarImage src={picture} alt={comment.author.metadata?.name || username} />
+                    <AvatarFallback>
+                      {(comment.author.metadata?.name?.[0] || username[0]).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span
+                        className="cursor-pointer font-semibold hover:underline"
+                        onClick={() => router.push(`/u/${username}`)}
+                      >
+                        {comment.author.metadata?.name || username}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-1 text-muted-foreground text-xs">
+                      <span>@{username}</span>
+                      <span>•</span>
+                      <span>
+                        {formatDistanceToNow(new Date(comment.timestamp), {
+                          addSuffix: true,
+                        })}
+                      </span>
+                    </div>
                   </div>
                 </div>
+                <p className="text-sm">{content}</p>
               </div>
-              <p className="text-sm">{comment.content}</p>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

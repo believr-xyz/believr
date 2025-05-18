@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { usePostReaction } from "@/hooks/use-post-reaction";
 import { HeartIcon } from "lucide-react";
+import { useEffect, useState } from "react";
 
 interface ReactionButtonProps {
   postId: string;
@@ -18,19 +19,38 @@ interface ReactionButtonProps {
 export function ReactionButton({
   postId,
   isReacted: initialReacted = false,
-  reactionCount = 0,
+  reactionCount: initialReactionCount = 0,
   showCount = true,
   size = "sm",
   variant = "ghost",
   className = "",
   onReactionChange,
 }: ReactionButtonProps) {
+  // Track reaction count locally
+  const [currentCount, setCurrentCount] = useState(initialReactionCount);
+
   // Use our custom hook for reaction functionality
   const { isReacted, isLoading, toggleReaction } = usePostReaction(
     postId,
     initialReacted,
-    onReactionChange,
+    (newReactedState) => {
+      // Update the count when reaction state changes
+      if (newReactedState) {
+        // Incremented when reacted
+        setCurrentCount((prev) => prev + 1);
+      } else {
+        // Decremented when unreacted
+        setCurrentCount((prev) => Math.max(0, prev - 1));
+      }
+      // Call the parent callback if provided
+      onReactionChange?.(newReactedState);
+    },
   );
+
+  // If initial props change, update the local state
+  useEffect(() => {
+    setCurrentCount(initialReactionCount);
+  }, [initialReactionCount]);
 
   // Handle click and prevent event propagation
   const handleClick = (e: React.MouseEvent) => {
@@ -51,7 +71,7 @@ export function ReactionButton({
       {!isLoading && (
         <>
           <HeartIcon className="size-4" fill={isReacted ? "currentColor" : "none"} />
-          {showCount && <span>{reactionCount}</span>}
+          {showCount && <span>{currentCount}</span>}
         </>
       )}
     </Button>

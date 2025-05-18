@@ -106,7 +106,19 @@ export default function PostPage() {
   const handleCommentAdded = (newComment: Post) => {
     // Check if the comment already exists in the list (avoid duplicates)
     if (!comments.some((comment) => comment.id === newComment.id)) {
+      // Add the new comment to the beginning of the list
       setComments((prev) => [newComment, ...prev]);
+
+      // Update comment count in post stats
+      if (post) {
+        setPost({
+          ...post,
+          stats: {
+            ...post.stats,
+            comments: (post.stats?.comments || 0) + 1,
+          },
+        });
+      }
     }
   };
 

@@ -7,10 +7,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { usePostComment } from "@/hooks/use-post-comment";
 import { type Post } from "@lens-protocol/client";
-import { useAuthenticatedUser } from "@lens-protocol/react";
+import { useAccount, useAuthenticatedUser } from "@lens-protocol/react";
 import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface CommentSectionProps {
@@ -21,7 +21,13 @@ interface CommentSectionProps {
 
 export function CommentSection({ postId, comments, onCommentAdded }: CommentSectionProps) {
   const router = useRouter();
-  const { data: currentUser } = useAuthenticatedUser();
+  const { data: authenticatedUser, loading: userLoading } = useAuthenticatedUser();
+
+  // Only call useAccount when we have an authenticated user
+  const { data: currentUserProfile, loading: profileLoading } = useAccount(
+    authenticatedUser?.address ? { address: authenticatedUser.address } : { address: undefined }, // Use undefined as a fallback
+  );
+
   const { isLoading, createComment } = usePostComment(postId);
   const [commentText, setCommentText] = useState("");
 
@@ -29,7 +35,7 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
     e.preventDefault();
     if (!commentText.trim()) return;
 
-    if (!currentUser) {
+    if (!authenticatedUser || !currentUserProfile) {
       toast.error("Please log in to comment");
       return;
     }
@@ -38,57 +44,49 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
       const result = await createComment(commentText);
 
       if (result && typeof result === "object" && "value" in result) {
-        // In a production app, we'd use the actual returned comment data
-        // This is a temporary solution until we implement proper comment fetching
-        const newComment = result.value as unknown as Post;
+        // Use the returned comment data
+        const newComment = result.value as Post;
         onCommentAdded(newComment);
 
         // Reset the form
         setCommentText("");
       } else {
-        toast.error("Failed to post comment");
+        toast.error("Failed to post comment. Please try again.");
       }
     } catch (error) {
       console.error("Error posting comment:", error);
-      toast.error("Error posting comment");
+      toast.error("Error posting comment. Please try again.");
     }
   };
 
-  // Get username from user object
-  function getUsernameValue(user: any): string {
-    if (!user) return "";
-    return (
-      user.handle?.fullHandle?.split("/").pop() ||
-      user.handle?.localName ||
-      user.address?.substring(0, 8) ||
-      ""
-    );
-  }
+  // Get current user's picture
+  const currentUserPicture = (() => {
+    if (!currentUserProfile || !currentUserProfile.metadata?.picture) return "";
 
-  // Get name from user metadata
-  function getUserDisplayName(user: any): string {
-    if (!user) return "";
-    return user.metadata?.displayName || user.metadata?.name || getUsernameValue(user);
-  }
-
-  // Get profile picture from user metadata
-  function getUserPicture(user: any): string {
-    if (!user || !user.metadata?.picture) return "";
-
-    const picture = user.metadata.picture;
+    const picture = currentUserProfile.metadata.picture;
 
     if (typeof picture === "string") {
       return picture;
     }
 
-    return picture.optimized?.uri || picture.raw?.uri || picture.uri || picture.item || "";
-  }
+    // Handle different types of picture objects
+    return picture;
+  })();
 
-  // Get current user's picture and initial
-  const currentUserPicture = currentUser ? getUserPicture(currentUser) : "";
-  const currentUserInitial = currentUser
-    ? (getUserDisplayName(currentUser)[0] || "U").toUpperCase()
-    : "U";
+  // Get current user's display name
+  const currentUserName = (() => {
+    if (!currentUserProfile) return "";
+
+    return (
+      currentUserProfile.metadata?.name ||
+      currentUserProfile.username?.value?.split("/").pop() ||
+      authenticatedUser?.address.substring(0, 8) ||
+      "User"
+    );
+  })();
+
+  // Get current user's initial for avatar fallback
+  const currentUserInitial = currentUserName ? currentUserName[0].toUpperCase() : "U";
 
   return (
     <div>
@@ -96,22 +94,29 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
       <form onSubmit={handleSubmit} className="mb-6">
         <div className="flex gap-3">
           <Avatar className="size-10">
-            <AvatarImage src={currentUserPicture} alt="Your profile" />
+            <AvatarImage src={currentUserPicture} alt={currentUserName} />
             <AvatarFallback>{currentUserInitial}</AvatarFallback>
           </Avatar>
           <div className="flex-1">
             <textarea
               className="w-full rounded-lg border bg-transparent p-3 text-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
-              placeholder="Write a comment..."
+              placeholder={authenticatedUser ? "Write a comment..." : "Log in to comment"}
               rows={3}
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
+              disabled={!authenticatedUser || userLoading || profileLoading}
             />
             <div className="mt-2 flex justify-end">
               <Button
                 type="submit"
                 size="sm"
-                disabled={!commentText.trim() || isLoading || !currentUser}
+                disabled={
+                  !commentText.trim() ||
+                  isLoading ||
+                  !authenticatedUser ||
+                  userLoading ||
+                  profileLoading
+                }
                 isLoading={isLoading}
                 className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
               >
@@ -140,7 +145,7 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
               const pic = comment.author.metadata?.picture;
               if (!pic) return "";
               if (typeof pic === "string") return pic;
-              return pic.item || "";
+              return pic;
             })();
 
             // Extract content based on metadata type
@@ -158,6 +163,9 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
               }
             })();
 
+            // Get display name
+            const displayName = comment.author.metadata?.name || username;
+
             return (
               <div key={comment.id} className="rounded-lg border p-4">
                 <div className="mb-2 flex items-center gap-2">
@@ -165,10 +173,8 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
                     className="size-8 cursor-pointer"
                     onClick={() => router.push(`/u/${username}`)}
                   >
-                    <AvatarImage src={picture} alt={comment.author.metadata?.name || username} />
-                    <AvatarFallback>
-                      {(comment.author.metadata?.name?.[0] || username[0]).toUpperCase()}
-                    </AvatarFallback>
+                    <AvatarImage src={picture} alt={displayName} />
+                    <AvatarFallback>{(displayName[0] || "U").toUpperCase()}</AvatarFallback>
                   </Avatar>
                   <div>
                     <div className="flex items-center gap-1">
@@ -176,7 +182,7 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
                         className="cursor-pointer font-semibold hover:underline"
                         onClick={() => router.push(`/u/${username}`)}
                       >
-                        {comment.author.metadata?.name || username}
+                        {displayName}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 text-muted-foreground text-xs">

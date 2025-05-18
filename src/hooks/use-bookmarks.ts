@@ -7,6 +7,25 @@ import { useAuthenticatedUser } from "@lens-protocol/react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
+// Define the proper type for PostBookmarksRequest
+interface PostBookmarksRequest {
+  filter?: {
+    feeds?: any[];
+    metadata?: {
+      mainContentFocus?: string[];
+      tags?: {
+        oneOf?: string[];
+        all?: string[];
+      };
+      contentWarning?: {
+        oneOf: string[];
+      };
+    };
+  };
+  pageSize?: number;
+  cursor?: string;
+}
+
 interface UseBookmarksResult {
   posts: AnyPost[];
   isLoading: boolean;
@@ -53,16 +72,19 @@ export function useBookmarks(limit = 20): UseBookmarksResult {
 
         const sessionClient = client as SessionClient;
 
-        // Base request parameters
-        const request: any = {
+        // Properly typed request parameters
+        const request: PostBookmarksRequest = {
           cursor: reset ? undefined : cursor,
-          limit,
+          pageSize: limit,
         };
 
         const result = await fetchPostBookmarks(sessionClient, request);
 
         if (result.isErr()) {
-          setError(new Error(result.error.message));
+          console.error("Bookmark fetch error:", result.error);
+          setError(
+            new Error(result.error.message || "Failed to fetch bookmarks. Please try again later."),
+          );
           return;
         }
 
@@ -77,7 +99,15 @@ export function useBookmarks(limit = 20): UseBookmarksResult {
         setHasMore(!!result.value.pageInfo.next);
       } catch (error) {
         console.error("Error fetching bookmarks:", error);
-        setError(error instanceof Error ? error : new Error("Failed to fetch bookmarks"));
+        let errorMessage = "Failed to fetch bookmarks";
+
+        if (error instanceof Error) {
+          errorMessage = error.message;
+          console.error("Details:", error.stack);
+        }
+
+        setError(new Error(errorMessage));
+        toast.error(errorMessage);
       } finally {
         setIsLoading(false);
       }

@@ -22,12 +22,12 @@ export function usePostComment(postIdValue: string, onSuccess?: () => void) {
   const createComment = async (content: string) => {
     if (!user) {
       toast.error("You need to be logged in to comment");
-      return;
+      return null;
     }
 
     if (!content.trim()) {
       toast.error("Comment content cannot be empty");
-      return;
+      return null;
     }
 
     setIsLoading(true);
@@ -40,7 +40,7 @@ export function usePostComment(postIdValue: string, onSuccess?: () => void) {
       if (!("storage" in client)) {
         toast.error("Authentication required");
         setIsLoading(false);
-        return;
+        return null;
       }
 
       const sessionClient = client as SessionClient;
@@ -60,58 +60,66 @@ export function usePostComment(postIdValue: string, onSuccess?: () => void) {
       });
 
       if (result.isErr()) {
-        toast.error("Failed to post comment");
-        console.error(result.error);
+        console.error("Error posting comment:", result.error);
+        toast.error(`Failed to post comment: ${result.error.message}`);
         setIsLoading(false);
-        return result;
+        return null;
       }
 
+      // Success!
       toast.success("Comment posted successfully");
       onSuccess?.();
 
-      // If the post action was successful but we can't extract the comment data,
-      // create a mock comment to display immediately in the UI
-      if (!result.value) {
-        // Create a mock Post object that the UI can display
-        const mockComment = {
-          id: `mock-${Date.now()}`,
-          __typename: "Post",
-          metadata: {
-            __typename: "TextOnlyMetadata",
-            content: content,
-          },
-          author: user,
-          timestamp: new Date().toISOString(),
-          stats: { upvotes: 0, comments: 0, reposts: 0, quotes: 0 },
-          operations: { hasUpvoted: false, hasBookmarked: false },
-        } as unknown as Post;
+      // Create a mock comment that matches the structure the UI expects
+      // We need this because the Lens API doesn't return the full comment data immediately
+      const mockComment: Post = {
+        id: `mock-${Date.now()}`,
+        __typename: "Post",
+        metadata: {
+          __typename: "TextOnlyMetadata",
+          content: content,
+        } as any,
+        author: user,
+        timestamp: new Date().toISOString(),
+        stats: {
+          upvotes: 0,
+          comments: 0,
+          reposts: 0,
+          quotes: 0,
+          posts: 0,
+          totalUpvotes: 0,
+          totalAmountOfCollects: 0,
+          totalAmountOfMirrors: 0,
+        },
+        operations: {
+          hasUpvoted: false,
+          hasBookmarked: false,
+          hasActed: false,
+          hasReacted: false,
+          canAct: true,
+          canComment: true,
+          canDecrypt: false,
+          canMirror: true,
+          hasMirrored: false,
+          hasQuoted: false,
+          hasCollected: false,
+          canCollect: true,
+          actedOn: [],
+        },
+        feed: { id: "" },
+        root: undefined,
+        commentOn: undefined,
+        quoteOn: undefined,
+        momoka: null,
+        hashtagsMentioned: [],
+        profilesMentioned: [],
+        hidden: false,
+      } as unknown as Post;
 
-        return { value: mockComment } as Result<any, any>;
-      }
-
-      return result;
+      return { value: mockComment } as Result<Post, any>;
     } catch (error) {
       console.error("Error posting comment:", error);
-      toast.error("Something went wrong");
-
-      // Even on error, create a mock comment to give feedback to the user
-      if (user) {
-        const mockComment = {
-          id: `mock-${Date.now()}`,
-          __typename: "Post",
-          metadata: {
-            __typename: "TextOnlyMetadata",
-            content: content,
-          },
-          author: user,
-          timestamp: new Date().toISOString(),
-          stats: { upvotes: 0, comments: 0, reposts: 0, quotes: 0 },
-          operations: { hasUpvoted: false, hasBookmarked: false },
-        } as unknown as Post;
-
-        return { value: mockComment } as Result<any, any>;
-      }
-
+      toast.error("Failed to post comment. Please try again.");
       return null;
     } finally {
       setIsLoading(false);

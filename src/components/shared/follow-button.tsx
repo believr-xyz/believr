@@ -1,13 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { useFollow } from "@/hooks/use-follow";
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { Check, Plus } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
-export interface FollowButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface FollowButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * The user ID to follow
    */
@@ -27,7 +29,13 @@ export interface FollowButtonProps extends React.ButtonHTMLAttributes<HTMLButton
   /**
    * The variant of the button
    */
-  variant?: "default" | "outline" | "secondary" | "ghost" | "link" | "destructive";
+  variant?:
+    | "default"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link"
+    | "destructive";
   /**
    * Callback function when follow state changes
    */
@@ -58,8 +66,20 @@ export function FollowButton({
   ...props
 }: FollowButtonProps) {
   const [isFollowing, setIsFollowing] = useState(initialIsFollowing);
-  const [isLoading, setIsLoading] = useState(false);
   const { data: user } = useAuthenticatedUser();
+  const { follow, unfollow, checkFollowStatus, isLoading } = useFollow();
+
+  // Load initial follow status when component mounts or user changes
+  useEffect(() => {
+    const loadFollowStatus = async () => {
+      if (user?.address) {
+        const status = await checkFollowStatus(userId);
+        setIsFollowing(status);
+      }
+    };
+
+    loadFollowStatus();
+  }, [userId, user, checkFollowStatus]);
 
   // Determine button variant based on follow state
   const variant = isFollowing ? "outline" : initialVariant;
@@ -73,29 +93,35 @@ export function FollowButton({
       return;
     }
 
-    setIsLoading(true);
     try {
-      // TODO: Implement real follow functionality using Lens SDK
-      // This is a placeholder that simulates the behavior
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      if (isFollowing) {
+        // Unfollow
+        const result = await unfollow(userId);
 
-      const newIsFollowing = !isFollowing;
-      setIsFollowing(newIsFollowing);
+        if (result.isErr()) {
+          throw new Error("Failed to unfollow");
+        }
 
-      if (newIsFollowing) {
-        toast.success(`Followed @${username}`);
-      } else {
+        setIsFollowing(false);
         toast.success(`Unfollowed @${username}`);
+      } else {
+        // Follow
+        const result = await follow(userId);
+
+        if (result.isErr()) {
+          throw new Error("Failed to follow");
+        }
+
+        setIsFollowing(true);
+        toast.success(`Followed @${username}`);
       }
 
       if (onFollowChange) {
-        onFollowChange(newIsFollowing);
+        onFollowChange(!isFollowing);
       }
     } catch (error) {
       console.error("Error following/unfollowing:", error);
       toast.error("Failed to update follow status. Please try again.");
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -107,17 +133,28 @@ export function FollowButton({
       disabled={isLoading}
       className={cn(
         {
-          "bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90": !isFollowing && variant === "default",
+          "bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90":
+            !isFollowing && variant === "default",
           "rounded-full": rounded,
         },
-        className,
+        className
       )}
       {...props}
     >
-      {isLoading ? "" : showText ? (isFollowing ? "Following" : "Follow") : null}
+      {isLoading
+        ? ""
+        : showText
+        ? isFollowing
+          ? "Following"
+          : "Follow"
+        : null}
       {!showText &&
         !isLoading &&
-        (isFollowing ? <Check className="size-4" /> : <Plus className="size-4" />)}
+        (isFollowing ? (
+          <Check className="size-4" />
+        ) : (
+          <Plus className="size-4" />
+        ))}
     </Button>
   );
 }

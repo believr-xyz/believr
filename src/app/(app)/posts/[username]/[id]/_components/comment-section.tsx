@@ -9,6 +9,9 @@ import { formatDistanceToNow } from "date-fns";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
+import { BookmarkToggleButton } from "@/components/shared/bookmark-toggle-button";
+import { ReactionButton } from "@/components/shared/reaction-button";
+import { RepostQuoteButton } from "@/components/shared/repost-quote-button";
 
 interface CommentSectionProps {
   postId: string;
@@ -16,7 +19,11 @@ interface CommentSectionProps {
   onCommentAdded: (comment: Post) => void;
 }
 
-export function CommentSection({ postId, comments, onCommentAdded }: CommentSectionProps) {
+export function CommentSection({
+  postId,
+  comments,
+  onCommentAdded,
+}: CommentSectionProps) {
   const router = useRouter();
   const { data: currentUser } = useAuthenticatedUser();
   const { isLoading, createComment } = usePostComment(postId);
@@ -65,7 +72,11 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
   // Get name from user metadata
   function getUserDisplayName(user: any): string {
     if (!user) return "";
-    return user.metadata?.displayName || user.metadata?.name || getUsernameValue(user);
+    return (
+      user.metadata?.displayName ||
+      user.metadata?.name ||
+      getUsernameValue(user)
+    );
   }
 
   // Get profile picture from user metadata
@@ -78,7 +89,13 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
       return picture;
     }
 
-    return picture.optimized?.uri || picture.raw?.uri || picture.uri || picture.item || "";
+    return (
+      picture.optimized?.uri ||
+      picture.raw?.uri ||
+      picture.uri ||
+      picture.item ||
+      ""
+    );
   }
 
   // Get current user's picture and initial
@@ -122,7 +139,9 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
       {/* Comments list */}
       {comments.length === 0 ? (
         <div className="rounded-lg border border-dashed p-8 text-center">
-          <p className="text-muted-foreground">No comments yet. Be the first to comment!</p>
+          <p className="text-muted-foreground">
+            No comments yet. Be the first to comment!
+          </p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -162,9 +181,14 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
                     className="size-8 cursor-pointer"
                     onClick={() => router.push(`/u/${username}`)}
                   >
-                    <AvatarImage src={picture} alt={comment.author.metadata?.name || username} />
+                    <AvatarImage
+                      src={picture}
+                      alt={comment.author.metadata?.name || username}
+                    />
                     <AvatarFallback>
-                      {(comment.author.metadata?.name?.[0] || username[0]).toUpperCase()}
+                      {(
+                        comment.author.metadata?.name?.[0] || username[0]
+                      ).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
@@ -188,6 +212,30 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
                   </div>
                 </div>
                 <p className="text-sm">{content}</p>
+
+                {/* Comment interaction buttons */}
+                <div className="mt-3 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <ReactionButton
+                      postId={comment.id}
+                      reactionCount={comment.stats?.upvotes || 0}
+                      isReacted={comment.operations?.hasUpvoted || false}
+                      size="sm"
+                    />
+                    <RepostQuoteButton
+                      postId={comment.id}
+                      count={
+                        (comment.stats?.reposts || 0) +
+                        (comment.stats?.quotes || 0)
+                      }
+                      size="sm"
+                    />
+                  </div>
+                  <BookmarkToggleButton
+                    postId={comment.id}
+                    isBookmarked={comment.operations?.hasBookmarked}
+                  />
+                </div>
               </div>
             );
           })}

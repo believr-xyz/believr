@@ -114,10 +114,6 @@ export function CollectCard({
 
           <div className="mt-2 flex gap-4 text-xs">
             <div>
-              <span className="font-semibold">{creator.stats.followers}</span>
-              <span className="ml-1 text-muted-foreground">followers</span>
-            </div>
-            <div>
               <span className="font-semibold">{creator.stats.believers}</span>
               <span className="ml-1 text-muted-foreground">believers</span>
             </div>

@@ -162,7 +162,6 @@ export function PostCard({ post }: PostCardProps) {
         {isCollectible && (
           <div className="mt-3">
             <Badge variant="outline" className="flex gap-1 px-2 py-1">
-              <DollarSign className="size-3" />
               <span>Collectible</span>
               <span>•</span>
               <span>{collectLimit || "∞"} available</span>

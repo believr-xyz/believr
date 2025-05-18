@@ -104,7 +104,10 @@ export default function PostPage() {
 
   // Handle adding a new comment
   const handleCommentAdded = (newComment: Post) => {
-    setComments((prev) => [newComment, ...prev]);
+    // Check if the comment already exists in the list (avoid duplicates)
+    if (!comments.some((comment) => comment.id === newComment.id)) {
+      setComments((prev) => [newComment, ...prev]);
+    }
   };
 
   // Handle reaction change
@@ -277,9 +280,6 @@ export default function PostPage() {
                     onRepostSubmit={handleRepostChange}
                     onQuoteSubmit={handleRepostChange}
                   />
-                  <Button variant="ghost" size="icon" className="text-muted-foreground">
-                    <DollarSign className="size-4" />
-                  </Button>
                   <BookmarkToggleButton
                     postId={post.id}
                     isBookmarked={post.operations?.hasBookmarked}

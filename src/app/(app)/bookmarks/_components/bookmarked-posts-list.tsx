@@ -29,9 +29,7 @@ export function BookmarkedPostsList() {
     return (
       <div className="flex flex-col items-center justify-center rounded-lg bg-muted p-8 text-center">
         <h3 className="mb-2 font-semibold text-xl">Log in to View Bookmarks</h3>
-        <p className="text-muted-foreground">
-          You need to be logged in to see your bookmarks.
-        </p>
+        <p className="text-muted-foreground">You need to be logged in to see your bookmarks.</p>
         <Button className="mt-4" onClick={() => router.push("/feed")}>
           Explore Content
         </Button>
@@ -54,8 +52,8 @@ export function BookmarkedPostsList() {
       <div className="flex flex-col items-center justify-center rounded-lg bg-muted p-8 text-center">
         <h3 className="mb-2 font-semibold text-xl">No Bookmarks Found</h3>
         <p className="text-muted-foreground">
-          You haven't bookmarked any posts yet. Browse the feed and bookmark
-          posts you'd like to revisit later.
+          You haven't bookmarked any posts yet. Browse the feed and bookmark posts you'd like to
+          revisit later.
         </p>
         <Button className="mt-4" onClick={() => router.push("/feed")}>
           Explore Feed

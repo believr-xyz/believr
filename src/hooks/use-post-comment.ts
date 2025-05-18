@@ -1,7 +1,7 @@
 "use client";
 
 import { getLensClient } from "@/lib/lens/client";
-import { type Result, SessionClient, postId, type Post } from "@lens-protocol/client";
+import { type Post, type Result, SessionClient, postId } from "@lens-protocol/client";
 import { post } from "@lens-protocol/client/actions";
 import { textOnly } from "@lens-protocol/metadata";
 import { useAuthenticatedUser } from "@lens-protocol/react";

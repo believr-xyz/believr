@@ -22,7 +22,7 @@ interface UseBookmarksResult {
  * @param limit Number of posts to fetch per page
  * @returns Bookmarked posts and pagination controls
  */
-export function useBookmarks(limit: number = 20): UseBookmarksResult {
+export function useBookmarks(limit = 20): UseBookmarksResult {
   const { data: user } = useAuthenticatedUser();
   const [posts, setPosts] = useState<AnyPost[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,7 +31,7 @@ export function useBookmarks(limit: number = 20): UseBookmarksResult {
   const [hasMore, setHasMore] = useState(true);
 
   const fetchBookmarks = useCallback(
-    async (reset: boolean = false) => {
+    async (reset = false) => {
       if (!user) {
         setError(new Error("You need to be logged in to view bookmarks"));
         return;
@@ -77,16 +77,12 @@ export function useBookmarks(limit: number = 20): UseBookmarksResult {
         setHasMore(!!result.value.pageInfo.next);
       } catch (error) {
         console.error("Error fetching bookmarks:", error);
-        setError(
-          error instanceof Error
-            ? error
-            : new Error("Failed to fetch bookmarks")
-        );
+        setError(error instanceof Error ? error : new Error("Failed to fetch bookmarks"));
       } finally {
         setIsLoading(false);
       }
     },
-    [user, cursor, isLoading, limit]
+    [user, cursor, isLoading, limit],
   );
 
   const loadMore = useCallback(async () => {

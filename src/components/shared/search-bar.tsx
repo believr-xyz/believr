@@ -18,7 +18,6 @@ export function SearchBar({ className }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -46,7 +45,7 @@ export function SearchBar({ className }: SearchBarProps) {
         typeof error === "object" && error !== null
           ? // @ts-ignore - runtime type checking
             error.message || error.error || error.toString()
-          : String(error),
+          : String(error)
       );
     } else {
       setErrorMessage(null);
@@ -65,24 +64,12 @@ export function SearchBar({ className }: SearchBarProps) {
         !inputRef.current.contains(event.target as Node)
       ) {
         setShowResults(false);
-
-        if (window.innerWidth < 768) {
-          setIsSearchOpen(false);
-        }
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  // Toggle search on mobile
-  const toggleSearch = () => {
-    setIsSearchOpen(!isSearchOpen);
-    if (!isSearchOpen) {
-      setTimeout(() => inputRef.current?.focus(), 10);
-    }
-  };
 
   // Handle keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -91,13 +78,17 @@ export function SearchBar({ className }: SearchBarProps) {
     // Arrow down - move selection down
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((prevIndex) => (prevIndex < results.length - 1 ? prevIndex + 1 : prevIndex));
+      setSelectedIndex((prevIndex) =>
+        prevIndex < results.length - 1 ? prevIndex + 1 : prevIndex
+      );
     }
 
     // Arrow up - move selection up
     else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : prevIndex));
+      setSelectedIndex((prevIndex) =>
+        prevIndex > 0 ? prevIndex - 1 : prevIndex
+      );
     }
 
     // Enter - navigate to selected profile
@@ -113,9 +104,6 @@ export function SearchBar({ className }: SearchBarProps) {
     else if (e.key === "Escape") {
       e.preventDefault();
       setShowResults(false);
-      if (window.innerWidth < 768) {
-        setIsSearchOpen(false);
-      }
     }
   };
 
@@ -128,29 +116,18 @@ export function SearchBar({ className }: SearchBarProps) {
 
     setShowResults(false);
     setQuery("");
-    if (window.innerWidth < 768) {
-      setIsSearchOpen(false);
-    }
     router.push(`/u/${username}`);
   };
 
   return (
     <div className={cn("relative w-full", className)}>
-      {/* Mobile search icon button */}
-      <Button
-        variant="ghost"
-        size="icon"
-        className="md:hidden"
-        onClick={toggleSearch}
-        aria-label="Search"
-      >
-        <MagnifyingGlass className="size-5" weight="bold" />
-      </Button>
-
-      {/* Search bar - hidden on mobile unless toggled */}
-      <div className={`relative ${isSearchOpen ? "block" : "hidden"} w-full md:block`}>
+      {/* Search bar - visible on mobile and desktop */}
+      <div className="relative w-full">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-          <MagnifyingGlass className="size-4 text-muted-foreground" weight="bold" />
+          <MagnifyingGlass
+            className="size-4 text-muted-foreground"
+            weight="bold"
+          />
         </div>
         <Input
           ref={inputRef}
@@ -160,46 +137,36 @@ export function SearchBar({ className }: SearchBarProps) {
           onFocus={() => setShowResults(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search Creators & Campaigns..."
-          className="h-10 w-full rounded-md border-border/60 bg-background pl-10 text-base shadow-sm focus-visible:border-[#00A8FF]/30 focus-visible:ring-[#00A8FF]/20"
+          className="h-10 w-full rounded-md border-border/60 bg-background pl-12 text-sm shadow-sm focus-visible:border-[#00A8FF]/30 focus-visible:ring-[#00A8FF]/20 md:text-base"
         />
       </div>
 
-      {/* Mobile full-screen search container */}
-      {isSearchOpen && showResults && (
-        <div className="fixed inset-0 z-50 bg-background p-4 md:hidden">
-          <div className="mb-4 flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(false)}>
-              <span className="sr-only">Close</span>
-              <ArrowLeft className="size-6" weight="bold" />
-            </Button>
-            <Input
-              autoFocus
-              type="search"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search..."
-              className="flex-1 text-base"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Search results dropdown */}
-      {showResults && (query.length > 1 || results.length > 0) && !isSearchOpen && (
+      {/* Mobile full-screen search (when results are showing) */}
+      {showResults && (
         <div
           ref={resultsRef}
-          className="absolute top-full left-0 z-10 mt-1 w-full overflow-hidden rounded-md border bg-background shadow-md"
+          className={cn(
+            "absolute left-0 z-50 mt-1 w-full overflow-hidden rounded-md border bg-background shadow-md",
+            // On mobile, make it fullscreen
+            "md:top-full md:z-10 md:mt-1",
+            query.length > 1 || results.length > 0 ? "block" : "hidden"
+          )}
         >
           {loading ? (
             <div className="flex items-center justify-center p-4">
-              <CircleNotch className="size-5 animate-spin text-muted-foreground" weight="bold" />
+              <CircleNotch
+                className="size-5 animate-spin text-muted-foreground"
+                weight="bold"
+              />
             </div>
           ) : results.length > 0 ? (
             <div className="max-h-[300px] overflow-y-auto py-1">
               {results.map((account, index) => {
                 const username = account.username?.value;
                 const displayName =
-                  account.metadata?.name || account.username?.localName || "Unknown";
+                  account.metadata?.name ||
+                  account.username?.localName ||
+                  "Unknown";
                 const avatarUrl = account.metadata?.picture || "";
 
                 return (
@@ -207,13 +174,15 @@ export function SearchBar({ className }: SearchBarProps) {
                     key={account.address}
                     className={cn(
                       "flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-accent",
-                      selectedIndex === index && "bg-accent",
+                      selectedIndex === index && "bg-accent"
                     )}
                     onClick={() => navigateToProfile(username)}
                   >
                     <Avatar className="size-8">
                       <AvatarImage src={avatarUrl} />
-                      <AvatarFallback>{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
+                      <AvatarFallback>
+                        {displayName.substring(0, 2).toUpperCase()}
+                      </AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium">{displayName}</p>
@@ -230,7 +199,11 @@ export function SearchBar({ className }: SearchBarProps) {
           ) : query.length > 1 ? (
             <div className="p-4 text-center text-muted-foreground text-sm">
               No results found for &quot;{query}&quot;
-              {errorMessage && <p className="mt-1 text-red-500 text-xs">Error: {errorMessage}</p>}
+              {errorMessage && (
+                <p className="mt-1 text-red-500 text-xs">
+                  Error: {errorMessage}
+                </p>
+              )}
             </div>
           ) : null}
         </div>

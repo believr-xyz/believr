@@ -15,32 +15,38 @@ import { useEffect, useState } from "react";
 const creators = [
   {
     id: 1,
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?q=80&w=800&auto=format",
     alt: "Professional male creator",
   },
   {
     id: 2,
-    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?q=80&w=800&auto=format",
     alt: "Creative female artist",
   },
   {
     id: 3,
-    image: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=800&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=800&auto=format",
     alt: "Young male creator",
   },
   {
     id: 4,
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=800&auto=format",
     alt: "Fashion model creator",
   },
   {
     id: 5,
-    image: "https://images.unsplash.com/photo-1522556189639-b150ed9c4330?q=80&w=800&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1522556189639-b150ed9c4330?q=80&w=800&auto=format",
     alt: "Business professional",
   },
   {
     id: 6,
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format",
+    image:
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=800&auto=format",
     alt: "Portrait photographer",
   },
 ];
@@ -81,13 +87,15 @@ export default function Home() {
             {/* Headline - with tighter tracking */}
             <h1 className="max-w-3xl font-bold text-4xl tracking-tighter md:text-5xl lg:text-6xl">
               Where early believers
-              <span className="text-[#00A8FF]"> co-invest</span> in creators success
+              <span className="text-[#00A8FF]"> co-invest</span> in creators
+              success
             </h1>
 
             {/* Subheadline - smaller with reduced margin */}
             <p className="mt-4 max-w-2xl text-base text-muted-foreground">
-              Believr is a decentralized social co-investing platform where early believers back
-              creators they believe in and share in their success.{" "}
+              Believr is a decentralized social co-investing platform where
+              early believers back creators they believe in and share in their
+              success.{" "}
               <span className="font-bold">Built on Lens Protocol.</span>
             </p>
 
@@ -104,7 +112,10 @@ export default function Home() {
               <div className="relative h-[65px] w-full overflow-hidden">
                 <div className="absolute top-0 left-0 z-10 h-full w-16 bg-gradient-to-r from-background to-transparent" />
                 <div className="absolute top-0 right-0 z-10 h-full w-16 bg-gradient-to-l from-background to-transparent" />
-                <div className="absolute top-0 left-0 w-full" style={{ display: "flex" }}>
+                <div
+                  className="absolute top-0 left-0 w-full"
+                  style={{ display: "flex" }}
+                >
                   <motion.div
                     className="flex w-full gap-3"
                     animate={{ x: [0, "-50%"] }}
@@ -154,7 +165,10 @@ export default function Home() {
               <div className="relative h-[65px] w-full overflow-hidden">
                 <div className="absolute top-0 left-0 z-10 h-full w-16 bg-gradient-to-r from-background to-transparent" />
                 <div className="absolute top-0 right-0 z-10 h-full w-16 bg-gradient-to-l from-background to-transparent" />
-                <div className="absolute top-0 left-0 w-full" style={{ display: "flex" }}>
+                <div
+                  className="absolute top-0 left-0 w-full"
+                  style={{ display: "flex" }}
+                >
                   <motion.div
                     className="flex w-full gap-3"
                     animate={{ x: ["-50%", "0%"] }}

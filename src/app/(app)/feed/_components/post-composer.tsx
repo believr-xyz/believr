@@ -1,40 +1,46 @@
 "use client";
 
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { getLensClient } from "@/lib/lens/client";
 import { storageClient } from "@/lib/lens/storage-client";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import { EvmAddress, SessionClient } from "@lens-protocol/client";
-import { fetchGroups, post } from "@lens-protocol/client/actions";
+import { SessionClient } from "@lens-protocol/client";
+import { fetchAccount } from "@lens-protocol/client/actions";
+import { post } from "@lens-protocol/client/actions";
 import {
+  AudioMetadata,
   ImageMetadata,
+  MediaAudioMimeType,
   MediaImageMimeType,
+  MediaVideoMimeType,
   TextOnlyMetadata,
+  VideoMetadata,
+  audio,
   image,
   textOnly,
+  video,
 } from "@lens-protocol/metadata";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import { ImageIcon, SmileIcon } from "lucide-react";
+import { FileAudio, Film, ImageIcon, SmileIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
-interface Group {
-  id: string;
-  name: string;
-}
+type MediaType = "image" | "video" | "audio" | null;
 
 export function PostComposer() {
   const { data: user } = useAuthenticatedUser();
@@ -42,52 +48,67 @@ export function PostComposer() {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [postTarget, setPostTarget] = useState<"global" | "group">("global");
-  const [groups, setGroups] = useState<Group[]>([]);
-  const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const [mediaType, setMediaType] = useState<MediaType>(null);
+  const [accountData, setAccountData] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // Fetch user's groups when the component loads and when the target is set to "group"
-  const loadGroups = async () => {
-    if (!user) return;
+  // Fetch account data for profile picture
+  useEffect(() => {
+    async function fetchUserAccount() {
+      if (!user) return;
 
-    try {
-      const client = await getLensClient();
-      // Use the correct structure for GroupsRequest based on the schema
-      const result = await fetchGroups(client, {
-        filter: {
-          member: user.address,
-        },
-      });
-
-      if (result.isOk()) {
-        const userGroups = result.value.items.map((group) => ({
-          id: group.address, // Use address instead of id based on SDK
-          name: group.metadata?.name || "Unnamed Group",
-        }));
-        setGroups(userGroups);
+      try {
+        const client = await getLensClient();
+        const account = await fetchAccount(client, {
+          address: user.address,
+        }).unwrapOr(null);
+        setAccountData(account);
+      } catch (error) {
+        console.error("Failed to fetch account:", error);
       }
-    } catch (error) {
-      console.error("Failed to fetch groups:", error);
     }
-  };
 
-  const handleImageUpload = () => {
-    fileInputRef.current?.click();
+    fetchUserAccount();
+  }, [user]);
+
+  const handleMediaUpload = (type: MediaType) => {
+    if (fileInputRef.current) {
+      // Set accept attribute based on media type
+      switch (type) {
+        case "image":
+          fileInputRef.current.accept = "image/*";
+          break;
+        case "video":
+          fileInputRef.current.accept = "video/*";
+          break;
+        case "audio":
+          fileInputRef.current.accept = "audio/*";
+          break;
+      }
+      fileInputRef.current.click();
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Only accept images
-    if (!file.type.startsWith("image/")) {
-      toast.error("Only image files are supported");
+    // Determine file type
+    let type: MediaType = null;
+    if (file.type.startsWith("image/")) {
+      type = "image";
+    } else if (file.type.startsWith("video/")) {
+      type = "video";
+    } else if (file.type.startsWith("audio/")) {
+      type = "audio";
+    } else {
+      toast.error("Unsupported file type");
       return;
     }
 
     setSelectedFile(file);
+    setMediaType(type);
 
     // Create preview URL
     const url = URL.createObjectURL(file);
@@ -98,8 +119,8 @@ export function PostComposer() {
     setContent((prev) => prev + emoji.native);
   };
 
-  // Determine media type from file
-  const determineMediaType = (file: File): MediaImageMimeType => {
+  // Determine media image type from file
+  const determineImageType = (file: File): MediaImageMimeType => {
     const type = file.type.toLowerCase();
     if (type.includes("jpeg") || type.includes("jpg")) {
       return MediaImageMimeType.JPEG;
@@ -111,6 +132,40 @@ export function PostComposer() {
       return MediaImageMimeType.GIF;
     }
     return MediaImageMimeType.JPEG; // Default
+  };
+
+  // Determine media video type from file
+  const determineVideoType = (file: File): MediaVideoMimeType => {
+    const type = file.type.toLowerCase();
+    if (type.includes("mp4")) {
+      return MediaVideoMimeType.MP4;
+    } else if (type.includes("webm")) {
+      return MediaVideoMimeType.WEBM;
+    } else if (type.includes("ogg")) {
+      return MediaVideoMimeType.OGG;
+    } else if (type.includes("quicktime") || type.includes("mov")) {
+      return MediaVideoMimeType.QUICKTIME;
+    }
+    return MediaVideoMimeType.MP4; // Default
+  };
+
+  // Determine media audio type from file
+  const determineAudioType = (file: File): MediaAudioMimeType => {
+    const type = file.type.toLowerCase();
+    if (type.includes("mp3") || type.includes("mpeg")) {
+      return MediaAudioMimeType.MP3;
+    } else if (type.includes("wav")) {
+      return MediaAudioMimeType.WAV;
+    } else if (type.includes("ogg")) {
+      return MediaAudioMimeType.OGG_AUDIO;
+    } else if (type.includes("mp4")) {
+      return MediaAudioMimeType.MP4_AUDIO;
+    } else if (type.includes("aac")) {
+      return MediaAudioMimeType.AAC;
+    } else if (type.includes("webm")) {
+      return MediaAudioMimeType.WEBM_AUDIO;
+    }
+    return MediaAudioMimeType.MP3; // Default
   };
 
   const handleCreatePost = async () => {
@@ -146,23 +201,53 @@ export function PostComposer() {
             mediaURI = files[0].uri;
           }
         } catch (error) {
-          console.error("Failed to upload image:", error);
-          toast.error("Failed to upload image");
+          console.error("Failed to upload media:", error);
+          toast.error("Failed to upload media");
           setIsLoading(false);
           return;
         }
       }
 
-      // Create metadata
-      let metadata: ImageMetadata | TextOnlyMetadata;
+      // Create metadata based on media type
+      let metadata:
+        | ImageMetadata
+        | VideoMetadata
+        | AudioMetadata
+        | TextOnlyMetadata;
+
       if (mediaURI && selectedFile) {
-        metadata = image({
-          content: content,
-          image: {
-            item: mediaURI,
-            type: determineMediaType(selectedFile),
-          },
-        });
+        if (mediaType === "image") {
+          metadata = image({
+            content: content,
+            image: {
+              item: mediaURI,
+              type: determineImageType(selectedFile),
+            },
+          });
+        } else if (mediaType === "video") {
+          metadata = video({
+            content: content,
+            video: {
+              item: mediaURI,
+              type: determineVideoType(selectedFile),
+              duration: 0, // You might want to extract this from the video
+            },
+          });
+        } else if (mediaType === "audio") {
+          metadata = audio({
+            content: content,
+            audio: {
+              item: mediaURI,
+              type: determineAudioType(selectedFile),
+              artist: "Believr Artist", // You might want to make this configurable
+              duration: 0, // You might want to extract this from the audio
+            },
+          });
+        } else {
+          metadata = textOnly({
+            content: content,
+          });
+        }
       } else {
         metadata = textOnly({
           content: content,
@@ -174,15 +259,8 @@ export function PostComposer() {
 
       // Create post
       const postRequest = {
-        contentUri: uri, // Note the camelCase here (not contentURI)
+        contentUri: uri,
       };
-
-      // Add group if selected
-      if (postTarget === "group" && selectedGroup) {
-        Object.assign(postRequest, {
-          feed: selectedGroup,
-        });
-      }
 
       const result = await post(sessionClient, postRequest);
 
@@ -191,6 +269,7 @@ export function PostComposer() {
         setContent("");
         setSelectedFile(null);
         setPreviewUrl(null);
+        setMediaType(null);
         router.refresh();
       } else {
         console.error("Failed to create post:", result.error);
@@ -198,100 +277,182 @@ export function PostComposer() {
       }
     } catch (error) {
       console.error("Error creating post:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       toast.error(`Error creating post: ${errorMessage}`);
     } finally {
       setIsLoading(false);
     }
   };
 
-  return (
-    <Card className="mb-4 p-4">
-      <div className="flex items-start gap-3">
-        <div className="h-10 w-10 overflow-hidden rounded-full bg-gray-200">
-          {/* The AuthenticatedUser type only has address property */}
-          <div className="flex h-full w-full items-center justify-center bg-primary-foreground text-primary">
-            {user?.address ? user.address.substring(0, 2) : "?"}
+  // Get profile picture URL
+  let profilePictureUrl = null;
+  if (accountData?.metadata?.picture) {
+    // Handle direct string URL
+    if (typeof accountData.metadata.picture === "string") {
+      profilePictureUrl = accountData.metadata.picture;
+    }
+    // Handle object structure with nested URI
+    else if (accountData.metadata.picture?.optimized?.uri) {
+      profilePictureUrl = accountData.metadata.picture.optimized.uri;
+    } else if (accountData.metadata.picture?.raw?.uri) {
+      profilePictureUrl = accountData.metadata.picture.raw.uri;
+    }
+  }
+
+  const displayAddress = user?.address.substring(0, 2) || "?";
+
+  // Render media preview based on media type
+  const renderMediaPreview = () => {
+    if (!previewUrl) return null;
+
+    return (
+      <div className="relative mb-2 overflow-hidden rounded-md">
+        {mediaType === "image" && (
+          <img
+            src={previewUrl}
+            alt="Preview"
+            className="max-h-48 w-auto rounded-md"
+          />
+        )}
+        {mediaType === "video" && (
+          <video
+            controls
+            src={previewUrl}
+            className="max-h-48 w-auto rounded-md"
+          >
+            <track kind="captions" src="" label="Captions" />
+          </video>
+        )}
+        {mediaType === "audio" && (
+          <div className="rounded-md bg-gray-100 p-3">
+            <audio controls src={previewUrl} className="w-full">
+              <track kind="captions" src="" label="Captions" />
+            </audio>
+            <p className="mt-1 text-gray-500 text-sm">
+              Audio: {selectedFile?.name}
+            </p>
           </div>
-        </div>
+        )}
+        <Button
+          variant="ghost"
+          size="sm"
+          className="absolute top-1 right-1"
+          onClick={() => {
+            setSelectedFile(null);
+            setPreviewUrl(null);
+            setMediaType(null);
+          }}
+        >
+          ✕
+        </Button>
+      </div>
+    );
+  };
+
+  return (
+    <Card className="mb-4 p-3 shadow-sm">
+      <div className="flex items-start gap-2">
+        <Avatar className="h-8 w-8">
+          {profilePictureUrl ? (
+            <AvatarImage src={profilePictureUrl} alt="Profile" />
+          ) : (
+            <AvatarFallback className="bg-primary-foreground text-primary">
+              {displayAddress}
+            </AvatarFallback>
+          )}
+        </Avatar>
 
         <div className="flex-1">
-          <Tabs
-            defaultValue="global"
-            className="mb-2"
-            onValueChange={(value) => {
-              setPostTarget(value as "global" | "group");
-              if (value === "group") {
-                loadGroups();
-              }
-            }}
-          >
-            <TabsList className="mb-2">
-              <TabsTrigger value="global">Global Feed</TabsTrigger>
-              <TabsTrigger value="group">Group</TabsTrigger>
-            </TabsList>
-
-            {postTarget === "group" && (
-              <Select onValueChange={setSelectedGroup}>
-                <SelectTrigger className="mb-2 w-full">
-                  <SelectValue placeholder="Select a group" />
-                </SelectTrigger>
-                <SelectContent>
-                  {groups.map((group) => (
-                    <SelectItem key={group.id} value={group.id}>
-                      {group.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </Tabs>
-
           <Textarea
             placeholder="What's happening?"
-            className="mb-2 min-h-24 border-none p-0 focus-visible:ring-0"
+            className="mb-2 min-h-14 border-none p-0 text-sm focus-visible:ring-0"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
 
-          {previewUrl && (
-            <div className="relative mb-3 overflow-hidden rounded-md">
-              <img src={previewUrl} alt="Preview" className="max-h-80 w-auto rounded-md" />
-              <Button
-                variant="secondary"
-                size="sm"
-                className="absolute top-2 right-2"
-                onClick={() => {
-                  setSelectedFile(null);
-                  setPreviewUrl(null);
-                }}
-              >
-                Remove
-              </Button>
-            </div>
-          )}
+          {renderMediaPreview()}
 
-          <div className="flex items-center justify-between border-t pt-3">
-            <div className="flex gap-2">
+          <div className="flex items-center justify-between border-t pt-2">
+            <div className="flex gap-1">
               <input
                 type="file"
                 ref={fileInputRef}
-                accept="image/*"
                 className="hidden"
                 onChange={handleFileChange}
               />
-              <Button variant="ghost" size="icon" onClick={handleImageUpload} title="Add image">
-                <ImageIcon className="h-5 w-5" />
-              </Button>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleMediaUpload("image")}
+                    className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
+                  >
+                    <ImageIcon className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Add Image</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleMediaUpload("video")}
+                    className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
+                  >
+                    <Film className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Add Video</p>
+                </TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleMediaUpload("audio")}
+                    className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
+                  >
+                    <FileAudio className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Add Audio</p>
+                </TooltipContent>
+              </Tooltip>
 
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="ghost" size="icon" title="Add emoji">
-                    <SmileIcon className="h-5 w-5" />
-                  </Button>
-                </PopoverTrigger>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
+                      >
+                        <SmileIcon className="h-4 w-4" />
+                      </Button>
+                    </PopoverTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Add Emoji</p>
+                  </TooltipContent>
+                </Tooltip>
                 <PopoverContent className="w-full border-none p-0">
-                  <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" />
+                  <Picker
+                    data={data}
+                    onEmojiSelect={handleEmojiSelect}
+                    theme="light"
+                  />
                 </PopoverContent>
               </Popover>
             </div>
@@ -299,6 +460,8 @@ export function PostComposer() {
             <Button
               onClick={handleCreatePost}
               disabled={isLoading || (!content.trim() && !selectedFile)}
+              size="sm"
+              className="rounded-full bg-[#00A8FF] px-4 text-white hover:bg-[#00A8FF]/90"
             >
               {isLoading ? "Posting..." : "Post"}
             </Button>

@@ -14,11 +14,11 @@ import { cn } from "@/lib/utils";
 import { fetchAccount } from "@lens-protocol/client/actions";
 import { useAuthenticatedUser, useLogout } from "@lens-protocol/react";
 import {
+  BookmarkSimple,
   Moon as MoonIcon,
   SignOut,
   Sun as SunIcon,
   User,
-  BookmarkSimple,
 } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
@@ -83,8 +83,7 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
   const handleProfileClick = () => {
     // Get the username directly from the account data
     const username =
-      accountData?.username?.value?.split("/").pop() ||
-      accountData?.username?.localName;
+      accountData?.username?.value?.split("/").pop() || accountData?.username?.localName;
 
     if (username) {
       router.push(`/u/${username}`);
@@ -119,9 +118,7 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
   // Extract username for display
   const displayName = accountData?.metadata?.name || "";
   const username =
-    accountData?.username?.value?.split("/").pop() ||
-    accountData?.username?.localName ||
-    "";
+    accountData?.username?.value?.split("/").pop() || accountData?.username?.localName || "";
 
   return (
     <div className={cn(className)}>
@@ -140,13 +137,9 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
         <DropdownMenuContent className="w-56" align="end" forceMount>
           {(displayName || username) && (
             <div className="mb-1 px-2 py-1.5">
-              {displayName && (
-                <p className="font-medium text-sm">{displayName}</p>
-              )}
+              {displayName && <p className="font-medium text-sm">{displayName}</p>}
               {username && (
-                <p className="font-semibold text-muted-foreground text-xs">
-                  @{username}
-                </p>
+                <p className="font-semibold text-muted-foreground text-xs">@{username}</p>
               )}
             </div>
           )}
@@ -158,24 +151,18 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
             <BookmarkSimple className="mr-2 size-5" weight="bold" />
             <span className="text-base">Saved</span>
           </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
+          <DropdownMenuItem onClick={() => setTheme(theme === "dark" ? "light" : "dark")}>
             {theme === "dark" ? (
               <SunIcon className="mr-2 size-5" weight="bold" />
             ) : (
               <MoonIcon className="mr-2 size-5" weight="bold" />
             )}
-            <span className="text-base">
-              {theme === "dark" ? "Light mode" : "Dark mode"}
-            </span>
+            <span className="text-base">{theme === "dark" ? "Light mode" : "Dark mode"}</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
           <DropdownMenuItem onClick={handleLogout} disabled={isLoggingOut}>
             <SignOut className="mr-2 size-5" weight="bold" />
-            <span className="text-base">
-              {isLoggingOut ? "Logging out..." : "Logout"}
-            </span>
+            <span className="text-base">{isLoggingOut ? "Logging out..." : "Logout"}</span>
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

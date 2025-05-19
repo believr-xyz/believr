@@ -45,7 +45,7 @@ export function SearchBar({ className }: SearchBarProps) {
         typeof error === "object" && error !== null
           ? // @ts-ignore - runtime type checking
             error.message || error.error || error.toString()
-          : String(error)
+          : String(error),
       );
     } else {
       setErrorMessage(null);
@@ -78,17 +78,13 @@ export function SearchBar({ className }: SearchBarProps) {
     // Arrow down - move selection down
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((prevIndex) =>
-        prevIndex < results.length - 1 ? prevIndex + 1 : prevIndex
-      );
+      setSelectedIndex((prevIndex) => (prevIndex < results.length - 1 ? prevIndex + 1 : prevIndex));
     }
 
     // Arrow up - move selection up
     else if (e.key === "ArrowUp") {
       e.preventDefault();
-      setSelectedIndex((prevIndex) =>
-        prevIndex > 0 ? prevIndex - 1 : prevIndex
-      );
+      setSelectedIndex((prevIndex) => (prevIndex > 0 ? prevIndex - 1 : prevIndex));
     }
 
     // Enter - navigate to selected profile
@@ -124,10 +120,7 @@ export function SearchBar({ className }: SearchBarProps) {
       {/* Search bar - visible on mobile and desktop */}
       <div className="relative w-full">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-          <MagnifyingGlass
-            className="size-4 text-muted-foreground"
-            weight="bold"
-          />
+          <MagnifyingGlass className="size-4 text-muted-foreground" weight="bold" />
         </div>
         <Input
           ref={inputRef}
@@ -149,24 +142,19 @@ export function SearchBar({ className }: SearchBarProps) {
             "absolute left-0 z-50 mt-1 w-full overflow-hidden rounded-md border bg-background shadow-md",
             // On mobile, make it fullscreen
             "md:top-full md:z-10 md:mt-1",
-            query.length > 1 || results.length > 0 ? "block" : "hidden"
+            query.length > 1 || results.length > 0 ? "block" : "hidden",
           )}
         >
           {loading ? (
             <div className="flex items-center justify-center p-4">
-              <CircleNotch
-                className="size-5 animate-spin text-muted-foreground"
-                weight="bold"
-              />
+              <CircleNotch className="size-5 animate-spin text-muted-foreground" weight="bold" />
             </div>
           ) : results.length > 0 ? (
             <div className="max-h-[300px] overflow-y-auto py-1">
               {results.map((account, index) => {
                 const username = account.username?.value;
                 const displayName =
-                  account.metadata?.name ||
-                  account.username?.localName ||
-                  "Unknown";
+                  account.metadata?.name || account.username?.localName || "Unknown";
                 const avatarUrl = account.metadata?.picture || "";
 
                 return (
@@ -174,15 +162,13 @@ export function SearchBar({ className }: SearchBarProps) {
                     key={account.address}
                     className={cn(
                       "flex cursor-pointer items-center gap-3 px-4 py-2 hover:bg-accent",
-                      selectedIndex === index && "bg-accent"
+                      selectedIndex === index && "bg-accent",
                     )}
                     onClick={() => navigateToProfile(username)}
                   >
                     <Avatar className="size-8">
                       <AvatarImage src={avatarUrl} />
-                      <AvatarFallback>
-                        {displayName.substring(0, 2).toUpperCase()}
-                      </AvatarFallback>
+                      <AvatarFallback>{displayName.substring(0, 2).toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div>
                       <p className="font-medium">{displayName}</p>
@@ -199,11 +185,7 @@ export function SearchBar({ className }: SearchBarProps) {
           ) : query.length > 1 ? (
             <div className="p-4 text-center text-muted-foreground text-sm">
               No results found for &quot;{query}&quot;
-              {errorMessage && (
-                <p className="mt-1 text-red-500 text-xs">
-                  Error: {errorMessage}
-                </p>
-              )}
+              {errorMessage && <p className="mt-1 text-red-500 text-xs">Error: {errorMessage}</p>}
             </div>
           ) : null}
         </div>

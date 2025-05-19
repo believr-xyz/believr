@@ -7,9 +7,7 @@ export default function GroupsLoading() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, index) => (
           <Skeleton
-            key={`group-skeleton-${index}-${Math.random()
-              .toString(36)
-              .substring(2, 9)}`}
+            key={`group-skeleton-${index}-${Math.random().toString(36).substring(2, 9)}`}
             className="h-[300px] w-full rounded-lg"
           />
         ))}

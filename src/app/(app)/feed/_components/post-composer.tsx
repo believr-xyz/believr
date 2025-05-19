@@ -3,18 +3,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useMediaCompression } from "@/hooks/use-media-compression";
 import { getLensClient } from "@/lib/lens/client";
 import { storageClient } from "@/lib/lens/storage-client";
@@ -40,13 +32,7 @@ import {
   video,
 } from "@lens-protocol/metadata";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import {
-  File,
-  FilmStrip,
-  Image,
-  Smiley,
-  UsersThree,
-} from "@phosphor-icons/react";
+import { File, FilmStrip, Image, Smiley, UsersThree } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -128,7 +114,7 @@ export function PostComposer() {
                   account,
                   groups: groupsData,
                   timestamp: Date.now(),
-                })
+                }),
               );
             } catch (error) {
               console.error("Error storing cache:", error);
@@ -141,9 +127,7 @@ export function PostComposer() {
           if (retryCount < maxRetries && isMounted) {
             const delay = 2 ** retryCount * 1000; // Exponential backoff
             retryCount++;
-            console.log(
-              `Retrying fetch (${retryCount}/${maxRetries}) after ${delay}ms`
-            );
+            console.log(`Retrying fetch (${retryCount}/${maxRetries}) after ${delay}ms`);
             setTimeout(fetchWithRetry, delay);
           }
         }
@@ -384,23 +368,16 @@ export function PostComposer() {
         if (uploadResult.success && uploadResult.uri) {
           mediaURI = uploadResult.uri;
         } else {
-          toast.error(
-            `Failed to upload media: ${uploadResult.error || "Unknown error"}`,
-            {
-              id: toastId,
-            }
-          );
+          toast.error(`Failed to upload media: ${uploadResult.error || "Unknown error"}`, {
+            id: toastId,
+          });
           setIsLoading(false);
           return;
         }
       }
 
       // Create metadata based on media type
-      let metadata:
-        | ImageMetadata
-        | VideoMetadata
-        | AudioMetadata
-        | TextOnlyMetadata;
+      let metadata: ImageMetadata | VideoMetadata | AudioMetadata | TextOnlyMetadata;
 
       if (mediaURI && selectedFile) {
         if (mediaType === "image") {
@@ -472,8 +449,7 @@ export function PostComposer() {
       }
     } catch (error) {
       console.error("Error creating post:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       toast.error(`Error creating post: ${errorMessage}`, { id: toastId });
     } finally {
       setIsLoading(false);
@@ -502,10 +478,7 @@ export function PostComposer() {
       }
 
       // Check if URL is from IPFS and do some sanitization
-      if (
-        fallbackUrl &&
-        (fallbackUrl.startsWith("ipfs://") || fallbackUrl.includes("ipfs"))
-      ) {
+      if (fallbackUrl && (fallbackUrl.startsWith("ipfs://") || fallbackUrl.includes("ipfs"))) {
         // Ensure proper gateway format
         fallbackUrl = fallbackUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
       }
@@ -528,18 +501,10 @@ export function PostComposer() {
     return (
       <div className="relative mb-2 overflow-hidden rounded-md">
         {mediaType === "image" && (
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="max-h-48 w-auto rounded-md"
-          />
+          <img src={previewUrl} alt="Preview" className="max-h-48 w-auto rounded-md" />
         )}
         {mediaType === "video" && (
-          <video
-            controls
-            src={previewUrl}
-            className="max-h-48 w-auto rounded-md"
-          >
+          <video controls src={previewUrl} className="max-h-48 w-auto rounded-md">
             <track kind="captions" src="" label="Captions" />
           </video>
         )}
@@ -548,9 +513,7 @@ export function PostComposer() {
             <audio controls src={previewUrl} className="w-full">
               <track kind="captions" src="" label="Captions" />
             </audio>
-            <p className="mt-1 text-gray-500 text-sm">
-              Audio: {selectedFile?.name}
-            </p>
+            <p className="mt-1 text-gray-500 text-sm">Audio: {selectedFile?.name}</p>
           </div>
         )}
         <Button
@@ -589,8 +552,8 @@ export function PostComposer() {
 
         <div className="flex-1">
           <Textarea
-            placeholder="What's happening?"
-            className="mb-2 min-h-14 max-w-[500px] border-none pt-1 pr-3 pl-0 text-[16px] font-medium focus-visible:ring-0"
+            placeholder="What's new?!"
+            className="mb-2 min-h-14 w-full border-none pt-1 pr-3 pl-0 font-medium text-[18px] focus-visible:ring-0"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
@@ -654,7 +617,7 @@ export function PostComposer() {
                     onClick={() => handleMediaUpload("image")}
                     className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
                   >
-                    <Image className="h-5 w-5" />
+                    <Image className="h-6 w-6" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -670,7 +633,7 @@ export function PostComposer() {
                     onClick={() => handleMediaUpload("video")}
                     className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
                   >
-                    <FilmStrip className="h-5 w-5" />
+                    <FilmStrip className="h-6 w-6" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -686,7 +649,7 @@ export function PostComposer() {
                     onClick={() => handleMediaUpload("audio")}
                     className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
                   >
-                    <File className="h-5 w-5" />
+                    <File className="h-6 w-6" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -703,7 +666,7 @@ export function PostComposer() {
                         size="sm"
                         className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
                       >
-                        <Smiley className="h-5 w-5" />
+                        <Smiley className="h-6 w-6" />
                       </Button>
                     </PopoverTrigger>
                   </TooltipTrigger>
@@ -712,11 +675,7 @@ export function PostComposer() {
                   </TooltipContent>
                 </Tooltip>
                 <PopoverContent className="w-full border-none p-0">
-                  <Picker
-                    data={data}
-                    onEmojiSelect={handleEmojiSelect}
-                    theme="light"
-                  />
+                  <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" />
                 </PopoverContent>
               </Popover>
             </div>

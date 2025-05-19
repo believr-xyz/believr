@@ -1,6 +1,7 @@
 "use client";
 
 import { BookmarkToggleButton } from "@/components/shared/bookmark-toggle-button";
+import { ImageModal } from "@/components/shared/image-modal";
 import { ReactionButton } from "@/components/shared/reaction-button";
 import { RepostQuoteButton } from "@/components/shared/repost-quote-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -15,12 +16,7 @@ import { getLensClient } from "@/lib/lens/client";
 import { Post, PostReferenceType, postId } from "@lens-protocol/client";
 import { fetchPost, fetchPostReferences } from "@lens-protocol/client/actions";
 import { formatDistanceToNow } from "date-fns";
-import {
-  ArrowLeft,
-  DollarSign,
-  Loader2,
-  MessageCircleIcon,
-} from "lucide-react";
+import { ArrowLeft, DollarSign, Loader2, MessageCircleIcon } from "lucide-react";
 import Image from "next/image";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -61,8 +57,7 @@ export default function PostPage() {
   const [comments, setComments] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasCollected, setHasCollected] = useState(false);
-  const [investmentMetadata, setInvestmentMetadata] =
-    useState<InvestmentMetadata | null>(null);
+  const [investmentMetadata, setInvestmentMetadata] = useState<InvestmentMetadata | null>(null);
 
   // Fetch the post data from Lens Protocol
   useEffect(() => {
@@ -96,13 +91,10 @@ export default function PostPage() {
 
         // Extract investment metadata if this is an investment post
         // Cast to ExtendedPostMetadata to access attributes property
-        const attributes = (
-          postData.metadata as unknown as ExtendedPostMetadata
-        )?.attributes;
+        const attributes = (postData.metadata as unknown as ExtendedPostMetadata)?.attributes;
         if (
           attributes?.some(
-            (attr: PostAttribute) =>
-              attr.key === "type" && attr.value === "investment"
+            (attr: PostAttribute) => attr.key === "type" && attr.value === "investment",
           )
         ) {
           const metadata: Partial<InvestmentMetadata> = {};
@@ -110,8 +102,7 @@ export default function PostPage() {
           attributes.forEach((attr: PostAttribute) => {
             switch (attr.key) {
               case "category":
-                metadata.category =
-                  attr.value as InvestmentMetadata["category"];
+                metadata.category = attr.value as InvestmentMetadata["category"];
                 break;
               case "revenueShare":
                 metadata.revenueShare = attr.value;
@@ -123,8 +114,7 @@ export default function PostPage() {
                 metadata.endDate = attr.value;
                 break;
               case "mediaType":
-                metadata.mediaType =
-                  attr.value as InvestmentMetadata["mediaType"];
+                metadata.mediaType = attr.value as InvestmentMetadata["mediaType"];
                 break;
             }
           });
@@ -141,7 +131,7 @@ export default function PostPage() {
         if (commentsResult.isOk()) {
           // Filter to get only Post type comments
           const commentPosts = commentsResult.value.items.filter(
-            (item) => item.__typename === "Post"
+            (item) => item.__typename === "Post",
           ) as Post[];
 
           setComments(commentPosts);
@@ -235,13 +225,10 @@ export default function PostPage() {
 
   // Get username
   const username =
-    post.author.username?.value?.split("/").pop() ||
-    post.author.address.substring(0, 8);
+    post.author.username?.value?.split("/").pop() || post.author.address.substring(0, 8);
 
   // Get collect action if any
-  const collectAction = post.actions?.find(
-    (action) => action.__typename === "SimpleCollectAction"
-  );
+  const collectAction = post.actions?.find((action) => action.__typename === "SimpleCollectAction");
 
   // Get image URL if available
   const imageUrl = (() => {
@@ -305,19 +292,15 @@ export default function PostPage() {
         goal: Number.parseFloat(
           collectAction?.__typename === "SimpleCollectAction"
             ? collectAction.payToCollect?.amount?.value || "0"
-            : "0"
+            : "0",
         ),
-        deadline: investmentMetadata?.endDate
-          ? new Date(investmentMetadata.endDate)
-          : undefined,
-        description: `${
-          investmentMetadata?.revenueShare || "0"
-        }% revenue share for believers`,
+        deadline: investmentMetadata?.endDate ? new Date(investmentMetadata.endDate) : undefined,
+        description: `${investmentMetadata?.revenueShare || "0"}% revenue share for believers`,
       }
     : null;
 
   return (
-    <div className="container mx-auto max-w-6xl pb-12">
+    <div className="w-full px-4 pb-12 md:px-6">
       <Button
         variant="ghost"
         className="mb-6 flex items-center gap-1 px-0"
@@ -332,14 +315,7 @@ export default function PostPage() {
           <Card className="overflow-hidden">
             {imageUrl && (
               <div className="w-full overflow-hidden">
-                <div className="relative aspect-video w-full">
-                  <Image
-                    src={imageUrl}
-                    alt={title}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
+                <ImageModal src={imageUrl} alt={title} className="relative aspect-video w-full" />
               </div>
             )}
 
@@ -350,14 +326,9 @@ export default function PostPage() {
                     className="size-10 cursor-pointer"
                     onClick={() => router.push(`/u/${username}`)}
                   >
-                    <AvatarImage
-                      src={authorPicture}
-                      alt={post.author.metadata?.name || username}
-                    />
+                    <AvatarImage src={authorPicture} alt={post.author.metadata?.name || username} />
                     <AvatarFallback>
-                      {(
-                        post.author.metadata?.name?.[0] || username[0]
-                      ).toUpperCase()}
+                      {(post.author.metadata?.name?.[0] || username[0]).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
                   <div>
@@ -370,13 +341,9 @@ export default function PostPage() {
                       </h3>
                     </div>
                     <div className="flex items-center gap-1">
-                      <p className="text-muted-foreground text-sm">
-                        @{username}
-                      </p>
+                      <p className="text-muted-foreground text-sm">@{username}</p>
                       <span className="text-muted-foreground text-xs">•</span>
-                      <span className="text-muted-foreground text-xs">
-                        {timeAgo}
-                      </span>
+                      <span className="text-muted-foreground text-xs">{timeAgo}</span>
                     </div>
                   </div>
                 </div>
@@ -392,9 +359,7 @@ export default function PostPage() {
                   />
                   <RepostQuoteButton
                     postId={post.id}
-                    count={
-                      (post.stats?.reposts || 0) + (post.stats?.quotes || 0)
-                    }
+                    count={(post.stats?.reposts || 0) + (post.stats?.quotes || 0)}
                     variant="ghost"
                     size="icon"
                     onRepostSubmit={handleRepostChange}
@@ -435,8 +400,7 @@ export default function PostPage() {
                     collectedAmount={post.stats?.collects || 0}
                     currency={
                       collectAction?.__typename === "SimpleCollectAction"
-                        ? collectAction.payToCollect?.amount?.asset?.symbol ||
-                          "ETH"
+                        ? collectAction.payToCollect?.amount?.asset?.symbol || "ETH"
                         : "ETH"
                     }
                   />
@@ -444,9 +408,7 @@ export default function PostPage() {
                   {/* Benefits Section */}
                   {investmentMetadata?.benefits && (
                     <div className="mt-6">
-                      <h3 className="mb-2 font-semibold text-lg">
-                        Benefits for Believers
-                      </h3>
+                      <h3 className="mb-2 font-semibold text-lg">Benefits for Believers</h3>
                       <div className="whitespace-pre-line rounded-md bg-muted/50 p-4">
                         {investmentMetadata.benefits}
                       </div>
@@ -463,9 +425,7 @@ export default function PostPage() {
                       Comments ({comments.length})
                     </TabsTrigger>
                     <TabsTrigger value="collectors">
-                      <Badge className="mr-2 bg-[#00A8FF]">
-                        {post.stats?.collects || 0}
-                      </Badge>
+                      <Badge className="mr-2 bg-[#00A8FF]">{post.stats?.collects || 0}</Badge>
                       Believers
                     </TabsTrigger>
                   </TabsList>

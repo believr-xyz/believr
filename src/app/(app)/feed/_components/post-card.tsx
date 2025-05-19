@@ -3,6 +3,7 @@
 import { BelieveButton } from "@/components/shared/believe-button";
 import { BookmarkToggleButton } from "@/components/shared/bookmark-toggle-button";
 import { CommentButton } from "@/components/shared/comment-button";
+import { ImageModal } from "@/components/shared/image-modal";
 import { ReactionButton } from "@/components/shared/reaction-button";
 import { RepostQuoteButton } from "@/components/shared/repost-quote-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -24,7 +25,6 @@ interface PostCardProps {
 export function PostCard({ post }: PostCardProps) {
   const router = useRouter();
   const postUtils = useLensPostUtils();
-  const [imageError, setImageError] = useState(false);
 
   // Handle only Post types for now (not reposts, quotes, etc.)
   if (post.__typename !== "Post") {
@@ -46,41 +46,20 @@ export function PostCard({ post }: PostCardProps) {
   let mediaElement = null;
 
   // Handle Image metadata
-  if (
-    typedPost.metadata.__typename === "ImageMetadata" &&
-    typedPost.metadata.image &&
-    !imageError
-  ) {
+  if (typedPost.metadata.__typename === "ImageMetadata" && typedPost.metadata.image) {
     const imageUrl = postUtils.getImageUrl(typedPost);
 
     if (imageUrl) {
       mediaElement = (
-        <div className="relative mb-3 aspect-video overflow-hidden rounded-lg">
-          <Image
+        <div className="mb-3">
+          <ImageModal
             src={imageUrl}
             alt={postUtils.getTitle(typedPost)}
-            fill
-            className="object-cover"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            onError={() => {
-              console.error(`Failed to load image: ${imageUrl}`);
-              setImageError(true);
-            }}
+            className="relative aspect-[4/3] overflow-hidden rounded-lg"
           />
         </div>
       );
     }
-  } else if (
-    typedPost.metadata.__typename === "ImageMetadata" &&
-    typedPost.metadata.image &&
-    imageError
-  ) {
-    // Fallback for when image fails to load
-    mediaElement = (
-      <div className="mb-3 flex aspect-video items-center justify-center rounded-lg bg-muted">
-        <ImageIcon className="size-12 text-muted-foreground" weight="bold" />
-      </div>
-    );
   }
 
   // Handle Video metadata
@@ -97,6 +76,7 @@ export function PostCard({ post }: PostCardProps) {
               controls
               poster={posterUrl}
               className="h-full w-full object-cover"
+              onClick={(e) => e.stopPropagation()}
             >
               <track kind="captions" src="" label="English" srcLang="en" default />
               Your browser does not support the video element.
@@ -125,7 +105,7 @@ export function PostCard({ post }: PostCardProps) {
             <MusicNote className="size-6 text-primary" weight="bold" />
             <span className="font-medium">{postUtils.getTitle(typedPost)}</span>
           </div>
-          <audio controls className="w-full">
+          <audio controls className="w-full" onClick={(e) => e.stopPropagation()}>
             <source src={audioUrl} />
             <track kind="captions" src="" label="English" srcLang="en" default />
             Your browser does not support the audio element.

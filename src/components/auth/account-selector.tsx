@@ -24,8 +24,7 @@ interface AccountSelectorProps {
 // Helper function to add handle property to accounts
 const mapToClientAccount = (account: any): Account => {
   // Extract username from various possible locations
-  const username =
-    account.username?.value?.split("/").pop() || account.username?.localName;
+  const username = account.username?.value?.split("/").pop() || account.username?.localName;
 
   return {
     ...account,
@@ -41,10 +40,9 @@ export function AccountSelector({
   trigger,
 }: AccountSelectorProps) {
   const { data: walletClient } = useWalletClient();
-  const { data: availableAccounts, loading: accountsLoading } =
-    useAccountsAvailable({
-      managedBy: walletClient?.account.address,
-    });
+  const { data: availableAccounts, loading: accountsLoading } = useAccountsAvailable({
+    managedBy: walletClient?.account.address,
+  });
   const { execute: authenticate, loading: authenticateLoading } = useLogin();
   const router = useRouter();
   const wallet = useAccount();
@@ -79,12 +77,10 @@ export function AccountSelector({
       onOpenChange(false);
 
       const foundAccount = availableAccounts?.items.find(
-        (acc) => acc.account.address === account.address
+        (acc) => acc.account.address === account.address,
       )?.account;
 
-      const clientAccount = foundAccount
-        ? mapToClientAccount(foundAccount)
-        : undefined;
+      const clientAccount = foundAccount ? mapToClientAccount(foundAccount) : undefined;
 
       if (onSuccess) {
         onSuccess(clientAccount);
@@ -108,24 +104,17 @@ export function AccountSelector({
           <div className="space-y-2">
             {accountsLoading && (
               <div className="flex justify-center py-4">
-                <CircleNotch
-                  className="size-6 animate-spin text-primary"
-                  weight="bold"
-                />
+                <CircleNotch className="size-6 animate-spin text-primary" weight="bold" />
               </div>
             )}
             {availableAccounts && availableAccounts.items.length === 0 && (
               <div className="text-muted-foreground">
-                <p className="text-sm">
-                  No Lens profiles found for this wallet.
-                </p>
+                <p className="text-sm">No Lens profiles found for this wallet.</p>
                 <div className="mt-4">
                   <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() =>
-                      window.open("https://onboarding.lens.xyz/", "_blank")
-                    }
+                    onClick={() => window.open("https://onboarding.lens.xyz/", "_blank")}
                   >
                     Create a Lens profile
                   </Button>
@@ -158,25 +147,18 @@ export function AccountSelector({
                       </Avatar>
                       <div className="flex flex-col">
                         <span className="font-medium">{displayName}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {username}
-                        </span>
+                        <span className="text-muted-foreground text-xs">{username}</span>
                       </div>
                     </div>
                     <Button
                       disabled={authenticateLoading || isCurrentAccount}
-                      onClick={() =>
-                        handleSelectAccount(mapToClientAccount(acc.account))
-                      }
+                      onClick={() => handleSelectAccount(mapToClientAccount(acc.account))}
                       size="sm"
                       className="min-w-[80px] transition-all"
                     >
                       {authenticateLoading ? (
                         <div className="flex items-center gap-1.5">
-                          <CircleNotch
-                            className="size-3.5 animate-spin"
-                            weight="bold"
-                          />
+                          <CircleNotch className="size-3.5 animate-spin" weight="bold" />
                           <span>Signing in...</span>
                         </div>
                       ) : (

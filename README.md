@@ -1,6 +1,45 @@
-# Believr
+<a href="https://believr.fun">
+  <img alt="Believr – Co-invest in creators you believe in" src="/public/cover.png">
+  <h1 align="center">Believr</h1>
+</a>
 
-Believr is a decentralized social platform where early believers co-invest in creators they believe in and share in their rise. Built on Lens Protocol, it enables creators to launch tokenized posts or campaigns to gain support, while backers earn rewards, access, and a stake in their journey.
+<p align="center">
+  A decentralized social platform where early believers co-invest in creators they believe in and share in their rise. Built on Lens Protocol, it enables creators to launch tokenized posts or campaigns to gain support, while backers earn rewards, access, and a stake in their journey.
+</p>
+
+## Problem
+
+### For Creators
+
+- **Value Capture**: Struggle to capture the value they create, especially from their most dedicated supporters
+- **Platform Dependency**: Rely heavily on platform algorithms and advertising for monetization
+- **Community Recognition**: No way to reward and recognize early supporters who believed in them before success
+- **Fan Engagement**: Limited tools to build meaningful relationships with their most valuable supporters
+
+### For Fans
+
+- **Early Support**: No way to be recognized for supporting creators before they became successful
+- **Value Sharing**: Can't share in the success of creators they believed in early
+- **Access**: Limited opportunities to get exclusive access to creators they support
+- **Engagement**: Traditional platforms don't facilitate meaningful creator-fan relationships
+
+## Solution
+
+Believr introduces a novel approach to creator-fan relationships:
+
+### For Creators
+
+- **Tokenized Content**: Convert posts into investable assets, creating new revenue streams
+- **Direct Monetization**: Earn directly from your most dedicated supporters, reducing platform dependency
+- **Community Building**: Build stronger relationships with early supporters through token ownership
+- **Value Recognition**: Reward and recognize early believers through token appreciation
+
+### For Fans
+
+- **Early Investment**: Get in early on creators you believe in through tokenized posts
+- **Value Appreciation**: Share in creators' success as their tokens appreciate in value
+- **Exclusive Access**: Gain special access and rewards as an early supporter
+- **Meaningful Connection**: Build deeper relationships with creators through token ownership
 
 ## Features
 
@@ -15,6 +54,10 @@ Believr is a decentralized social platform where early believers co-invest in cr
 
 - **Lens-Powered Social Layer**
   Creators and believers connect, share, and engage in a community-led space powered by Lens Protocol's social primitives.
+
+## How it Works
+
+### Architectural Diagram
 
 ## Tech Stack
 
@@ -71,3 +114,31 @@ Believr is a decentralized social platform where early believers co-invest in cr
    ```
 
    Open [http://localhost:3000](http://localhost:3000) in your browser
+
+## Guide
+
+### Project Structure
+
+```
+src/
+├── app/                    # Next.js app directory (pages and layouts)
+├── components/            # Reusable React components
+├── hooks/                # Custom React hooks
+├── lib/                  # Utility functions and shared logic
+├── contracts/           # Smart contract interactions and ABIs
+├── styles/              # Global styles and Tailwind configurations
+└── env.ts               # Environment configuration
+```
+
+## Roadmap
+
+- [ ]
+- [ ]
+- [ ]
+- [ ]
+
+## Contributing
+
+1. Create a new branch
+2. Make your changes
+3. Submit a pull request

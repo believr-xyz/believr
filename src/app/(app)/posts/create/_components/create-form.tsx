@@ -33,7 +33,10 @@ import { z } from "zod";
 // Define the form schema
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title is too long"),
-  content: z.string().min(1, "Content is required").max(2000, "Content is too long"),
+  content: z
+    .string()
+    .min(1, "Content is required")
+    .max(2000, "Content is too long"),
   enableCollectible: z.boolean(),
   price: z.string().optional(),
   currency: z.string().optional(),
@@ -158,7 +161,11 @@ export function CreateForm() {
 
               {imagePreview && (
                 <div className="mt-4 overflow-hidden rounded-lg">
-                  <img src={imagePreview} alt="Preview" className="max-h-60 w-full object-cover" />
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="max-h-60 w-full object-cover"
+                  />
                 </div>
               )}
             </div>
@@ -169,13 +176,18 @@ export function CreateForm() {
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">Make Collectible</FormLabel>
+                    <FormLabel className="text-base">
+                      Make Collectible
+                    </FormLabel>
                     <FormDescription>
                       Allow others to collect this post to become believers
                     </FormDescription>
                   </div>
                   <FormControl>
-                    <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
                   </FormControl>
                 </FormItem>
               )}
@@ -203,7 +215,10 @@ export function CreateForm() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Currency</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
                         <FormControl>
                           <SelectTrigger>
                             <SelectValue placeholder="Select currency" />

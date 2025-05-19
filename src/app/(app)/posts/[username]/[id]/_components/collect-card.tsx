@@ -85,7 +85,10 @@ export function CollectCard({
           </div>
 
           <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div className="h-full bg-[#00A8FF]" style={{ width: `${percentCollected}%` }} />
+            <div
+              className="h-full bg-[#00A8FF]"
+              style={{ width: `${percentCollected}%` }}
+            />
           </div>
         </div>
 
@@ -104,9 +107,13 @@ export function CollectCard({
             <div>
               <div className="flex items-center gap-1">
                 <p className="font-semibold">{creator.name}</p>
-                {creator.verified && <BadgeCheck className="size-3 text-[#00A8FF]" />}
+                {creator.verified && (
+                  <BadgeCheck className="size-3 text-[#00A8FF]" />
+                )}
               </div>
-              <p className="text-muted-foreground text-xs">@{creator.username}</p>
+              <p className="text-muted-foreground text-xs">
+                @{creator.username}
+              </p>
             </div>
           </div>
 

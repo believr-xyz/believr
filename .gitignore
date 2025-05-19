@@ -40,7 +40,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-/TODO.md
+/CORE.md
 /MVP-SPEC.md
 /LENS-HACK.md
 /THOUGHTS.md

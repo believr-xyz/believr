@@ -2,11 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
@@ -202,8 +198,7 @@ export function PostComposer() {
       }
     } catch (error) {
       console.error("Error creating post:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       toast.error(`Error creating post: ${errorMessage}`);
     } finally {
       setIsLoading(false);
@@ -261,11 +256,7 @@ export function PostComposer() {
 
           {previewUrl && (
             <div className="relative mb-3 overflow-hidden rounded-md">
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="max-h-80 w-auto rounded-md"
-              />
+              <img src={previewUrl} alt="Preview" className="max-h-80 w-auto rounded-md" />
               <Button
                 variant="secondary"
                 size="sm"
@@ -289,12 +280,7 @@ export function PostComposer() {
                 className="hidden"
                 onChange={handleFileChange}
               />
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleImageUpload}
-                title="Add image"
-              >
+              <Button variant="ghost" size="icon" onClick={handleImageUpload} title="Add image">
                 <ImageIcon className="h-5 w-5" />
               </Button>
 
@@ -305,11 +291,7 @@ export function PostComposer() {
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-full border-none p-0">
-                  <Picker
-                    data={data}
-                    onEmojiSelect={handleEmojiSelect}
-                    theme="light"
-                  />
+                  <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" />
                 </PopoverContent>
               </Popover>
             </div>

@@ -8,7 +8,7 @@ import { NotificationsNavButton } from "@/components/navigation/notifications-na
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import { Sparkles } from "lucide-react";
+import { Home, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -39,20 +39,22 @@ export function Header() {
             <Link
               href="/feed"
               className={cn(
-                "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
+                "flex flex-col items-center justify-center text-primary/80 transition-colors hover:text-[#00A8FF]",
                 pathname.startsWith("/feed") && "text-[#00A8FF]",
               )}
             >
-              Home
+              <Home className="mb-0.5 size-5" />
+              <span className="font-semibold text-xs">Home</span>
             </Link>
             <Link
               href="/groups"
               className={cn(
-                "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
+                "flex flex-col items-center justify-center text-primary/80 transition-colors hover:text-[#00A8FF]",
                 pathname.startsWith("/groups") && "text-[#00A8FF]",
               )}
             >
-              Believers
+              <Users className="mb-0.5 size-5" />
+              <span className="font-semibold text-xs">Believers</span>
             </Link>
           </nav>
         </div>

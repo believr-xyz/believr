@@ -5,12 +5,16 @@ import { storageClient } from "@/lib/lens/storage-client";
 import { SessionClient, evmAddress, uri } from "@lens-protocol/client";
 import { post } from "@lens-protocol/client/actions";
 import {
+  ArticleMetadata,
+  AudioMetadata,
+  ImageMetadata,
   MediaImageMimeType,
   MetadataAttributeType,
+  VideoMetadata,
   article,
+  audio,
   image,
-  ArticleMetadata,
-  ImageMetadata,
+  video,
 } from "@lens-protocol/metadata";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { useState } from "react";
@@ -75,7 +79,11 @@ export function useCreatePost() {
       const sessionClient = client as SessionClient;
 
       // Prepare metadata
-      let metadata: ImageMetadata | ArticleMetadata;
+      let metadata:
+        | ImageMetadata
+        | ArticleMetadata
+        | VideoMetadata
+        | AudioMetadata;
       let imageAttachment = null;
 
       // Handle image file if provided
@@ -239,7 +247,9 @@ export function useCreatePost() {
         setIsLoading(false);
 
         // Return the post ID if available, otherwise just return success indicator
-        return result.value && typeof result.value === "object" && "id" in result.value
+        return result.value &&
+          typeof result.value === "object" &&
+          "id" in result.value
           ? { id: result.value.id }
           : { success: true };
       } else {
@@ -257,7 +267,9 @@ export function useCreatePost() {
         setIsLoading(false);
 
         // Return the post ID if available, otherwise just return success indicator
-        return result.value && typeof result.value === "object" && "id" in result.value
+        return result.value &&
+          typeof result.value === "object" &&
+          "id" in result.value
           ? { id: result.value.id }
           : { success: true };
       }

@@ -9,7 +9,6 @@ import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import {
   Bell,
-  BookmarkSimple,
   House,
   Sparkle,
   Users as UsersIcon,
@@ -36,7 +35,7 @@ export function Header() {
 
   // Simple conditional rendering based on auth state
   return user ? (
-    <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-3 backdrop-blur-sm">
+    <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-3 backdrop-blur-sm border-b border-border/40">
       <div className="container mx-auto flex max-w-6xl items-center justify-between px-4 md:px-6">
         <Logo className="size-8 flex-shrink-0" variant="icon" />
 
@@ -65,17 +64,6 @@ export function Header() {
           </Link>
 
           <Link
-            href="/bookmarks"
-            className={cn(
-              "flex flex-col items-center justify-center px-4 text-primary/80 transition-colors hover:text-[#00A8FF]",
-              pathname.startsWith("/bookmarks") && "text-[#00A8FF]"
-            )}
-          >
-            <BookmarkSimple className="mb-0.5 size-6" weight="bold" />
-            <span className="font-semibold text-xs">Saved</span>
-          </Link>
-
-          <Link
             href="/notifications"
             className={cn(
               "flex flex-col items-center justify-center px-4 text-primary/80 transition-colors hover:text-[#00A8FF]",
@@ -83,13 +71,13 @@ export function Header() {
             )}
           >
             <Bell className="mb-0.5 size-6" weight="bold" />
-            <span className="font-semibold text-xs">Alerts</span>
+            <span className="font-semibold text-xs">Notifications</span>
           </Link>
         </div>
 
         <div className="flex items-center gap-3">
-          {/* Mobile search */}
-          <div className="md:hidden w-full">
+          {/* Mobile search - centered */}
+          <div className="flex justify-center md:hidden w-full max-w-[200px] mx-auto">
             <SearchBar />
           </div>
 
@@ -115,7 +103,7 @@ export function Header() {
       </div>
     </header>
   ) : (
-    <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-3 backdrop-blur-sm">
+    <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-3 backdrop-blur-sm border-b border-border/40">
       <div className="container mx-auto flex max-w-6xl items-center justify-between px-4 md:px-6">
         <Logo className="mr-6" variant="full" />
         <Login variant="header" label="Sign in" />

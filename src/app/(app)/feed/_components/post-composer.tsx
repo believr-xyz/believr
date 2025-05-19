@@ -3,18 +3,10 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useMediaCompression } from "@/hooks/use-media-compression";
 import { getLensClient } from "@/lib/lens/client";
 import { storageClient } from "@/lib/lens/storage-client";
@@ -40,13 +32,7 @@ import {
   video,
 } from "@lens-protocol/metadata";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import {
-  Image,
-  Smiley,
-  File,
-  UsersThree,
-  FilmStrip,
-} from "@phosphor-icons/react";
+import { File, FilmStrip, Image, Smiley, UsersThree } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -70,36 +56,92 @@ export function PostComposer() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { compressImage } = useMediaCompression();
+  const [profileImageError, setProfileImageError] = useState(false);
 
   // Fetch account data for profile picture
   useEffect(() => {
+    // Add a cache key based on user address
+    const cacheKey = `lens_account_${user?.address}`;
+    let isMounted = true;
+    let retryCount = 0;
+    const maxRetries = 3;
+
     async function fetchUserAccount() {
       if (!user) return;
 
+      // Try to get from sessionStorage first
       try {
-        const client = await getLensClient();
-        const account = await fetchAccount(client, {
-          address: user.address,
-        }).unwrapOr(null);
-        setAccountData(account);
-
-        // Fetch user's groups - using the correct filter API
-        const groupsResult = await fetchGroups(client, {
-          filter: {
-            member: user.address,
-          },
-        });
-
-        if (groupsResult.isOk()) {
-          // Convert readonly array to mutable array
-          setGroups([...groupsResult.value.items]);
+        const cachedData = sessionStorage.getItem(cacheKey);
+        if (cachedData) {
+          const parsed = JSON.parse(cachedData);
+          setAccountData(parsed.account);
+          setGroups(parsed.groups || []);
+          return;
         }
       } catch (error) {
-        console.error("Failed to fetch account:", error);
+        console.error("Error accessing cache:", error);
       }
+
+      // Implement exponential backoff for retries
+      const fetchWithRetry = async () => {
+        try {
+          const client = await getLensClient();
+          const account = await fetchAccount(client, {
+            address: user.address,
+          }).unwrapOr(null);
+
+          if (isMounted) {
+            setAccountData(account);
+          }
+
+          // Fetch user's groups - using the correct filter API
+          const groupsResult = await fetchGroups(client, {
+            filter: {
+              member: user.address,
+            },
+          });
+
+          if (groupsResult.isOk() && isMounted) {
+            // Convert readonly array to mutable array
+            const groupsData = [...groupsResult.value.items];
+            setGroups(groupsData);
+
+            // Cache successful results
+            try {
+              sessionStorage.setItem(
+                cacheKey,
+                JSON.stringify({
+                  account,
+                  groups: groupsData,
+                  timestamp: Date.now(),
+                }),
+              );
+            } catch (error) {
+              console.error("Error storing cache:", error);
+            }
+          }
+        } catch (error) {
+          console.error("Failed to fetch account:", error);
+
+          // Retry with exponential backoff
+          if (retryCount < maxRetries && isMounted) {
+            const delay = 2 ** retryCount * 1000; // Exponential backoff
+            retryCount++;
+            console.log(`Retrying fetch (${retryCount}/${maxRetries}) after ${delay}ms`);
+            setTimeout(fetchWithRetry, delay);
+          }
+        }
+      };
+
+      fetchWithRetry();
     }
 
     fetchUserAccount();
+
+    // Clean up function
+    return () => {
+      isMounted = false;
+    };
   }, [user]);
 
   const handleMediaUpload = (type: MediaType) => {
@@ -326,23 +368,16 @@ export function PostComposer() {
         if (uploadResult.success && uploadResult.uri) {
           mediaURI = uploadResult.uri;
         } else {
-          toast.error(
-            `Failed to upload media: ${uploadResult.error || "Unknown error"}`,
-            {
-              id: toastId,
-            }
-          );
+          toast.error(`Failed to upload media: ${uploadResult.error || "Unknown error"}`, {
+            id: toastId,
+          });
           setIsLoading(false);
           return;
         }
       }
 
       // Create metadata based on media type
-      let metadata:
-        | ImageMetadata
-        | VideoMetadata
-        | AudioMetadata
-        | TextOnlyMetadata;
+      let metadata: ImageMetadata | VideoMetadata | AudioMetadata | TextOnlyMetadata;
 
       if (mediaURI && selectedFile) {
         if (mediaType === "image") {
@@ -414,29 +449,49 @@ export function PostComposer() {
       }
     } catch (error) {
       console.error("Error creating post:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       toast.error(`Error creating post: ${errorMessage}`, { id: toastId });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Get profile picture URL
-  let profilePictureUrl = null;
-  if (accountData?.metadata?.picture) {
-    // Handle direct string URL
-    if (typeof accountData.metadata.picture === "string") {
-      profilePictureUrl = accountData.metadata.picture;
-    }
-    // Handle object structure with nested URI
-    else if (accountData.metadata.picture?.optimized?.uri) {
-      profilePictureUrl = accountData.metadata.picture.optimized.uri;
-    } else if (accountData.metadata.picture?.raw?.uri) {
-      profilePictureUrl = accountData.metadata.picture.raw.uri;
-    }
-  }
+  // Replace the profile picture URL handling with a more robust version
+  const getProfilePictureUrl = () => {
+    // Default fallback
+    let fallbackUrl = null;
 
+    if (!accountData?.metadata?.picture) {
+      return fallbackUrl;
+    }
+
+    try {
+      // Handle direct string URL
+      if (typeof accountData.metadata.picture === "string") {
+        fallbackUrl = accountData.metadata.picture;
+      }
+      // Handle object structure with nested URI
+      else if (accountData.metadata.picture?.optimized?.uri) {
+        fallbackUrl = accountData.metadata.picture.optimized.uri;
+      } else if (accountData.metadata.picture?.raw?.uri) {
+        fallbackUrl = accountData.metadata.picture.raw.uri;
+      }
+
+      // Check if URL is from IPFS and do some sanitization
+      if (fallbackUrl && (fallbackUrl.startsWith("ipfs://") || fallbackUrl.includes("ipfs"))) {
+        // Ensure proper gateway format
+        fallbackUrl = fallbackUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
+      }
+
+      return fallbackUrl;
+    } catch (error) {
+      console.error("Error parsing profile picture URL:", error);
+      return null;
+    }
+  };
+
+  // Replace the profile picture URL code at render time
+  const profilePictureUrl = !profileImageError ? getProfilePictureUrl() : null;
   const displayAddress = user?.address.substring(0, 2) || "?";
 
   // Render media preview based on media type
@@ -446,18 +501,10 @@ export function PostComposer() {
     return (
       <div className="relative mb-2 overflow-hidden rounded-md">
         {mediaType === "image" && (
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="max-h-48 w-auto rounded-md"
-          />
+          <img src={previewUrl} alt="Preview" className="max-h-48 w-auto rounded-md" />
         )}
         {mediaType === "video" && (
-          <video
-            controls
-            src={previewUrl}
-            className="max-h-48 w-auto rounded-md"
-          >
+          <video controls src={previewUrl} className="max-h-48 w-auto rounded-md">
             <track kind="captions" src="" label="Captions" />
           </video>
         )}
@@ -466,9 +513,7 @@ export function PostComposer() {
             <audio controls src={previewUrl} className="w-full">
               <track kind="captions" src="" label="Captions" />
             </audio>
-            <p className="mt-1 text-gray-500 text-sm">
-              Audio: {selectedFile?.name}
-            </p>
+            <p className="mt-1 text-gray-500 text-sm">Audio: {selectedFile?.name}</p>
           </div>
         )}
         <Button
@@ -492,8 +537,12 @@ export function PostComposer() {
     <Card className="mb-4 p-3 shadow-sm">
       <div className="flex items-start gap-2">
         <Avatar className="h-8 w-8">
-          {profilePictureUrl ? (
-            <AvatarImage src={profilePictureUrl} alt="Profile" />
+          {profilePictureUrl && !profileImageError ? (
+            <AvatarImage
+              src={profilePictureUrl}
+              alt="Profile"
+              onError={() => setProfileImageError(true)}
+            />
           ) : (
             <AvatarFallback className="bg-primary-foreground text-primary">
               {displayAddress}
@@ -626,11 +675,7 @@ export function PostComposer() {
                   </TooltipContent>
                 </Tooltip>
                 <PopoverContent className="w-full border-none p-0">
-                  <Picker
-                    data={data}
-                    onEmojiSelect={handleEmojiSelect}
-                    theme="light"
-                  />
+                  <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" />
                 </PopoverContent>
               </Popover>
             </div>

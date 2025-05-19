@@ -4,10 +4,7 @@
  * @param currentTime Time in seconds to capture thumbnail from
  * @returns Promise that resolves to a data URL of the thumbnail
  */
-export const createVideoThumbnailAtTime = (
-  file: File,
-  currentTime: number
-): Promise<string> => {
+export const createVideoThumbnailAtTime = (file: File, currentTime: number): Promise<string> => {
   return new Promise((resolve, reject) => {
     try {
       const video = document.createElement("video");
@@ -70,9 +67,7 @@ export const createVideoThumbnail = (file: File): Promise<string> => {
         URL.revokeObjectURL(video.src);
 
         // Create thumbnail at the calculated time
-        createVideoThumbnailAtTime(file, targetTime)
-          .then(resolve)
-          .catch(reject);
+        createVideoThumbnailAtTime(file, targetTime).then(resolve).catch(reject);
       };
 
       video.onerror = () => {
@@ -91,10 +86,7 @@ export const createVideoThumbnail = (file: File): Promise<string> => {
  * @param count Number of thumbnails to generate
  * @returns Promise that resolves to an array of thumbnail data URLs
  */
-export const generateVideoThumbnails = (
-  file: File,
-  count = 3
-): Promise<string[]> => {
+export const generateVideoThumbnails = (file: File, count = 3): Promise<string[]> => {
   return new Promise((resolve, reject) => {
     try {
       if (!file.size) {
@@ -114,10 +106,7 @@ export const generateVideoThumbnails = (
         try {
           for (let i = 1; i <= count; i++) {
             const currentTime = averageSplitTime * i;
-            const thumbnail = await createVideoThumbnailAtTime(
-              file,
-              currentTime
-            );
+            const thumbnail = await createVideoThumbnailAtTime(file, currentTime);
             thumbnailArray.push(thumbnail);
           }
 

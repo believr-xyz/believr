@@ -13,23 +13,17 @@ export function validateFileSize(file: File): boolean {
   const isAudio = file.type.includes("audio");
 
   if (isImage && file.size > IMAGE_UPLOAD_LIMIT) {
-    toast.error(
-      `Image size should be less than ${IMAGE_UPLOAD_LIMIT / 1000000}MB`
-    );
+    toast.error(`Image size should be less than ${IMAGE_UPLOAD_LIMIT / 1000000}MB`);
     return false;
   }
 
   if (isVideo && file.size > VIDEO_UPLOAD_LIMIT) {
-    toast.error(
-      `Video size should be less than ${VIDEO_UPLOAD_LIMIT / 1000000}MB`
-    );
+    toast.error(`Video size should be less than ${VIDEO_UPLOAD_LIMIT / 1000000}MB`);
     return false;
   }
 
   if (isAudio && file.size > AUDIO_UPLOAD_LIMIT) {
-    toast.error(
-      `Audio size should be less than ${AUDIO_UPLOAD_LIMIT / 1000000}MB`
-    );
+    toast.error(`Audio size should be less than ${AUDIO_UPLOAD_LIMIT / 1000000}MB`);
     return false;
   }
 

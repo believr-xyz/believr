@@ -44,8 +44,7 @@ export async function uploadToIPFS(file: File): Promise<UploadResult> {
       // Check if it's a CORS-related error
       const isCorsError =
         uploadError instanceof Error &&
-        (uploadError.message.includes("CORS") ||
-          uploadError.message.includes("Failed to fetch"));
+        (uploadError.message.includes("CORS") || uploadError.message.includes("Failed to fetch"));
 
       // Fallback: Use base64 encoding for small files (< 5MB)
       if (file.size < 5 * 1024 * 1024) {
@@ -80,8 +79,6 @@ export async function uploadToIPFS(file: File): Promise<UploadResult> {
  * @param files Array of files to upload
  * @returns Array of upload results
  */
-export async function uploadMultipleToIPFS(
-  files: File[]
-): Promise<UploadResult[]> {
+export async function uploadMultipleToIPFS(files: File[]): Promise<UploadResult[]> {
   return Promise.all(files.map((file) => uploadToIPFS(file)));
 }

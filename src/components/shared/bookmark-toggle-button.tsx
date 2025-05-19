@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { usePostBookmark } from "@/hooks/use-post-bookmark";
-import { Bookmark } from "lucide-react";
+import { Bookmark } from "@phosphor-icons/react";
 
 interface BookmarkToggleButtonProps {
   postId: string;
@@ -38,7 +38,7 @@ export function BookmarkToggleButton({
       onClick={handleClick}
       isLoading={isLoading}
     >
-      {!isLoading && <Bookmark className="size-5" fill={isBookmarked ? "currentColor" : "none"} />}
+      {!isLoading && <Bookmark className="size-5" weight={isBookmarked ? "fill" : "regular"} />}
     </Button>
   );
 }

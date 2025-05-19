@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { ArrowUpRight, TrendingUp } from "lucide-react";
+import { ArrowUpRight, TrendUp } from "@phosphor-icons/react";
 import Link from "next/link";
 
 export interface Creator {
@@ -45,7 +45,7 @@ export function Trending({ creators, campaigns }: TrendingProps) {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center text-base">
-            <TrendingUp className="mr-2 size-4" />
+            <TrendUp className="mr-2 size-4" weight="bold" />
             Trending Creators
           </CardTitle>
         </CardHeader>
@@ -70,8 +70,8 @@ export function Trending({ creators, campaigns }: TrendingProps) {
                     <div className="flex items-center gap-1 truncate">
                       <span className="truncate font-medium">{creator.name}</span>
                     </div>
-                    <div className="flex text-muted-foreground text-xs">
-                      <span>@{creator.username}</span>
+                    <div className="flex text-muted-foreground">
+                      <span className="font-semibold text-[14px]">@{creator.username}</span>
                     </div>
                   </div>
                   <div className="text-right text-xs">
@@ -88,7 +88,7 @@ export function Trending({ creators, campaigns }: TrendingProps) {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle className="flex items-center text-base">
-            <TrendingUp className="mr-2 size-4" />
+            <TrendUp className="mr-2 size-4" weight="bold" />
             Trending Campaigns
           </CardTitle>
         </CardHeader>
@@ -110,7 +110,7 @@ export function Trending({ creators, campaigns }: TrendingProps) {
                       <AvatarImage src={campaign.creator.picture} alt={campaign.creator.name} />
                       <AvatarFallback>{campaign.creator.name[0]}</AvatarFallback>
                     </Avatar>
-                    <span className="text-muted-foreground text-xs">
+                    <span className="font-semibold text-[14px] text-muted-foreground">
                       @{campaign.creator.username}
                     </span>
                   </div>
@@ -118,7 +118,7 @@ export function Trending({ creators, campaigns }: TrendingProps) {
                     <h3 className="truncate font-medium text-sm group-hover:text-primary">
                       {campaign.title}
                     </h3>
-                    <ArrowUpRight className="ml-2 hidden size-3 group-hover:inline" />
+                    <ArrowUpRight className="ml-2 hidden size-3 group-hover:inline" weight="bold" />
                   </div>
                   <div className="mt-1 flex items-center justify-between">
                     <div className="text-muted-foreground text-xs">

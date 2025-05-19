@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { usePostReaction } from "@/hooks/use-post-reaction";
-import { HeartIcon } from "lucide-react";
+import { Heart } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 interface ReactionButtonProps {
@@ -70,7 +70,7 @@ export function ReactionButton({
     >
       {!isLoading && (
         <>
-          <HeartIcon className="size-4" fill={isReacted ? "currentColor" : "none"} />
+          <Heart className="size-4" weight={isReacted ? "fill" : "regular"} />
           {showCount && <span>{currentCount}</span>}
         </>
       )}

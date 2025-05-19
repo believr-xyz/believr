@@ -9,8 +9,8 @@ import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { ScrollArea } from "../ui/scroll-area";
 
+import { CircleNotch } from "@phosphor-icons/react";
 import { ConnectKitButton } from "connectkit";
-import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 interface AccountSelectorProps {
@@ -104,7 +104,7 @@ export function AccountSelector({
           <div className="grid grid-cols-3 gap-2">
             {accountsLoading && (
               <div className="col-span-3 flex justify-center py-4">
-                <Loader2 className="size-6 animate-spin text-primary" />
+                <CircleNotch className="size-6 animate-spin text-primary" weight="bold" />
               </div>
             )}
             {availableAccounts && availableAccounts.items.length === 0 && (
@@ -150,7 +150,10 @@ export function AccountSelector({
                       )}
                     </span>
                     {authenticateLoading && (
-                      <Loader2 className="mt-1 size-3 animate-spin text-muted-foreground" />
+                      <CircleNotch
+                        className="mt-1 size-3 animate-spin text-muted-foreground"
+                        weight="bold"
+                      />
                     )}
                   </Button>
                 );

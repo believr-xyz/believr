@@ -8,7 +8,7 @@ import { NotificationsNavButton } from "@/components/navigation/notifications-na
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import { Home, Sparkles, Users } from "lucide-react";
+import { House, Sparkle, Users as UsersIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -43,7 +43,7 @@ export function Header() {
                 pathname.startsWith("/feed") && "text-[#00A8FF]",
               )}
             >
-              <Home className="mb-0.5 size-5" />
+              <House className="mb-0.5 size-5" weight="bold" />
               <span className="font-semibold text-xs">Home</span>
             </Link>
             <Link
@@ -53,7 +53,7 @@ export function Header() {
                 pathname.startsWith("/groups") && "text-[#00A8FF]",
               )}
             >
-              <Users className="mb-0.5 size-5" />
+              <UsersIcon className="mb-0.5 size-5" weight="bold" />
               <span className="font-semibold text-xs">Believers</span>
             </Link>
           </nav>
@@ -62,12 +62,12 @@ export function Header() {
         <div className="flex items-center gap-2 md:gap-5">
           <Button
             asChild
-            className="hidden bg-gradient-to-r from-[#00A8FF] to-[#2D8CFF] font-medium text-white hover:from-[#00A8FF]/90 hover:to-[#2D8CFF]/90 sm:flex"
+            className="hidden bg-gradient-to-r from-[#00A8FF] to-[#2D8CFF] font-medium text-base text-white hover:from-[#00A8FF]/90 hover:to-[#2D8CFF]/90 sm:flex"
             size="sm"
           >
             <Link href="/posts/create">
-              <Sparkles className="mr-1.5 size-3.5" />
-              Create Investment Campaign
+              <Sparkle className="mr-1.5 size-4" weight="bold" />
+              Create Campaign
             </Link>
           </Button>
           <div className="flex items-center gap-2 md:gap-3">

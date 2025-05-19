@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Bookmark } from "lucide-react";
+import { Bookmark } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -24,7 +24,7 @@ export function BookmarksNavButton({ className }: BookmarksNavButtonProps) {
         asChild
       >
         <Link href="/bookmarks">
-          <Bookmark className="size-5" />
+          <Bookmark className="size-5" weight="bold" />
         </Link>
       </Button>
     </div>

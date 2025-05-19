@@ -3,7 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Bell } from "lucide-react";
+import { Bell } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -28,7 +28,7 @@ export function NotificationsNavButton({ className }: NotificationsNavButtonProp
         asChild
       >
         <Link href="/notifications">
-          <Bell className="size-5" />
+          <Bell className="size-5" weight="bold" />
           {unreadCount > 0 && (
             <Badge
               className="-right-1 -top-1 absolute flex size-4 items-center justify-center rounded-full bg-[#00A8FF] p-0 text-white"

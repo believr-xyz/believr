@@ -9,11 +9,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { useLensPostUtils } from "@/hooks/use-lens-post-utils";
+import { formatPostContent } from "@/lib/format-content";
+import { cn } from "@/lib/utils";
 import { AnyPost, Post } from "@lens-protocol/client";
+import { CurrencyDollar, Image as ImageIcon, MusicNote, Video } from "@phosphor-icons/react";
 import { formatDistanceToNow } from "date-fns";
-import { DollarSign, MusicIcon, VideoIcon } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 interface PostCardProps {
   post: AnyPost;
@@ -22,6 +25,7 @@ interface PostCardProps {
 export function PostCard({ post }: PostCardProps) {
   const router = useRouter();
   const postUtils = useLensPostUtils();
+  const [imageError, setImageError] = useState(false);
 
   // Handle only Post types for now (not reposts, quotes, etc.)
   if (post.__typename !== "Post") {
@@ -43,7 +47,11 @@ export function PostCard({ post }: PostCardProps) {
   let mediaElement = null;
 
   // Handle Image metadata
-  if (typedPost.metadata.__typename === "ImageMetadata" && typedPost.metadata.image) {
+  if (
+    typedPost.metadata.__typename === "ImageMetadata" &&
+    typedPost.metadata.image &&
+    !imageError
+  ) {
     const imageUrl = postUtils.getImageUrl(typedPost);
 
     if (imageUrl) {
@@ -55,10 +63,25 @@ export function PostCard({ post }: PostCardProps) {
             fill
             className="object-cover"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            onError={() => {
+              console.error(`Failed to load image: ${imageUrl}`);
+              setImageError(true);
+            }}
           />
         </div>
       );
     }
+  } else if (
+    typedPost.metadata.__typename === "ImageMetadata" &&
+    typedPost.metadata.image &&
+    imageError
+  ) {
+    // Fallback for when image fails to load
+    mediaElement = (
+      <div className="mb-3 flex aspect-video items-center justify-center rounded-lg bg-muted">
+        <ImageIcon className="size-12 text-muted-foreground" weight="bold" />
+      </div>
+    );
   }
 
   // Handle Video metadata
@@ -86,7 +109,7 @@ export function PostCard({ post }: PostCardProps) {
       // Fallback for when video URL can't be determined
       mediaElement = (
         <div className="mb-3 flex aspect-video items-center justify-center rounded-lg bg-muted">
-          <VideoIcon className="size-12 text-muted-foreground" />
+          <Video className="size-12 text-muted-foreground" weight="bold" />
         </div>
       );
     }
@@ -100,7 +123,7 @@ export function PostCard({ post }: PostCardProps) {
       mediaElement = (
         <div className="mb-3 rounded-lg border p-4">
           <div className="mb-2 flex items-center gap-3">
-            <MusicIcon className="size-6 text-primary" />
+            <MusicNote className="size-6 text-primary" weight="bold" />
             <span className="font-medium">{postUtils.getTitle(typedPost)}</span>
           </div>
           <audio controls className="w-full">
@@ -143,8 +166,8 @@ export function PostCard({ post }: PostCardProps) {
                 {typedPost.author.metadata?.name || username}
               </span>
             </div>
-            <div className="flex items-center gap-1 text-muted-foreground text-xs">
-              <span>@{username}</span>
+            <div className="flex items-center gap-1 text-muted-foreground text-sm">
+              <span className="font-semibold text-[14px]">@{username}</span>
               <span>•</span>
               <span>{formatDistanceToNow(timestamp, { addSuffix: true })}</span>
             </div>
@@ -153,7 +176,14 @@ export function PostCard({ post }: PostCardProps) {
       </CardHeader>
 
       <CardContent className="pb-3">
-        {content && <div className="mb-3 whitespace-pre-wrap">{content}</div>}
+        {content && (
+          <div
+            className="mb-3 whitespace-pre-wrap text-[16px]"
+            dangerouslySetInnerHTML={{
+              __html: formatPostContent(content) || "",
+            }}
+          />
+        )}
 
         {/* Media element (image, video, audio) */}
         {mediaElement}

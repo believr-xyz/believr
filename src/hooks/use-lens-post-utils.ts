@@ -25,6 +25,19 @@ export function useLensPostUtils() {
       return picture;
     }
 
+    // Handle optimized vs raw image using type assertion
+    // @ts-ignore - Lens Protocol types may not include these fields
+    if (picture.optimized?.uri) {
+      // @ts-ignore
+      return picture.optimized.uri;
+    }
+
+    // @ts-ignore - Lens Protocol types may not include these fields
+    if (picture.raw?.uri) {
+      // @ts-ignore
+      return picture.raw.uri;
+    }
+
     return picture.item || "";
   };
 
@@ -68,12 +81,30 @@ export function useLensPostUtils() {
 
   /**
    * Extract image URL from post metadata if available
+   * Handles different image formats from Lens Protocol
    */
   const getImageUrl = (post: Post): string => {
     if (post.metadata?.__typename === "ImageMetadata" && post.metadata.image) {
+      // If image is a string, return it directly
       if (typeof post.metadata.image === "string") {
         return post.metadata.image;
       }
+
+      // Try optimized version first
+      // @ts-ignore - Lens Protocol types may not include these fields
+      if (post.metadata.image.optimized?.uri) {
+        // @ts-ignore
+        return post.metadata.image.optimized.uri;
+      }
+
+      // Try raw version next
+      // @ts-ignore - Lens Protocol types may not include these fields
+      if (post.metadata.image.raw?.uri) {
+        // @ts-ignore
+        return post.metadata.image.raw.uri;
+      }
+
+      // Fall back to item field
       return post.metadata.image.item || "";
     }
     return "";
@@ -86,10 +117,18 @@ export function useLensPostUtils() {
     if (post.metadata?.__typename === "VideoMetadata" && post.metadata.video) {
       if (typeof post.metadata.video === "string") {
         return post.metadata.video;
-      } else if (post.metadata.video?.item) {
+      }
+      // @ts-ignore - Lens Protocol types may not include these fields
+      else if (post.metadata.video.optimized?.uri) {
+        // @ts-ignore
+        return post.metadata.video.optimized.uri;
+      }
+      // @ts-ignore - Lens Protocol types may not include these fields
+      else if (post.metadata.video.raw?.uri) {
+        // @ts-ignore
+        return post.metadata.video.raw.uri;
+      } else if (post.metadata.video.item) {
         return post.metadata.video.item;
-      } else if ((post.metadata.video as any)?.raw?.uri) {
-        return (post.metadata.video as any).raw.uri;
       }
     }
     return "";
@@ -100,9 +139,23 @@ export function useLensPostUtils() {
    */
   const getVideoPosterUrl = (post: Post): string | undefined => {
     if (post.metadata?.__typename === "VideoMetadata") {
-      const cover = (post.metadata as any)?.cover;
+      // @ts-ignore - Lens Protocol metadata may have cover field that's not in types
+      const cover = post.metadata.cover || (post.metadata as any)?.cover;
       if (cover) {
-        return typeof cover === "string" ? cover : cover?.item || "";
+        if (typeof cover === "string") {
+          return cover;
+        }
+        // @ts-ignore - Lens Protocol types may not include these fields
+        else if (cover.optimized?.uri) {
+          // @ts-ignore
+          return cover.optimized.uri;
+        }
+        // @ts-ignore - Lens Protocol types may not include these fields
+        else if (cover.raw?.uri) {
+          // @ts-ignore
+          return cover.raw.uri;
+        }
+        return cover.item || "";
       }
     }
     return undefined;
@@ -115,10 +168,18 @@ export function useLensPostUtils() {
     if (post.metadata?.__typename === "AudioMetadata" && post.metadata.audio) {
       if (typeof post.metadata.audio === "string") {
         return post.metadata.audio;
-      } else if (post.metadata.audio?.item) {
+      }
+      // @ts-ignore - Lens Protocol types may not include these fields
+      else if (post.metadata.audio.optimized?.uri) {
+        // @ts-ignore
+        return post.metadata.audio.optimized.uri;
+      }
+      // @ts-ignore - Lens Protocol types may not include these fields
+      else if (post.metadata.audio.raw?.uri) {
+        // @ts-ignore
+        return post.metadata.audio.raw.uri;
+      } else if (post.metadata.audio.item) {
         return post.metadata.audio.item;
-      } else if ((post.metadata.audio as any)?.raw?.uri) {
-        return (post.metadata.audio as any).raw.uri;
       }
     }
     return "";

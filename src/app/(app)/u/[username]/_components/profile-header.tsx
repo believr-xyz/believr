@@ -4,7 +4,7 @@ import { FollowButton } from "@/components/shared/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useFollowers } from "@/hooks/use-followers";
 import { Account, AccountStats } from "@lens-protocol/client";
-import { ExternalLink, MapPin } from "lucide-react";
+import { User } from "@phosphor-icons/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -22,6 +22,7 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
     accountAddress: account.address,
     pageSize: 5, // Load just a small amount to get the count
   });
+
   // Use stats from Lens API or fallback to local state if not yet loaded
   const [followerCount, setFollowerCount] = useState(
     stats?.graphFollowStats?.followers || followers.total || 0,
@@ -29,6 +30,10 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
   const [followingCount, setFollowingCount] = useState(
     stats?.graphFollowStats?.following || following.total || 0,
   );
+
+  // State for image loading errors
+  const [coverImageError, setCoverImageError] = useState(false);
+  const [profileImageError, setProfileImageError] = useState(false);
 
   // Update follower counts when data changes
   useEffect(() => {
@@ -55,22 +60,38 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
   const bio = account.metadata?.bio;
 
   // Handle picture which could be in different formats
-  const picture =
-    typeof account.metadata?.picture === "string"
-      ? account.metadata.picture
-      : account.metadata?.picture?.optimized?.uri || account.metadata?.picture?.raw?.uri;
+  const processPictureUrl = (picture: any): string => {
+    if (!picture) return "";
 
-  // Cover picture handling
-  const coverPicture =
-    typeof account.metadata?.coverPicture === "string"
-      ? account.metadata.coverPicture
-      : account.metadata?.coverPicture?.optimized?.uri || account.metadata?.coverPicture?.raw?.uri;
+    if (typeof picture === "string") {
+      return picture;
+    }
+
+    // Try different image formats from Lens Protocol
+    if (picture.optimized?.uri) {
+      return picture.optimized.uri;
+    }
+
+    if (picture.raw?.uri) {
+      return picture.raw.uri;
+    }
+
+    return picture.item || picture.original?.url || "";
+  };
+
+  // Get profile picture
+  const picture = processPictureUrl(account.metadata?.picture);
+
+  // Get cover picture
+  const coverPicture = processPictureUrl(
+    (account.metadata as any)?.coverPhoto || account.metadata?.coverPicture,
+  );
 
   return (
     <div>
       {/* Cover image */}
       <div className="relative mb-8 h-48 w-full overflow-hidden rounded-xl md:h-64">
-        {coverPicture ? (
+        {coverPicture && !coverImageError ? (
           <Image
             src={coverPicture}
             alt="Cover"
@@ -78,6 +99,10 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
             sizes="(max-width: 768px) 100vw, 800px"
             className="object-cover"
             priority
+            onError={() => {
+              console.error(`Failed to load cover image: ${coverPicture}`);
+              setCoverImageError(true);
+            }}
           />
         ) : (
           <div className="h-full w-full bg-gradient-to-r from-blue-500 to-purple-500" />
@@ -86,10 +111,19 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
         {/* Profile avatar - positioned to overlap cover and content */}
         <div className="absolute bottom-[-24px] left-4 rounded-full border-4 border-background md:left-8">
           <Avatar className="size-32">
-            {picture ? (
-              <AvatarImage src={picture} alt={name} />
+            {picture && !profileImageError ? (
+              <AvatarImage
+                src={picture}
+                alt={name}
+                onError={() => {
+                  console.error(`Failed to load profile image: ${picture}`);
+                  setProfileImageError(true);
+                }}
+              />
             ) : (
-              <AvatarFallback className="text-2xl">{name?.[0] || username[0]}</AvatarFallback>
+              <AvatarFallback className="flex items-center justify-center bg-muted text-2xl">
+                <User className="size-16 text-muted-foreground" weight="bold" />
+              </AvatarFallback>
             )}
           </Avatar>
         </div>

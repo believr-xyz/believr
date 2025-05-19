@@ -17,7 +17,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { usePostQuote } from "@/hooks/use-post-quote";
 import { usePostRepost } from "@/hooks/use-post-repost";
-import { MessageSquareQuoteIcon, RefreshCwIcon } from "lucide-react";
+import { ArrowsClockwise, ChatText } from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 
 interface RepostQuoteButtonProps {
@@ -98,17 +98,17 @@ export function RepostQuoteButton({
             className={`gap-1 px-2 text-muted-foreground ${className}`}
             onClick={handleClick}
           >
-            <RefreshCwIcon className="size-4" />
+            <ArrowsClockwise className="size-4" weight="regular" />
             {showCount && <span>{currentCount}</span>}
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent>
           <DropdownMenuItem className="gap-2" onClick={handleRepost} disabled={isRepostLoading}>
-            <RefreshCwIcon className="size-4" />
+            <ArrowsClockwise className="size-4" weight="regular" />
             <span>Repost</span>
           </DropdownMenuItem>
           <DropdownMenuItem className="gap-2" onClick={openQuoteDialog}>
-            <MessageSquareQuoteIcon className="size-4" />
+            <ChatText className="size-4" weight="regular" />
             <span>Quote post</span>
           </DropdownMenuItem>
         </DropdownMenuContent>

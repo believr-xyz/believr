@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { usePostComment } from "@/hooks/use-post-comment";
+import { formatPostContent } from "@/lib/format-content";
 import { getLensClient } from "@/lib/lens/client";
 import { storageClient } from "@/lib/lens/storage-client";
 import { type Post, type Result } from "@lens-protocol/client";
@@ -350,7 +351,12 @@ export function CommentSection({ postId, comments, onCommentAdded }: CommentSect
                     </div>
                   </div>
                 </div>
-                <p className="text-sm">{content}</p>
+                <div
+                  className="whitespace-pre-wrap text-sm"
+                  dangerouslySetInnerHTML={{
+                    __html: formatPostContent(content) || "",
+                  }}
+                />
 
                 {/* Display image if present */}
                 {imageUrl && (

@@ -553,7 +553,7 @@ export function PostComposer() {
         <div className="flex-1">
           <Textarea
             placeholder="What's happening?"
-            className="mb-2 min-h-14 border-none pt-1 pr-3 pl-0 text-sm focus-visible:ring-0"
+            className="mb-2 min-h-14 max-w-[500px] border-none pt-1 pr-3 pl-0 text-base focus-visible:ring-0"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
@@ -570,13 +570,13 @@ export function PostComposer() {
               <TabsList className="grid h-8 w-auto grid-cols-2 gap-1 bg-transparent p-0">
                 <TabsTrigger
                   value="global"
-                  className="h-8 rounded px-3 text-xs data-[state=active]:bg-[#00A8FF]/10 data-[state=active]:text-[#00A8FF]"
+                  className="h-8 rounded px-3 text-sm data-[state=active]:bg-[#00A8FF]/10 data-[state=active]:text-[#00A8FF]"
                 >
                   Global
                 </TabsTrigger>
                 <TabsTrigger
                   value="group"
-                  className="flex h-8 items-center gap-1 rounded px-3 text-xs data-[state=active]:bg-[#00A8FF]/10 data-[state=active]:text-[#00A8FF]"
+                  className="flex h-8 items-center gap-1 rounded px-3 text-sm data-[state=active]:bg-[#00A8FF]/10 data-[state=active]:text-[#00A8FF]"
                 >
                   <UsersThree className="h-3.5 w-3.5" />
                   Group
@@ -684,7 +684,7 @@ export function PostComposer() {
               onClick={handleCreatePost}
               disabled={isLoading || (!content.trim() && !selectedFile)}
               size="sm"
-              className="rounded-full bg-[#00A8FF] px-4 text-white hover:bg-[#00A8FF]/90"
+              className="rounded-full bg-[#00A8FF] px-4 text-base text-white hover:bg-[#00A8FF]/90"
             >
               {isLoading ? "Posting..." : "Post"}
             </Button>

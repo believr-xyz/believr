@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { PageSize } from "@lens-protocol/client";
 import { useAccounts } from "@lens-protocol/react";
-import { Loader2, SearchIcon } from "lucide-react";
+import { ArrowLeft, CircleNotch, MagnifyingGlass } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 
@@ -144,13 +144,13 @@ export function SearchBar({ className }: SearchBarProps) {
         onClick={toggleSearch}
         aria-label="Search"
       >
-        <SearchIcon className="size-5" />
+        <MagnifyingGlass className="size-5" weight="bold" />
       </Button>
 
       {/* Search bar - hidden on mobile unless toggled */}
       <div className={`relative ${isSearchOpen ? "block" : "hidden"} w-full md:block`}>
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-          <SearchIcon className="size-4 text-muted-foreground" />
+          <MagnifyingGlass className="size-4 text-muted-foreground" weight="bold" />
         </div>
         <Input
           ref={inputRef}
@@ -160,7 +160,7 @@ export function SearchBar({ className }: SearchBarProps) {
           onFocus={() => setShowResults(true)}
           onKeyDown={handleKeyDown}
           placeholder="Search Creators & Campaigns..."
-          className="h-10 w-full rounded-md border-border/60 bg-background pl-10 text-sm shadow-sm focus-visible:border-[#00A8FF]/30 focus-visible:ring-[#00A8FF]/20"
+          className="h-10 w-full rounded-md border-border/60 bg-background pl-10 text-base shadow-sm focus-visible:border-[#00A8FF]/30 focus-visible:ring-[#00A8FF]/20"
         />
       </div>
 
@@ -170,21 +170,7 @@ export function SearchBar({ className }: SearchBarProps) {
           <div className="mb-4 flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={() => setIsSearchOpen(false)}>
               <span className="sr-only">Close</span>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="lucide lucide-arrow-left"
-              >
-                <path d="m12 19-7-7 7-7" />
-                <path d="M19 12H5" />
-              </svg>
+              <ArrowLeft className="size-6" weight="bold" />
             </Button>
             <Input
               autoFocus
@@ -192,7 +178,7 @@ export function SearchBar({ className }: SearchBarProps) {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search..."
-              className="flex-1"
+              className="flex-1 text-base"
             />
           </div>
         </div>
@@ -206,7 +192,7 @@ export function SearchBar({ className }: SearchBarProps) {
         >
           {loading ? (
             <div className="flex items-center justify-center p-4">
-              <Loader2 className="size-5 animate-spin text-muted-foreground" />
+              <CircleNotch className="size-5 animate-spin text-muted-foreground" weight="bold" />
             </div>
           ) : results.length > 0 ? (
             <div className="max-h-[300px] overflow-y-auto py-1">

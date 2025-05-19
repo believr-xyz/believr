@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { MessageCircleIcon } from "lucide-react";
+import { ChatCircle } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 
 interface CommentButtonProps {
@@ -38,7 +38,7 @@ export function CommentButton({
       className={`gap-1 px-2 text-muted-foreground ${className}`}
       onClick={navigateToPostDetail}
     >
-      <MessageCircleIcon className="size-4" />
+      <ChatCircle className="size-4" weight="regular" />
       {showCount && <span>{commentCount}</span>}
     </Button>
   );

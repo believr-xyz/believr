@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { DialogTrigger } from "@/components/ui/dialog";
 import { useAuthenticatedUser } from "@lens-protocol/react";
+import { CircleNotch } from "@phosphor-icons/react";
 import { ConnectKitButton } from "connectkit";
 import { useState } from "react";
 import { AccountSelector } from "./accounts";
@@ -24,14 +25,28 @@ export function Login({ variant = "default", label = "Get Started" }: LoginProps
   return (
     <div className={containerClasses}>
       <ConnectKitButton.Custom>
-        {({ isConnected: isWalletConnected, show, truncatedAddress, ensName, chain }) => {
+        {({
+          isConnected: isWalletConnected,
+          show,
+          truncatedAddress,
+          ensName,
+          chain,
+          isConnecting,
+        }) => {
           const connectKitDisplayName = ensName ?? truncatedAddress;
 
           if (!isWalletConnected) {
             return (
               <>
-                <Button onClick={show} className={buttonClasses}>
-                  {label}
+                <Button onClick={show} className={buttonClasses} disabled={isConnecting}>
+                  {isConnecting ? (
+                    <>
+                      <CircleNotch className="mr-2 size-4 animate-spin" weight="bold" />
+                      Connecting...
+                    </>
+                  ) : (
+                    label
+                  )}
                 </Button>
               </>
             );
@@ -44,7 +59,16 @@ export function Login({ variant = "default", label = "Get Started" }: LoginProps
                 onOpenChange={setShowAccountSelector}
                 trigger={
                   <DialogTrigger asChild>
-                    <Button className={buttonClasses}>Sign in with Lens</Button>
+                    <Button className={buttonClasses} disabled={authUserLoading}>
+                      {authUserLoading ? (
+                        <>
+                          <CircleNotch className="mr-2 size-4 animate-spin" weight="bold" />
+                          Connecting...
+                        </>
+                      ) : (
+                        "Sign in with Lens"
+                      )}
+                    </Button>
                   </DialogTrigger>
                 }
               />
@@ -63,7 +87,12 @@ export function Login({ variant = "default", label = "Get Started" }: LoginProps
             );
           }
 
-          return <p className="text-muted-foreground text-xs">Checking status...</p>;
+          return (
+            <p className="flex items-center text-muted-foreground text-xs">
+              <CircleNotch className="mr-2 size-3 animate-spin" weight="bold" />
+              Checking status...
+            </p>
+          );
         }}
       </ConnectKitButton.Custom>
     </div>

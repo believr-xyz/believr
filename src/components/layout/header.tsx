@@ -36,44 +36,48 @@ export function Header() {
   // Simple conditional rendering based on auth state
   return user ? (
     <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-3 backdrop-blur-sm border-b border-border/40">
-      <div className="container mx-auto flex max-w-6xl items-center justify-between px-4 md:px-6">
-        <Logo className="size-8 flex-shrink-0" variant="icon" />
+      <div className="container mx-auto flex max-w-6xl items-center px-4 md:px-6">
+        <div className="flex items-center">
+          <Logo className="size-8 flex-shrink-0 mr-3" variant="icon" />
 
-        {/* Desktop navigation links */}
-        <div className="hidden md:flex items-center gap-1">
-          <Link
-            href="/feed"
-            className={cn(
-              "flex flex-col items-center justify-center px-4 text-primary/80 transition-colors hover:text-[#00A8FF]",
-              pathname.startsWith("/feed") && "text-[#00A8FF]"
-            )}
-          >
-            <House className="mb-0.5 size-6" weight="bold" />
-            <span className="font-semibold text-xs">Home</span>
-          </Link>
+          {/* Desktop navigation links */}
+          <div className="hidden md:flex items-center gap-1">
+            <Link
+              href="/feed"
+              className={cn(
+                "flex flex-col items-center justify-center px-3 text-primary/80 transition-colors hover:text-[#00A8FF]",
+                pathname.startsWith("/feed") && "text-[#00A8FF]"
+              )}
+            >
+              <House className="mb-0.5 size-5" weight="bold" />
+              <span className="font-semibold text-xs">Home</span>
+            </Link>
 
-          <Link
-            href="/groups"
-            className={cn(
-              "flex flex-col items-center justify-center px-4 text-primary/80 transition-colors hover:text-[#00A8FF]",
-              pathname.startsWith("/groups") && "text-[#00A8FF]"
-            )}
-          >
-            <UsersIcon className="mb-0.5 size-6" weight="bold" />
-            <span className="font-semibold text-xs">Believers</span>
-          </Link>
+            <Link
+              href="/groups"
+              className={cn(
+                "flex flex-col items-center justify-center px-3 text-primary/80 transition-colors hover:text-[#00A8FF]",
+                pathname.startsWith("/groups") && "text-[#00A8FF]"
+              )}
+            >
+              <UsersIcon className="mb-0.5 size-5" weight="bold" />
+              <span className="font-semibold text-xs">Believers</span>
+            </Link>
 
-          <Link
-            href="/notifications"
-            className={cn(
-              "flex flex-col items-center justify-center px-4 text-primary/80 transition-colors hover:text-[#00A8FF]",
-              pathname.startsWith("/notifications") && "text-[#00A8FF]"
-            )}
-          >
-            <Bell className="mb-0.5 size-6" weight="bold" />
-            <span className="font-semibold text-xs">Notifications</span>
-          </Link>
+            <Link
+              href="/notifications"
+              className={cn(
+                "flex flex-col items-center justify-center px-3 text-primary/80 transition-colors hover:text-[#00A8FF]",
+                pathname.startsWith("/notifications") && "text-[#00A8FF]"
+              )}
+            >
+              <Bell className="mb-0.5 size-5" weight="bold" />
+              <span className="font-semibold text-xs">Notifications</span>
+            </Link>
+          </div>
         </div>
+
+        <div className="flex-1"></div>
 
         <div className="flex items-center gap-3">
           {/* Mobile search - centered */}
@@ -82,7 +86,7 @@ export function Header() {
           </div>
 
           {/* Desktop search */}
-          <div className="hidden md:block w-64">
+          <div className="hidden md:block md:w-[280px]">
             <SearchBar />
           </div>
 

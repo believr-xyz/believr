@@ -136,8 +136,8 @@ export function SearchBar({ className }: SearchBarProps) {
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => setShowResults(true)}
           onKeyDown={handleKeyDown}
-          placeholder="Search Creators & Campaigns..."
-          className="h-10 w-full rounded-md border-border/60 bg-background pl-12 text-sm shadow-sm focus-visible:border-[#00A8FF]/30 focus-visible:ring-[#00A8FF]/20 md:text-base"
+          placeholder="Search..."
+          className="h-10 w-full rounded-md border-border/60 bg-background pl-12 text-sm shadow-sm focus-visible:border-[#00A8FF]/30 focus-visible:ring-[#00A8FF]/20"
         />
       </div>
 

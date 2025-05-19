@@ -293,7 +293,7 @@ export default function FeedPage() {
         </div>
 
         {/* Trending section */}
-        <div className="hidden w-[300px] md:block">
+        <div className="hidden w-[320px] md:block">
           <Suspense fallback={<TrendingSkeleton />}>
             <TrendingContent />
           </Suspense>

@@ -3,15 +3,28 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useMediaCompression } from "@/hooks/use-media-compression";
 import { getLensClient } from "@/lib/lens/client";
 import { storageClient } from "@/lib/lens/storage-client";
+import { validateFileSize } from "@/lib/media/validation";
+import { createVideoThumbnail } from "@/lib/media/video-thumbnails";
+import { uploadToIPFS } from "@/lib/uploadToIPFS";
 import data from "@emoji-mart/data";
 import Picker from "@emoji-mart/react";
-import { SessionClient } from "@lens-protocol/client";
-import { fetchAccount } from "@lens-protocol/client/actions";
+import { Group, SessionClient, evmAddress } from "@lens-protocol/client";
+import { fetchAccount, fetchGroups } from "@lens-protocol/client/actions";
 import { post } from "@lens-protocol/client/actions";
 import {
   AudioMetadata,
@@ -27,12 +40,13 @@ import {
   video,
 } from "@lens-protocol/metadata";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import { FileAudio, Film, ImageIcon, SmileIcon } from "lucide-react";
+import { FileAudio, Film, ImageIcon, SmileIcon, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 
 type MediaType = "image" | "video" | "audio" | null;
+type PostTarget = "global" | "group";
 
 export function PostComposer() {
   const { data: user } = useAuthenticatedUser();
@@ -43,8 +57,13 @@ export function PostComposer() {
   const [mediaType, setMediaType] = useState<MediaType>(null);
   const [mediaDuration, setMediaDuration] = useState<number>(0);
   const [accountData, setAccountData] = useState<any>(null);
+  const [postTarget, setPostTarget] = useState<PostTarget>("global");
+  const [selectedGroupId, setSelectedGroupId] = useState<string>("");
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const { compressImage } = useMediaCompression();
 
   // Fetch account data for profile picture
   useEffect(() => {
@@ -57,6 +76,18 @@ export function PostComposer() {
           address: user.address,
         }).unwrapOr(null);
         setAccountData(account);
+
+        // Fetch user's groups - using the correct filter API
+        const groupsResult = await fetchGroups(client, {
+          filter: {
+            member: user.address,
+          },
+        });
+
+        if (groupsResult.isOk()) {
+          // Convert readonly array to mutable array
+          setGroups([...groupsResult.value.items]);
+        }
       } catch (error) {
         console.error("Failed to fetch account:", error);
       }
@@ -135,16 +166,40 @@ export function PostComposer() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file size
+    if (!validateFileSize(file)) {
+      return;
+    }
+
     // Determine file type
     let type: MediaType = null;
+    let processedFile = file;
+
     if (file.type.startsWith("image/")) {
       type = "image";
+      // Compress image if not a GIF
+      if (!file.type.includes("gif")) {
+        try {
+          const compressedImage = await compressImage(file);
+          processedFile = compressedImage;
+        } catch (error) {
+          console.error("Error compressing image:", error);
+        }
+      }
     } else if (file.type.startsWith("video/")) {
       type = "video";
-      // Get video duration
+      // Get video duration and thumbnail
       try {
         const duration = await getVideoDuration(file);
         setMediaDuration(duration);
+
+        // Generate video thumbnail
+        try {
+          const thumbnail = await createVideoThumbnail(file);
+          setVideoThumbnail(thumbnail);
+        } catch (thumbnailError) {
+          console.error("Error creating video thumbnail:", thumbnailError);
+        }
       } catch (error) {
         console.error("Error getting video duration:", error);
         setMediaDuration(1); // Fallback to 1 second
@@ -164,11 +219,11 @@ export function PostComposer() {
       return;
     }
 
-    setSelectedFile(file);
+    setSelectedFile(processedFile);
     setMediaType(type);
 
     // Create preview URL
-    const url = URL.createObjectURL(file);
+    const url = URL.createObjectURL(processedFile);
     setPreviewUrl(url);
   };
 
@@ -225,16 +280,6 @@ export function PostComposer() {
     return MediaAudioMimeType.MP3; // Default
   };
 
-  // Convert file to base64 string (useful as a fallback for CORS issues)
-  const fileToBase64 = (file: File): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result as string);
-      reader.onerror = (error) => reject(error);
-    });
-  };
-
   const handleCreatePost = async () => {
     if (!user) {
       toast.error("You need to be logged in to post");
@@ -246,13 +291,20 @@ export function PostComposer() {
       return;
     }
 
+    // Validate group selection if targeting a group
+    if (postTarget === "group" && !selectedGroupId) {
+      toast.error("Please select a group");
+      return;
+    }
+
     setIsLoading(true);
+    const toastId = toast.loading("Creating post...");
 
     try {
       const client = await getLensClient();
 
       if (!client || !("getCredentials" in client)) {
-        toast.error("Authentication required");
+        toast.error("Authentication required", { id: toastId });
         setIsLoading(false);
         return;
       }
@@ -262,47 +314,29 @@ export function PostComposer() {
       // Handle media upload if there's a file
       let mediaURI = null;
       if (selectedFile) {
-        try {
-          // First try with standard upload
-          const { files } = await storageClient.uploadFolder([selectedFile]);
-          if (files && files.length > 0) {
-            mediaURI = files[0].uri;
-          }
-        } catch (uploadError) {
-          console.error("Standard upload failed:", uploadError);
+        // Use enhanced IPFS upload with fallbacks
+        const uploadResult = await uploadToIPFS(selectedFile);
 
-          // Check if it's a CORS-related error
-          const isCorsError =
-            uploadError instanceof Error &&
-            (uploadError.message.includes("CORS") ||
-              uploadError.message.includes("Failed to fetch"));
-
-          if (isCorsError) {
-            try {
-              // Fallback to base64-encoded data URI for small files (< 5MB)
-              if (selectedFile.size < 5 * 1024 * 1024) {
-                console.log("Trying base64 fallback for small file");
-                const base64Data = await fileToBase64(selectedFile);
-                mediaURI = base64Data;
-              } else {
-                throw new Error("File too large for base64 encoding fallback");
-              }
-            } catch (fallbackError) {
-              console.error("Base64 fallback also failed:", fallbackError);
-              toast.error("Failed to upload media: File too large or unsupported");
-              setIsLoading(false);
-              return;
+        if (uploadResult.success && uploadResult.uri) {
+          mediaURI = uploadResult.uri;
+        } else {
+          toast.error(
+            `Failed to upload media: ${uploadResult.error || "Unknown error"}`,
+            {
+              id: toastId,
             }
-          } else {
-            toast.error("Failed to upload media");
-            setIsLoading(false);
-            return;
-          }
+          );
+          setIsLoading(false);
+          return;
         }
       }
 
       // Create metadata based on media type
-      let metadata: ImageMetadata | VideoMetadata | AudioMetadata | TextOnlyMetadata;
+      let metadata:
+        | ImageMetadata
+        | VideoMetadata
+        | AudioMetadata
+        | TextOnlyMetadata;
 
       if (mediaURI && selectedFile) {
         if (mediaType === "image") {
@@ -320,6 +354,7 @@ export function PostComposer() {
               item: mediaURI,
               type: determineVideoType(selectedFile),
               duration: mediaDuration, // Using the calculated duration
+              cover: videoThumbnail || undefined, // Use generated thumbnail if available
             },
           });
         } else if (mediaType === "audio") {
@@ -346,28 +381,36 @@ export function PostComposer() {
       // Upload metadata
       const { uri } = await storageClient.uploadAsJson(metadata);
 
-      // Create post
+      // Create post with properly typed group ID if posting to a group
       const postRequest = {
         contentUri: uri,
+        // Properly convert group ID to EVM address format when targeting a group
+        ...(postTarget === "group" && selectedGroupId
+          ? { groupId: evmAddress(selectedGroupId) }
+          : {}),
       };
 
       const result = await post(sessionClient, postRequest);
 
       if (result.isOk()) {
-        toast.success("Post created successfully");
+        toast.success("Post created successfully", { id: toastId });
         setContent("");
         setSelectedFile(null);
         setPreviewUrl(null);
         setMediaType(null);
+        setVideoThumbnail(null);
         router.refresh();
       } else {
         console.error("Failed to create post:", result.error);
-        toast.error(`Failed to create post: ${result.error.message}`);
+        toast.error(`Failed to create post: ${result.error.message}`, {
+          id: toastId,
+        });
       }
     } catch (error) {
       console.error("Error creating post:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
-      toast.error(`Error creating post: ${errorMessage}`);
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Error creating post: ${errorMessage}`, { id: toastId });
     } finally {
       setIsLoading(false);
     }
@@ -397,10 +440,18 @@ export function PostComposer() {
     return (
       <div className="relative mb-2 overflow-hidden rounded-md">
         {mediaType === "image" && (
-          <img src={previewUrl} alt="Preview" className="max-h-48 w-auto rounded-md" />
+          <img
+            src={previewUrl}
+            alt="Preview"
+            className="max-h-48 w-auto rounded-md"
+          />
         )}
         {mediaType === "video" && (
-          <video controls src={previewUrl} className="max-h-48 w-auto rounded-md">
+          <video
+            controls
+            src={previewUrl}
+            className="max-h-48 w-auto rounded-md"
+          >
             <track kind="captions" src="" label="Captions" />
           </video>
         )}
@@ -409,7 +460,9 @@ export function PostComposer() {
             <audio controls src={previewUrl} className="w-full">
               <track kind="captions" src="" label="Captions" />
             </audio>
-            <p className="mt-1 text-gray-500 text-sm">Audio: {selectedFile?.name}</p>
+            <p className="mt-1 text-gray-500 text-sm">
+              Audio: {selectedFile?.name}
+            </p>
           </div>
         )}
         <Button
@@ -420,6 +473,7 @@ export function PostComposer() {
             setSelectedFile(null);
             setPreviewUrl(null);
             setMediaType(null);
+            setVideoThumbnail(null);
           }}
         >
           ✕
@@ -444,12 +498,52 @@ export function PostComposer() {
         <div className="flex-1">
           <Textarea
             placeholder="What's happening?"
-            className="mb-2 min-h-14 border-none p-0 text-sm focus-visible:ring-0"
+            className="mb-2 min-h-14 border-none pt-1 pr-3 pl-0 text-sm focus-visible:ring-0"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
 
           {renderMediaPreview()}
+
+          {/* Compact post target selection */}
+          <div className="mb-2">
+            <Tabs
+              value={postTarget}
+              onValueChange={(value) => setPostTarget(value as PostTarget)}
+              className="w-full"
+            >
+              <TabsList className="grid h-8 w-auto grid-cols-2 gap-1 bg-transparent p-0">
+                <TabsTrigger
+                  value="global"
+                  className="h-8 rounded px-3 text-xs data-[state=active]:bg-[#00A8FF]/10 data-[state=active]:text-[#00A8FF]"
+                >
+                  Global
+                </TabsTrigger>
+                <TabsTrigger
+                  value="group"
+                  className="flex h-8 items-center gap-1 rounded px-3 text-xs data-[state=active]:bg-[#00A8FF]/10 data-[state=active]:text-[#00A8FF]"
+                >
+                  <Users className="h-3 w-3" />
+                  Group
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+
+            {postTarget === "group" && (
+              <select
+                className="mt-2 w-full rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-[#00A8FF]"
+                value={selectedGroupId}
+                onChange={(e) => setSelectedGroupId(e.target.value)}
+              >
+                <option value="">Select a group</option>
+                {groups.map((group) => (
+                  <option key={group.address} value={group.address}>
+                    {group.metadata?.name || group.address.substring(0, 8)}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
 
           <div className="flex items-center justify-between border-t pt-2">
             <div className="flex gap-1">
@@ -526,7 +620,11 @@ export function PostComposer() {
                   </TooltipContent>
                 </Tooltip>
                 <PopoverContent className="w-full border-none p-0">
-                  <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" />
+                  <Picker
+                    data={data}
+                    onEmojiSelect={handleEmojiSelect}
+                    theme="light"
+                  />
                 </PopoverContent>
               </Popover>
             </div>

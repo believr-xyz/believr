@@ -529,7 +529,7 @@ export function PostComposer() {
                   value="group"
                   className="flex h-8 items-center gap-1 rounded px-3 text-xs data-[state=active]:bg-[#00A8FF]/10 data-[state=active]:text-[#00A8FF]"
                 >
-                  <UsersThree className="h-3 w-3" />
+                  <UsersThree className="h-3.5 w-3.5" />
                   Group
                 </TabsTrigger>
               </TabsList>
@@ -568,7 +568,7 @@ export function PostComposer() {
                     onClick={() => handleMediaUpload("image")}
                     className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
                   >
-                    <Image className="h-4 w-4" />
+                    <Image className="h-5 w-5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -584,7 +584,7 @@ export function PostComposer() {
                     onClick={() => handleMediaUpload("video")}
                     className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
                   >
-                    <FilmStrip className="h-4 w-4" />
+                    <FilmStrip className="h-5 w-5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -600,7 +600,7 @@ export function PostComposer() {
                     onClick={() => handleMediaUpload("audio")}
                     className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
                   >
-                    <File className="h-4 w-4" />
+                    <File className="h-5 w-5" />
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -617,7 +617,7 @@ export function PostComposer() {
                         size="sm"
                         className="text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
                       >
-                        <Smiley className="h-4 w-4" />
+                        <Smiley className="h-5 w-5" />
                       </Button>
                     </PopoverTrigger>
                   </TooltipTrigger>

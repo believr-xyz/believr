@@ -40,6 +40,7 @@ interface CollectCardProps {
   total: number;
   creator: CreatorInfo;
   onCollect?: () => void;
+  benefits?: string;
 }
 
 export function CollectCard({
@@ -50,6 +51,7 @@ export function CollectCard({
   total,
   creator,
   onCollect,
+  benefits,
 }: CollectCardProps) {
   const router = useRouter();
   const [hasCollected, setHasCollected] = useState(false);
@@ -65,6 +67,11 @@ export function CollectCard({
       onCollect();
     }
   };
+
+  // Parse benefits string into array of benefits
+  const benefitsList = benefits
+    ? benefits.split(/[\n\r]+/).filter((benefit) => benefit.trim().length > 0)
+    : ["Early access to content", "Exclusive community access", "Support the creator directly"];
 
   return (
     <Card className="sticky top-24">
@@ -85,10 +92,7 @@ export function CollectCard({
           </div>
 
           <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-            <div
-              className="h-full bg-[#00A8FF]"
-              style={{ width: `${percentCollected}%` }}
-            />
+            <div className="h-full bg-[#00A8FF]" style={{ width: `${percentCollected}%` }} />
           </div>
         </div>
 
@@ -107,13 +111,9 @@ export function CollectCard({
             <div>
               <div className="flex items-center gap-1">
                 <p className="font-semibold">{creator.name}</p>
-                {creator.verified && (
-                  <BadgeCheck className="size-3 text-[#00A8FF]" />
-                )}
+                {creator.verified && <BadgeCheck className="size-3 text-[#00A8FF]" />}
               </div>
-              <p className="text-muted-foreground text-xs">
-                @{creator.username}
-              </p>
+              <p className="text-muted-foreground text-xs">@{creator.username}</p>
             </div>
           </div>
 
@@ -144,9 +144,9 @@ export function CollectCard({
         <div className="mt-4">
           <h4 className="mb-2 font-medium">Benefits for believers:</h4>
           <ul className="list-inside list-disc space-y-1 text-muted-foreground text-sm">
-            <li>Early access to content</li>
-            <li>Exclusive community access</li>
-            <li>Support the creator directly</li>
+            {benefitsList.map((benefit, index) => (
+              <li key={`benefit-${benefit.substring(0, 10)}-${index}`}>{benefit.trim()}</li>
+            ))}
           </ul>
         </div>
       </CardContent>

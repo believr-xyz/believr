@@ -21,6 +21,28 @@ import { toast } from "sonner";
 import { CollectCard } from "./_components/collect-card";
 import { CollectorsList } from "./_components/collectors-list";
 import { CommentSection } from "./_components/comment-section";
+import { InvestmentTerms } from "./_components/investment-terms";
+
+// Interface for investment metadata
+interface InvestmentMetadata {
+  category: "content" | "art" | "music" | "tech" | "writing";
+  revenueShare: string;
+  benefits: string;
+  endDate: string;
+  mediaType?: "image" | "video" | "audio";
+}
+
+// Type for post attributes
+interface PostAttribute {
+  key: string;
+  value: string;
+  type?: string;
+}
+
+// Extended Post type to include attributes we know exist but aren't typed
+interface ExtendedPostMetadata {
+  attributes?: PostAttribute[];
+}
 
 export default function PostPage() {
   const router = useRouter();
@@ -32,6 +54,7 @@ export default function PostPage() {
   const [comments, setComments] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasCollected, setHasCollected] = useState(false);
+  const [investmentMetadata, setInvestmentMetadata] = useState<InvestmentMetadata | null>(null);
 
   // Fetch the post data from Lens Protocol
   useEffect(() => {
@@ -62,6 +85,39 @@ export default function PostPage() {
 
         // Store the post
         setPost(postData);
+
+        // Extract investment metadata if this is an investment post
+        // Cast to ExtendedPostMetadata to access attributes property
+        const attributes = (postData.metadata as unknown as ExtendedPostMetadata)?.attributes;
+        if (
+          attributes?.some(
+            (attr: PostAttribute) => attr.key === "type" && attr.value === "investment",
+          )
+        ) {
+          const metadata: Partial<InvestmentMetadata> = {};
+
+          attributes.forEach((attr: PostAttribute) => {
+            switch (attr.key) {
+              case "category":
+                metadata.category = attr.value as InvestmentMetadata["category"];
+                break;
+              case "revenueShare":
+                metadata.revenueShare = attr.value;
+                break;
+              case "benefits":
+                metadata.benefits = attr.value;
+                break;
+              case "endDate":
+                metadata.endDate = attr.value;
+                break;
+              case "mediaType":
+                metadata.mediaType = attr.value as InvestmentMetadata["mediaType"];
+                break;
+            }
+          });
+
+          setInvestmentMetadata(metadata as InvestmentMetadata);
+        }
 
         // Fetch comments for the post
         const commentsResult = await fetchPostReferences(client, {
@@ -224,6 +280,22 @@ export default function PostPage() {
     return pic.item || "";
   })();
 
+  // Check if this is an investment post
+  const isInvestmentPost = investmentMetadata !== null;
+
+  // Prepare investment terms if available
+  const investmentTerms = isInvestmentPost
+    ? {
+        goal: Number.parseFloat(
+          collectAction?.__typename === "SimpleCollectAction"
+            ? collectAction.payToCollect?.amount?.value || "0"
+            : "0",
+        ),
+        deadline: investmentMetadata?.endDate ? new Date(investmentMetadata.endDate) : undefined,
+        description: `${investmentMetadata?.revenueShare || "0"}% revenue share for believers`,
+      }
+    : null;
+
   return (
     <div className="container mx-auto max-w-5xl pb-12">
       <Button
@@ -300,7 +372,47 @@ export default function PostPage() {
               </div>
 
               <h1 className="mb-4 font-bold text-2xl">{title}</h1>
+
+              {/* Investment category badge */}
+              {isInvestmentPost && (
+                <div className="mb-4">
+                  <Badge
+                    variant="outline"
+                    className="border-[#00A8FF]/30 bg-[#00A8FF]/10 text-[#00A8FF]"
+                  >
+                    {investmentMetadata?.category.charAt(0).toUpperCase() +
+                      investmentMetadata?.category.slice(1)}{" "}
+                    Investment
+                  </Badge>
+                </div>
+              )}
+
               <div className="whitespace-pre-line text-base">{content}</div>
+
+              {/* Investment Terms */}
+              {isInvestmentPost && investmentTerms && (
+                <div className="mt-8">
+                  <InvestmentTerms
+                    terms={investmentTerms}
+                    collectedAmount={post.stats?.collects || 0}
+                    currency={
+                      collectAction?.__typename === "SimpleCollectAction"
+                        ? collectAction.payToCollect?.amount?.asset?.symbol || "ETH"
+                        : "ETH"
+                    }
+                  />
+
+                  {/* Benefits Section */}
+                  {investmentMetadata?.benefits && (
+                    <div className="mt-6">
+                      <h3 className="mb-2 font-semibold text-lg">Benefits for Believers</h3>
+                      <div className="whitespace-pre-line rounded-md bg-muted/50 p-4">
+                        {investmentMetadata.benefits}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="mt-8">
                 <Tabs defaultValue="comments">
@@ -332,28 +444,63 @@ export default function PostPage() {
         </div>
 
         <div>
-          <CollectCard
-            postId={post.id}
-            price={"0"}
-            currency={"ETH"}
-            collected={post.stats?.collects || 0}
-            total={
-              collectAction?.__typename === "SimpleCollectAction"
-                ? collectAction.collectLimit || 100
-                : 100
-            }
-            creator={{
-              id: post.author.address,
-              username,
-              name: post.author.metadata?.name || username,
-              avatar: authorPicture,
-              stats: {
-                followers: 0, // Would need an additional API call
-                believers: post.stats?.collects || 0,
-              },
-            }}
-            onCollect={handleCollect}
-          />
+          {isInvestmentPost ? (
+            <CollectCard
+              postId={post.id}
+              price={
+                collectAction?.__typename === "SimpleCollectAction"
+                  ? collectAction.payToCollect?.amount?.value || "0"
+                  : "0"
+              }
+              currency={
+                collectAction?.__typename === "SimpleCollectAction"
+                  ? collectAction.payToCollect?.amount?.asset?.symbol || "ETH"
+                  : "ETH"
+              }
+              collected={post.stats?.collects || 0}
+              total={
+                collectAction?.__typename === "SimpleCollectAction"
+                  ? collectAction.collectLimit || 100
+                  : 100
+              }
+              creator={{
+                id: post.author.address,
+                username,
+                name: post.author.metadata?.name || username,
+                avatar: authorPicture,
+                bio: post.author.metadata?.bio || undefined,
+                stats: {
+                  followers: 0, // Would need an additional API call
+                  believers: post.stats?.collects || 0,
+                },
+              }}
+              benefits={investmentMetadata?.benefits}
+              onCollect={handleCollect}
+            />
+          ) : (
+            <CollectCard
+              postId={post.id}
+              price={"0"}
+              currency={"ETH"}
+              collected={post.stats?.collects || 0}
+              total={
+                collectAction?.__typename === "SimpleCollectAction"
+                  ? collectAction.collectLimit || 100
+                  : 100
+              }
+              creator={{
+                id: post.author.address,
+                username,
+                name: post.author.metadata?.name || username,
+                avatar: authorPicture,
+                stats: {
+                  followers: 0, // Would need an additional API call
+                  believers: post.stats?.collects || 0,
+                },
+              }}
+              onCollect={handleCollect}
+            />
+          )}
         </div>
       </div>
     </div>

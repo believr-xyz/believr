@@ -24,7 +24,8 @@ interface AccountSelectorProps {
 // Helper function to add handle property to accounts
 const mapToClientAccount = (account: any): Account => {
   // Extract username from various possible locations
-  const username = account.username?.value?.split("/").pop() || account.username?.localName;
+  const username =
+    account.username?.value?.split("/").pop() || account.username?.localName;
 
   return {
     ...account,
@@ -40,9 +41,10 @@ export function AccountSelector({
   trigger,
 }: AccountSelectorProps) {
   const { data: walletClient } = useWalletClient();
-  const { data: availableAccounts, loading: accountsLoading } = useAccountsAvailable({
-    managedBy: walletClient?.account.address,
-  });
+  const { data: availableAccounts, loading: accountsLoading } =
+    useAccountsAvailable({
+      managedBy: walletClient?.account.address,
+    });
   const { execute: authenticate, loading: authenticateLoading } = useLogin();
   const router = useRouter();
   const wallet = useAccount();
@@ -77,10 +79,12 @@ export function AccountSelector({
       onOpenChange(false);
 
       const foundAccount = availableAccounts?.items.find(
-        (acc) => acc.account.address === account.address,
+        (acc) => acc.account.address === account.address
       )?.account;
 
-      const clientAccount = foundAccount ? mapToClientAccount(foundAccount) : undefined;
+      const clientAccount = foundAccount
+        ? mapToClientAccount(foundAccount)
+        : undefined;
 
       if (onSuccess) {
         onSuccess(clientAccount);
@@ -101,20 +105,27 @@ export function AccountSelector({
           <DialogTitle>Select Lens Account</DialogTitle>
         </DialogHeader>
         <ScrollArea className="max-h-[600px] py-4 pr-4">
-          <div className="grid grid-cols-3 gap-2">
+          <div className="space-y-2">
             {accountsLoading && (
-              <div className="col-span-3 flex justify-center py-4">
-                <CircleNotch className="size-6 animate-spin text-primary" weight="bold" />
+              <div className="flex justify-center py-4">
+                <CircleNotch
+                  className="size-6 animate-spin text-primary"
+                  weight="bold"
+                />
               </div>
             )}
             {availableAccounts && availableAccounts.items.length === 0 && (
-              <div className="col-span-3 text-muted-foreground">
-                <p className="text-sm">No Lens profiles found for this wallet.</p>
+              <div className="text-muted-foreground">
+                <p className="text-sm">
+                  No Lens profiles found for this wallet.
+                </p>
                 <div className="mt-4">
                   <Button
                     variant="outline"
                     className="w-full"
-                    onClick={() => window.open("https://onboarding.lens.xyz/", "_blank")}
+                    onClick={() =>
+                      window.open("https://onboarding.lens.xyz/", "_blank")
+                    }
                   >
                     Create a Lens profile
                   </Button>
@@ -127,35 +138,52 @@ export function AccountSelector({
                 const isCurrentAccount = currentAccount
                   ? acc.account.address === currentAccount.address
                   : false;
+                const displayName =
+                  acc.account.metadata?.name ||
+                  acc.account.username?.localName ||
+                  acc.account.address;
+                const username = acc.account.username?.localName
+                  ? `@${acc.account.username.localName}`
+                  : "";
 
                 return (
-                  <Button
+                  <div
                     key={acc.account.address}
-                    variant="outline"
-                    disabled={authenticateLoading || isCurrentAccount}
-                    onClick={() => handleSelectAccount(mapToClientAccount(acc.account))}
-                    className="flex h-auto flex-col items-center px-2 py-3"
+                    className="flex items-center justify-between rounded-md border p-3 hover:bg-accent"
                   >
-                    <Avatar className="mb-2 h-10 w-10">
-                      <AvatarImage src={acc.account.metadata?.picture} />
-                      <AvatarFallback>
-                        {acc.account.username?.localName?.charAt(0) ||
-                          acc.account.address.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                    <span className="w-full truncate text-center text-xs">
-                      {acc.account.username?.localName || acc.account.address}
-                      {isCurrentAccount && (
-                        <span className="block text-muted-foreground text-xs">(current)</span>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={acc.account.metadata?.picture} />
+                        <AvatarFallback>{displayName.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{displayName}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {username}
+                        </span>
+                      </div>
+                    </div>
+                    <Button
+                      disabled={authenticateLoading || isCurrentAccount}
+                      onClick={() =>
+                        handleSelectAccount(mapToClientAccount(acc.account))
+                      }
+                      size="sm"
+                      className="min-w-[80px] transition-all"
+                    >
+                      {authenticateLoading ? (
+                        <div className="flex items-center gap-1.5">
+                          <CircleNotch
+                            className="size-3.5 animate-spin"
+                            weight="bold"
+                          />
+                          <span>Signing in...</span>
+                        </div>
+                      ) : (
+                        "Login"
                       )}
-                    </span>
-                    {authenticateLoading && (
-                      <CircleNotch
-                        className="mt-1 size-3 animate-spin text-muted-foreground"
-                        weight="bold"
-                      />
-                    )}
-                  </Button>
+                    </Button>
+                  </div>
                 );
               })}
           </div>

@@ -8,7 +8,7 @@ import { NotificationsNavButton } from "@/components/navigation/notifications-na
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import { PlusIcon } from "lucide-react";
+import { Home, Sparkles, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -34,25 +34,27 @@ export function Header() {
     <header className="fixed top-0 left-0 z-10 w-full bg-background/95 py-3 backdrop-blur-sm">
       <div className="container mx-auto flex max-w-5xl items-center justify-between px-4 md:px-6">
         <div className="flex items-center">
-          <Logo className="mr-10" variant="icon" />
-          <nav className="hidden items-center gap-4 md:flex md:gap-8">
+          <Logo className="mr-16" variant="icon" />
+          <nav className="hidden items-center gap-6 md:flex md:gap-10">
             <Link
               href="/feed"
               className={cn(
-                "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
+                "flex flex-col items-center justify-center text-primary/80 transition-colors hover:text-[#00A8FF]",
                 pathname.startsWith("/feed") && "text-[#00A8FF]",
               )}
             >
-              Home
+              <Home className="mb-0.5 size-5" />
+              <span className="font-semibold text-xs">Home</span>
             </Link>
             <Link
               href="/groups"
               className={cn(
-                "font-semibold text-base text-primary/80 transition-colors hover:text-[#00A8FF]",
+                "flex flex-col items-center justify-center text-primary/80 transition-colors hover:text-[#00A8FF]",
                 pathname.startsWith("/groups") && "text-[#00A8FF]",
               )}
             >
-              Believers
+              <Users className="mb-0.5 size-5" />
+              <span className="font-semibold text-xs">Believers</span>
             </Link>
           </nav>
         </div>
@@ -60,12 +62,12 @@ export function Header() {
         <div className="flex items-center gap-2 md:gap-5">
           <Button
             asChild
-            className="hidden min-w-28 bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90 sm:flex"
+            className="hidden bg-gradient-to-r from-[#00A8FF] to-[#2D8CFF] font-medium text-white hover:from-[#00A8FF]/90 hover:to-[#2D8CFF]/90 sm:flex"
             size="sm"
           >
             <Link href="/posts/create">
-              <PlusIcon className="mr-1.5 size-3.5" />
-              Create
+              <Sparkles className="mr-1.5 size-3.5" />
+              Create Investment Campaign
             </Link>
           </Button>
           <div className="flex items-center gap-2 md:gap-3">

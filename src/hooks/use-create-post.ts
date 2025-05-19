@@ -2,20 +2,32 @@
 
 import { getLensClient } from "@/lib/lens/client";
 import { storageClient } from "@/lib/lens/storage-client";
-import { type Post, SessionClient, uri } from "@lens-protocol/client";
+import { SessionClient, evmAddress, uri } from "@lens-protocol/client";
 import { post } from "@lens-protocol/client/actions";
 import {
-  article,
-  image,
-  textOnly,
-  MediaImageMimeType,
-  TextOnlyMetadata,
-  ImageMetadata,
   ArticleMetadata,
+  AudioMetadata,
+  ImageMetadata,
+  MediaImageMimeType,
+  MetadataAttributeType,
+  VideoMetadata,
+  article,
+  audio,
+  image,
+  video,
 } from "@lens-protocol/metadata";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { useState } from "react";
 import { toast } from "sonner";
+
+// Investment metadata interface based on CORE.md
+export interface InvestmentMetadata {
+  category: "content" | "art" | "music" | "tech" | "writing";
+  revenueShare: string;
+  benefits: string;
+  endDate: string;
+  mediaType?: "image" | "video" | "audio";
+}
 
 interface CreatePostInput {
   title?: string;
@@ -27,6 +39,7 @@ interface CreatePostInput {
     currency?: string;
     supply?: string;
   };
+  investmentMetadata?: InvestmentMetadata;
 }
 
 /**
@@ -49,115 +62,265 @@ export function useCreatePost() {
       // Get the Lens client
       const client = await getLensClient();
 
-      // If we don't have a session client, we can't perform authenticated operations
-      if (!("storage" in client)) {
-        toast.error("Authentication required");
+      // If we don't have a client, we can't perform operations
+      if (!client) {
+        toast.error("Failed to initialize Lens client");
+        setIsLoading(false);
+        return null;
+      }
+
+      // Check if client is a SessionClient (has authentication)
+      if (!("getCredentials" in client)) {
+        toast.error("You need to be authenticated to create a post");
         setIsLoading(false);
         return null;
       }
 
       const sessionClient = client as SessionClient;
 
-      // Create metadata based on content type
-      let metadata: TextOnlyMetadata | ImageMetadata | ArticleMetadata;
+      // Prepare metadata
+      let metadata: ImageMetadata | ArticleMetadata | VideoMetadata | AudioMetadata;
+      let imageAttachment = null;
 
+      // Handle image file if provided
       if (input.imageFile) {
-        // For image posts, create image metadata
-        const dataUrl = await fileToDataUrl(input.imageFile);
+        try {
+          // Using Grove storage to upload the image
+          const fileArray = input.imageFile ? [input.imageFile] : [];
+          const mediaType = determineMediaType(input.imageFile);
 
-        // Get MIME type from file
-        const mimeType = input.imageFile.type;
-        let imageType = MediaImageMimeType.PNG; // Default
+          // Upload file to Grove storage
+          const { files } = await storageClient.uploadFolder(fileArray);
 
-        if (mimeType.includes("jpeg") || mimeType.includes("jpg")) {
-          imageType = MediaImageMimeType.JPEG;
-        } else if (mimeType.includes("png")) {
-          imageType = MediaImageMimeType.PNG;
-        } else if (mimeType.includes("webp")) {
-          imageType = MediaImageMimeType.WEBP;
-        } else if (mimeType.includes("gif")) {
-          imageType = MediaImageMimeType.GIF;
+          // Use the URI from the uploaded file
+          if (files && files.length > 0) {
+            imageAttachment = {
+              item: files[0].uri,
+              type: mediaType,
+            };
+          }
+        } catch (error) {
+          console.error("Error uploading image:", error);
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
+          toast.error(`Failed to upload image: ${errorMessage}`);
+          setIsLoading(false);
+          return null;
         }
+      }
 
-        // Create image metadata
+      // Create metadata based on content and image
+      if (imageAttachment) {
+        // Image post with title and content
         metadata = image({
-          title: input.title,
+          title: input.title || "",
           content: input.content,
-          image: {
-            item: dataUrl, // Using Data URL directly for simplicity
-            type: imageType,
-          },
-        });
-      } else if (input.title) {
-        // For posts with titles, create article metadata
-        metadata = article({
-          title: input.title,
-          content: input.content,
+          image: imageAttachment,
+          attributes: [
+            {
+              key: "type",
+              value: "investment",
+              type: MetadataAttributeType.STRING,
+            },
+            {
+              key: "category",
+              value: input.investmentMetadata?.category || "content",
+              type: MetadataAttributeType.STRING,
+            },
+            {
+              key: "revenueShare",
+              value: input.investmentMetadata?.revenueShare || "0",
+              type: MetadataAttributeType.STRING,
+            },
+            {
+              key: "benefits",
+              value: input.investmentMetadata?.benefits || "",
+              type: MetadataAttributeType.STRING,
+            },
+            {
+              key: "endDate",
+              value: input.investmentMetadata?.endDate || "",
+              type: MetadataAttributeType.STRING,
+            },
+            {
+              key: "mediaType",
+              value: input.investmentMetadata?.mediaType || "image",
+              type: MetadataAttributeType.STRING,
+            },
+          ],
         });
       } else {
-        // For simple text posts, create text-only metadata
-        metadata = textOnly({
+        // Article post (no image)
+        metadata = article({
+          title: input.title || "",
           content: input.content,
+          attributes: [
+            {
+              key: "type",
+              value: "investment",
+              type: MetadataAttributeType.STRING,
+            },
+            {
+              key: "category",
+              value: input.investmentMetadata?.category || "content",
+              type: MetadataAttributeType.STRING,
+            },
+            {
+              key: "revenueShare",
+              value: input.investmentMetadata?.revenueShare || "0",
+              type: MetadataAttributeType.STRING,
+            },
+            {
+              key: "benefits",
+              value: input.investmentMetadata?.benefits || "",
+              type: MetadataAttributeType.STRING,
+            },
+            {
+              key: "endDate",
+              value: input.investmentMetadata?.endDate || "",
+              type: MetadataAttributeType.STRING,
+            },
+          ],
         });
       }
 
-      // For simplicity, we'll use the direct string representation
-      // This works fine for basic posts but isn't ideal for production
-      const metadataURI = uri(await metadata.toString());
+      // Upload metadata to Grove
+      try {
+        const metadataResult = await storageClient.uploadAsJson(metadata);
+        if (!metadataResult || !metadataResult.uri) {
+          toast.error("Failed to upload post metadata: No URI returned");
+          setIsLoading(false);
+          return null;
+        }
 
-      // Create the post request
-      const createPostRequest = {
-        contentUri: metadataURI,
-        actions: input.collectible
-          ? [
+        // Create post request
+        const createPostRequest = {
+          contentUri: uri(metadataResult.uri),
+        };
+
+        // Add collect module if enabled
+        if (input.collectible && input.collectSettings) {
+          // Create the request with the proper typing
+          const requestWithCollect = {
+            contentUri: createPostRequest.contentUri,
+            actions: [
               {
                 simpleCollect: {
-                  // Add collect settings if enabled
-                  ...(input.collectSettings?.supply
-                    ? {
-                        collectLimit: Number.parseInt(
-                          input.collectSettings.supply
-                        ),
-                      }
-                    : {}),
+                  // Configure according to GraphQL schema
+                  payToCollect: {
+                    amount: {
+                      currency: input.collectSettings.currency || "WGHO",
+                      value: input.collectSettings.price || "0",
+                    },
+                    // Split revenue with original creator
+                    recipients: [
+                      {
+                        address: evmAddress(user.address),
+                        percent: 100, // 100% to creator, can be adjusted for revenue sharing
+                      },
+                    ],
+                    referralShare: 0, // Optional referral fee
+                  },
+                  collectLimit: input.collectSettings.supply
+                    ? Number.parseInt(input.collectSettings.supply)
+                    : undefined,
+                  followerOnGraph: null, // Can restrict collect to followers
+                  endsAt: input.investmentMetadata?.endDate || null,
+                  isImmutable: true,
                 },
               },
-            ]
-          : undefined,
-      };
+            ],
+          };
 
-      // Post to Lens
-      const result = await post(sessionClient, createPostRequest);
+          // Create post with collect action
+          const result = await post(sessionClient, requestWithCollect);
+          if (result.isErr()) {
+            console.error("Failed to create post:", result.error);
 
-      if (result.isErr()) {
-        console.error("Error creating post:", result.error);
-        toast.error(`Failed to create post: ${result.error.message}`);
+            // Extract detailed error information
+            let errorDetails = "Unknown error";
+            if (result.error.message) {
+              errorDetails = result.error.message;
+            } else if (typeof result.error === "object") {
+              errorDetails = JSON.stringify(result.error);
+            }
+
+            toast.error(`Failed to create post: ${errorDetails}`);
+            setIsLoading(false);
+            return null;
+          }
+
+          // Post created successfully
+          toast.success("Investment post created successfully!");
+          setIsLoading(false);
+
+          // Return the post ID if available, otherwise just return success indicator
+          return result.value && typeof result.value === "object" && "id" in result.value
+            ? { id: result.value.id }
+            : { success: true };
+        } else {
+          // Create regular post without collect action
+          const result = await post(sessionClient, createPostRequest);
+          if (result.isErr()) {
+            console.error("Failed to create post:", result.error);
+
+            // Extract detailed error information
+            let errorDetails = "Unknown error";
+            if (result.error.message) {
+              errorDetails = result.error.message;
+            } else if (typeof result.error === "object") {
+              errorDetails = JSON.stringify(result.error);
+            }
+
+            toast.error(`Failed to create post: ${errorDetails}`);
+            setIsLoading(false);
+            return null;
+          }
+
+          // Post created successfully
+          toast.success("Post created successfully!");
+          setIsLoading(false);
+
+          // Return the post ID if available, otherwise just return success indicator
+          return result.value && typeof result.value === "object" && "id" in result.value
+            ? { id: result.value.id }
+            : { success: true };
+        }
+      } catch (metadataError) {
+        console.error("Error uploading metadata or creating post:", metadataError);
+        const errorMessage =
+          metadataError instanceof Error ? metadataError.message : "Unknown error";
+        toast.error(`Failed to process post: ${errorMessage}`);
+        setIsLoading(false);
         return null;
       }
-
-      toast.success("Post created successfully!");
-      return result.value;
     } catch (error) {
       console.error("Error creating post:", error);
-      toast.error("Failed to create post. Please try again.");
-      return null;
-    } finally {
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Post creation failed: ${errorMessage}`);
       setIsLoading(false);
+      return null;
     }
   };
 
-  return {
-    createPost,
-    isLoading,
-  };
-}
+  // Helper function to determine media type
+  const determineMediaType = (file?: File): MediaImageMimeType => {
+    if (!file) return MediaImageMimeType.PNG;
 
-// Helper function to convert a file to a data URL
-const fileToDataUrl = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
-};
+    const mimeType = file.type;
+
+    if (mimeType.includes("png")) {
+      return MediaImageMimeType.PNG;
+    } else if (mimeType.includes("jpg") || mimeType.includes("jpeg")) {
+      return MediaImageMimeType.JPEG;
+    } else if (mimeType.includes("webp")) {
+      return MediaImageMimeType.WEBP;
+    } else if (mimeType.includes("gif")) {
+      return MediaImageMimeType.GIF;
+    }
+
+    // Default to PNG if we can't determine the type
+    return MediaImageMimeType.PNG;
+  };
+
+  return { createPost, isLoading };
+}

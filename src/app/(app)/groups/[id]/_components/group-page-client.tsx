@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLensGroups } from "@/hooks/use-lens-groups";
-import { Group } from "@lens-protocol/client";
+import { Group, GroupRuleUnsatisfiedReason } from "@lens-protocol/client";
 import { ArrowLeftIcon, PlusIcon, UsersIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -60,6 +60,11 @@ export function GroupPageClient({ group }: { group: Group }) {
   // Check if the user can join the group according to rules
   const canJoin = group.operations?.canJoin?.__typename === "GroupOperationValidationPassed";
   const canLeave = group.operations?.canLeave?.__typename === "GroupOperationValidationPassed";
+
+  // Handle membership approval required case
+  const isApprovalRequired =
+    group.operations?.canJoin?.__typename === "GroupOperationValidationFailed" &&
+    group.operations?.canJoin?.reason === GroupRuleUnsatisfiedReason.MembershipApprovalRequired;
 
   return (
     <div className="container mx-auto max-w-5xl pb-12">
@@ -134,15 +139,27 @@ export function GroupPageClient({ group }: { group: Group }) {
                   <Button
                     className="w-full bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
                     onClick={handleJoinGroup}
-                    disabled={isJoining || !canJoin}
+                    disabled={isJoining || (!canJoin && !isApprovalRequired)}
                   >
-                    {isJoining ? "Joining..." : "Join Group"}
+                    {isJoining
+                      ? "Joining..."
+                      : isApprovalRequired
+                        ? "Request to Join"
+                        : "Join Group"}
                   </Button>
 
                   {!canJoin &&
+                    !isApprovalRequired &&
                     group.operations?.canJoin?.__typename === "GroupOperationValidationFailed" && (
                       <p className="mt-2 text-red-500 text-sm">{group.operations.canJoin.reason}</p>
                     )}
+
+                  {isApprovalRequired && (
+                    <p className="mt-2 text-amber-600 text-sm">
+                      This is a private group. Your membership request will be reviewed by
+                      moderators.
+                    </p>
+                  )}
                 </>
               )}
             </CardContent>

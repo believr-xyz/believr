@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import { Bell, Bookmark, Home, PlusCircle, Search, Trophy } from "lucide-react";
+import { Bell, Bookmark, Home, Search, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -50,8 +50,9 @@ export function MobileNavigation() {
           className="flex flex-col items-center justify-center text-center"
         >
           <div className="flex size-10 items-center justify-center rounded-full bg-[#00A8FF] text-white">
-            <PlusCircle className="size-6" />
+            <Sparkles className="size-6" />
           </div>
+          <span className="text-xs">Campaign</span>
         </Link>
 
         <Link

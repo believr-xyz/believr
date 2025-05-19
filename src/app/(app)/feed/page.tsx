@@ -12,6 +12,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { FeedSkeleton } from "./_components/feed-skeleton";
 import { PostCard } from "./_components/post-card";
+import { PostComposer } from "./_components/post-composer";
 import { type Campaign, type Creator, Trending } from "./_components/trending";
 import { TrendingSkeleton } from "./_components/trending-skeleton";
 
@@ -136,50 +137,6 @@ function FollowingFeed() {
   );
 }
 
-function PopularFeed() {
-  // Show trending/popular posts with appropriate sorting
-  const { data, loading, error } = usePosts({
-    // Sort by the most recent and popular posts
-    filter: {
-      metadata: {
-        mainContentFocus: ["IMAGE", "ARTICLE", "TEXT_ONLY", "VIDEO", "AUDIO"],
-      },
-    },
-    pageSize: PageSize.Ten,
-  });
-
-  if (loading) {
-    return <FeedSkeleton />;
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center p-6 text-center">
-        <p className="mb-3 text-muted-foreground">Failed to load feed</p>
-        <Button variant="outline" onClick={() => window.location.reload()}>
-          Try again
-        </Button>
-      </div>
-    );
-  }
-
-  if (!data?.items.length) {
-    return (
-      <div className="flex flex-col items-center justify-center p-6 text-center">
-        <p className="mb-3 text-muted-foreground">No popular posts found</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-4">
-      {data.items.map((post) => (
-        <PostCard key={post.id} post={post} />
-      ))}
-    </div>
-  );
-}
-
 function TrendingContent() {
   // Use real Lens data instead of mock data for trending posts
   const { data, loading, error } = usePosts({
@@ -282,7 +239,7 @@ export default function FeedPage() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState<string>(
-    tabParam === "following" || tabParam === "popular" ? tabParam : "for-you",
+    tabParam === "following" || tabParam === "for-you" ? tabParam : "following",
   );
 
   return (
@@ -295,33 +252,31 @@ export default function FeedPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
         {/* Main Content - Left Column (Scrollable) */}
         <div className="md:col-span-2">
+          {/* Tabs first, at the very top */}
           <Tabs
             defaultValue={activeTab}
             value={activeTab}
             onValueChange={setActiveTab}
-            className="mt-1 mb-6 w-full md:w-auto"
+            className="mb-6 w-full md:w-auto"
           >
-            <TabsList className="mb-4 grid w-full grid-cols-3">
-              <TabsTrigger value="for-you">For You</TabsTrigger>
+            <TabsList className="mb-4 grid w-full grid-cols-2">
               <TabsTrigger value="following">Following</TabsTrigger>
-              <TabsTrigger value="popular">Popular</TabsTrigger>
+              <TabsTrigger value="for-you">For You</TabsTrigger>
             </TabsList>
 
-            <TabsContent value="for-you">
-              <Suspense fallback={<FeedSkeleton />}>
-                <ForYouFeed />
-              </Suspense>
-            </TabsContent>
-
             <TabsContent value="following">
+              {/* Post Composer inside tab content */}
+              <PostComposer />
               <Suspense fallback={<FeedSkeleton />}>
                 <FollowingFeed />
               </Suspense>
             </TabsContent>
 
-            <TabsContent value="popular">
+            <TabsContent value="for-you">
+              {/* Post Composer inside tab content */}
+              <PostComposer />
               <Suspense fallback={<FeedSkeleton />}>
-                <PopularFeed />
+                <ForYouFeed />
               </Suspense>
             </TabsContent>
           </Tabs>

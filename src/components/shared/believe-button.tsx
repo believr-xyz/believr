@@ -9,6 +9,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { getLensClient } from "@/lib/lens/client";
+import { SessionClient, postId as createPostId } from "@lens-protocol/client";
+import { executePostAction } from "@lens-protocol/client/actions";
 import { CheckCheck, Star } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -38,30 +41,78 @@ export function BelieveButton({
   const displayUsername = creatorUsername || username || "";
 
   const [showModal, setShowModal] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   // Use external state if provided, otherwise manage internally
   const [internalBelieved, setInternalBelieved] = useState(false);
 
   // Use the external state if provided, otherwise use internal state
   const believed = externalBelieved !== undefined ? externalBelieved : internalBelieved;
 
-  const handleBelieve = () => {
-    // This would be connected to the Lens client in a real implementation
-    // For now, just simulate success
-    setTimeout(() => {
-      setShowModal(false);
+  const handleBelieve = async () => {
+    setIsLoading(true);
 
-      // Update internal state if not controlled externally
-      if (externalBelieved === undefined) {
-        setInternalBelieved(true);
+    try {
+      const client = await getLensClient();
+
+      if (!client) {
+        toast.error("Failed to initialize Lens client");
+        setIsLoading(false);
+        return;
       }
 
-      // Notify parent component if callback provided
-      if (onBelieveChange) {
-        onBelieveChange(true);
+      // Check if client is a SessionClient (has authentication)
+      if (!("getCredentials" in client)) {
+        toast.error("You need to be authenticated to collect a post");
+        setIsLoading(false);
+        return;
       }
 
-      toast.success("You are now an early believer!");
-    }, 1000);
+      const sessionClient = client as SessionClient;
+
+      // Create a post ID from the string
+      const lensPostId = createPostId(postId);
+
+      try {
+        // Execute the post action to collect
+        const result = await executePostAction(sessionClient, {
+          post: lensPostId,
+          action: {
+            simpleCollect: {
+              selected: true,
+            },
+          },
+        });
+
+        if (result.isErr()) {
+          console.error("Failed to collect post:", result.error);
+          toast.error("Failed to collect post");
+          setIsLoading(false);
+          return;
+        }
+
+        setShowModal(false);
+
+        // Update internal state if not controlled externally
+        if (externalBelieved === undefined) {
+          setInternalBelieved(true);
+        }
+
+        // Notify parent component if callback provided
+        if (onBelieveChange) {
+          onBelieveChange(true);
+        }
+
+        toast.success("You are now an early believer!");
+      } catch (error) {
+        console.error("Failed to collect post:", error);
+        toast.error("Failed to collect post");
+      }
+    } catch (error) {
+      console.error("Error collecting post:", error);
+      toast.error("Failed to collect post");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   if (believed) {
@@ -129,10 +180,12 @@ export function BelieveButton({
             </ul>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowModal(false)}>
+            <Button variant="outline" onClick={() => setShowModal(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button onClick={handleBelieve}>Believe Now</Button>
+            <Button onClick={handleBelieve} disabled={isLoading}>
+              {isLoading ? "Processing..." : "Believe Now"}
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -12,7 +12,7 @@ export default function NotificationsPage() {
   const [activeTab, setActiveTab] = useState("all");
 
   return (
-    <div className="container mx-auto max-w-4xl pb-12">
+    <div className="w-full pb-12">
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <h1 className="font-bold text-3xl">Notifications</h1>
@@ -20,10 +20,17 @@ export default function NotificationsPage() {
             Mark all as read
           </Button>
         </div>
-        <p className="mt-2 text-muted-foreground">Stay updated with your latest interactions</p>
+        <p className="mt-2 text-muted-foreground">
+          Stay updated with your latest interactions
+        </p>
       </div>
 
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs
+        defaultValue="all"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full"
+      >
         <TabsList className="mb-6 grid w-full grid-cols-5">
           <TabsTrigger value="all">All</TabsTrigger>
           <TabsTrigger value="unread">Unread</TabsTrigger>
@@ -37,7 +44,9 @@ export default function NotificationsPage() {
             <CardContent className="flex h-[300px] flex-col items-center justify-center gap-4 py-10 text-center">
               <Bell className="size-12 text-muted-foreground/50" />
               <div>
-                <h3 className="font-medium text-lg">Notifications Coming Soon</h3>
+                <h3 className="font-medium text-lg">
+                  Notifications Coming Soon
+                </h3>
                 <p className="text-muted-foreground">
                   The notifications feature is currently under development.
                 </p>

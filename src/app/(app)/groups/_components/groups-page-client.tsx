@@ -42,7 +42,9 @@ export function GroupsPageClient({ groups }: { groups: Group[] }) {
 
   // Filter groups based on active tab
   const filteredGroups =
-    activeTab === "all" ? groups : groups.filter((g) => !g.membershipApprovalEnabled);
+    activeTab === "all"
+      ? groups
+      : groups.filter((g) => !g.membershipApprovalEnabled);
 
   const handleCreateGroup = async () => {
     if (!groupName) {
@@ -85,7 +87,8 @@ export function GroupsPageClient({ groups }: { groups: Group[] }) {
         <DialogHeader>
           <DialogTitle>Create a new group</DialogTitle>
           <DialogDescription>
-            Create a group for believers to support and discuss projects together.
+            Create a group for believers to support and discuss projects
+            together.
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -131,7 +134,7 @@ export function GroupsPageClient({ groups }: { groups: Group[] }) {
 
   if (groups.length === 0) {
     return (
-      <div className="container mx-auto max-w-5xl">
+      <div className="w-full">
         <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
           <div>
             <h1 className="font-bold text-3xl">Believers Groups</h1>
@@ -143,7 +146,9 @@ export function GroupsPageClient({ groups }: { groups: Group[] }) {
         </div>
         <div className="flex flex-col items-center justify-center rounded-lg border p-12 text-center">
           <h3 className="mb-1 font-semibold text-xl">No groups found</h3>
-          <p className="mb-4 text-muted-foreground">Be the first to create a group</p>
+          <p className="mb-4 text-muted-foreground">
+            Be the first to create a group
+          </p>
           <Button
             className="bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90"
             onClick={() => setIsDialogOpen(true)}
@@ -157,7 +162,7 @@ export function GroupsPageClient({ groups }: { groups: Group[] }) {
   }
 
   return (
-    <div className="container mx-auto max-w-5xl">
+    <div className="w-full">
       <div className="mb-8 flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div>
           <h1 className="font-bold text-3xl">Believers Groups</h1>
@@ -168,7 +173,12 @@ export function GroupsPageClient({ groups }: { groups: Group[] }) {
         <CreateGroupDialog />
       </div>
 
-      <Tabs defaultValue="all" value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs
+        defaultValue="all"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full"
+      >
         <div className="mb-6 flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <TabsList className={isMobile ? "grid w-full grid-cols-2" : ""}>
             <TabsTrigger value="all">All Groups</TabsTrigger>
@@ -181,7 +191,8 @@ export function GroupsPageClient({ groups }: { groups: Group[] }) {
             {filteredGroups.map((group) => {
               const member = isGroupMember(group);
               const canJoin =
-                group.operations?.canJoin?.__typename === "GroupOperationValidationPassed";
+                group.operations?.canJoin?.__typename ===
+                "GroupOperationValidationPassed";
 
               return (
                 <Card key={group.address} className="overflow-hidden">
@@ -196,7 +207,9 @@ export function GroupsPageClient({ groups }: { groups: Group[] }) {
                   )}
                   <CardHeader>
                     <div className="flex items-center justify-between">
-                      <CardTitle>{group.metadata?.name || "Untitled Group"}</CardTitle>
+                      <CardTitle>
+                        {group.metadata?.name || "Untitled Group"}
+                      </CardTitle>
                       <div className="flex items-center gap-1">
                         {member && (
                           <div className="flex items-center rounded-full bg-green-100 px-2 py-1 font-medium text-green-800 text-xs">
@@ -212,7 +225,9 @@ export function GroupsPageClient({ groups }: { groups: Group[] }) {
                         )}
                       </div>
                     </div>
-                    <CardDescription>{group.metadata?.description || ""}</CardDescription>
+                    <CardDescription>
+                      {group.metadata?.description || ""}
+                    </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="flex items-center">

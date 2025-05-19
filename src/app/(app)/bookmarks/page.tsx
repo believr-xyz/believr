@@ -9,7 +9,7 @@ export default function BookmarksPage() {
   const { data: currentUser } = useAuthenticatedUser();
 
   return (
-    <div className="container mx-auto max-w-5xl pb-12">
+    <div className="w-full pb-12">
       <div className="mb-8">
         <h1 className="mb-2 font-bold text-2xl">Bookmarks</h1>
         <p className="text-muted-foreground">Posts you've saved for later</p>

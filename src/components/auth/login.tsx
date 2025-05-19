@@ -6,16 +6,20 @@ import { useAuthenticatedUser } from "@lens-protocol/react";
 import { CircleNotch } from "@phosphor-icons/react";
 import { ConnectKitButton } from "connectkit";
 import { useState } from "react";
-import { AccountSelector } from "./accounts";
+import { AccountSelector } from "./account-selector";
 
 interface LoginProps {
   variant?: "default" | "header";
   label?: string;
 }
 
-export function Login({ variant = "default", label = "Get Started" }: LoginProps) {
+export function Login({
+  variant = "default",
+  label = "Get Started",
+}: LoginProps) {
   const [showAccountSelector, setShowAccountSelector] = useState(false);
-  const { data: authenticatedUser, loading: authUserLoading } = useAuthenticatedUser();
+  const { data: authenticatedUser, loading: authUserLoading } =
+    useAuthenticatedUser();
 
   // Apply different styles based on variant
   const containerClasses = variant === "header" ? "" : "mb-2 space-y-2 p-2";
@@ -38,10 +42,17 @@ export function Login({ variant = "default", label = "Get Started" }: LoginProps
           if (!isWalletConnected) {
             return (
               <>
-                <Button onClick={show} className={buttonClasses} disabled={isConnecting}>
+                <Button
+                  onClick={show}
+                  className={buttonClasses}
+                  disabled={isConnecting}
+                >
                   {isConnecting ? (
                     <>
-                      <CircleNotch className="mr-2 size-4 animate-spin" weight="bold" />
+                      <CircleNotch
+                        className="mr-2 size-4 animate-spin"
+                        weight="bold"
+                      />
                       Connecting...
                     </>
                   ) : (
@@ -59,10 +70,16 @@ export function Login({ variant = "default", label = "Get Started" }: LoginProps
                 onOpenChange={setShowAccountSelector}
                 trigger={
                   <DialogTrigger asChild>
-                    <Button className={buttonClasses} disabled={authUserLoading}>
+                    <Button
+                      className={buttonClasses}
+                      disabled={authUserLoading}
+                    >
                       {authUserLoading ? (
                         <>
-                          <CircleNotch className="mr-2 size-4 animate-spin" weight="bold" />
+                          <CircleNotch
+                            className="mr-2 size-4 animate-spin"
+                            weight="bold"
+                          />
                           Connecting...
                         </>
                       ) : (
@@ -78,10 +95,17 @@ export function Login({ variant = "default", label = "Get Started" }: LoginProps
           if (isWalletConnected && authenticatedUser) {
             const displayIdentity = connectKitDisplayName ?? "...";
             return (
-              <div className={`flex items-center justify-between gap-2 text-sm ${buttonClasses}`}>
-                <span className="truncate text-muted-foreground" title={authenticatedUser.address}>
+              <div
+                className={`flex items-center justify-between gap-2 text-sm ${buttonClasses}`}
+              >
+                <span
+                  className="truncate text-muted-foreground"
+                  title={authenticatedUser.address}
+                >
                   Signed in as:{" "}
-                  <span className="font-semibold text-primary">{displayIdentity}</span>
+                  <span className="font-semibold text-primary">
+                    {displayIdentity}
+                  </span>
                 </span>
               </div>
             );

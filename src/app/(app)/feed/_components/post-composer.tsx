@@ -3,17 +3,9 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { getLensClient } from "@/lib/lens/client";
 import { storageClient } from "@/lib/lens/storage-client";
 import data from "@emoji-mart/data";
@@ -49,6 +41,7 @@ export function PostComposer() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [mediaType, setMediaType] = useState<MediaType>(null);
+  const [mediaDuration, setMediaDuration] = useState<number>(0);
   const [accountData, setAccountData] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -90,7 +83,55 @@ export function PostComposer() {
     }
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Get duration from audio element
+  const getAudioDuration = (file: File): Promise<number> => {
+    return new Promise((resolve) => {
+      const audio = document.createElement("audio");
+      audio.preload = "metadata";
+
+      audio.onloadedmetadata = () => {
+        // Round up to nearest second to ensure it's greater than 0
+        const duration = Math.ceil(audio.duration);
+        URL.revokeObjectURL(audio.src);
+        resolve(duration);
+      };
+
+      audio.onerror = () => {
+        console.error("Error loading audio metadata");
+        URL.revokeObjectURL(audio.src);
+        // Default to 1 second if we can't get the actual duration
+        resolve(1);
+      };
+
+      audio.src = URL.createObjectURL(file);
+    });
+  };
+
+  // Get duration from video element
+  const getVideoDuration = (file: File): Promise<number> => {
+    return new Promise((resolve) => {
+      const video = document.createElement("video");
+      video.preload = "metadata";
+
+      video.onloadedmetadata = () => {
+        // Round up to nearest second to ensure it's greater than 0
+        const duration = Math.ceil(video.duration);
+        URL.revokeObjectURL(video.src);
+        resolve(duration);
+      };
+
+      video.onerror = () => {
+        console.error("Error loading video metadata");
+        URL.revokeObjectURL(video.src);
+        // Default to 1 second if we can't get the actual duration
+        resolve(1);
+      };
+
+      video.src = URL.createObjectURL(file);
+    });
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -100,8 +141,24 @@ export function PostComposer() {
       type = "image";
     } else if (file.type.startsWith("video/")) {
       type = "video";
+      // Get video duration
+      try {
+        const duration = await getVideoDuration(file);
+        setMediaDuration(duration);
+      } catch (error) {
+        console.error("Error getting video duration:", error);
+        setMediaDuration(1); // Fallback to 1 second
+      }
     } else if (file.type.startsWith("audio/")) {
       type = "audio";
+      // Get audio duration
+      try {
+        const duration = await getAudioDuration(file);
+        setMediaDuration(duration);
+      } catch (error) {
+        console.error("Error getting audio duration:", error);
+        setMediaDuration(1); // Fallback to 1 second
+      }
     } else {
       toast.error("Unsupported file type");
       return;
@@ -168,6 +225,16 @@ export function PostComposer() {
     return MediaAudioMimeType.MP3; // Default
   };
 
+  // Convert file to base64 string (useful as a fallback for CORS issues)
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleCreatePost = async () => {
     if (!user) {
       toast.error("You need to be logged in to post");
@@ -196,24 +263,46 @@ export function PostComposer() {
       let mediaURI = null;
       if (selectedFile) {
         try {
+          // First try with standard upload
           const { files } = await storageClient.uploadFolder([selectedFile]);
           if (files && files.length > 0) {
             mediaURI = files[0].uri;
           }
-        } catch (error) {
-          console.error("Failed to upload media:", error);
-          toast.error("Failed to upload media");
-          setIsLoading(false);
-          return;
+        } catch (uploadError) {
+          console.error("Standard upload failed:", uploadError);
+
+          // Check if it's a CORS-related error
+          const isCorsError =
+            uploadError instanceof Error &&
+            (uploadError.message.includes("CORS") ||
+              uploadError.message.includes("Failed to fetch"));
+
+          if (isCorsError) {
+            try {
+              // Fallback to base64-encoded data URI for small files (< 5MB)
+              if (selectedFile.size < 5 * 1024 * 1024) {
+                console.log("Trying base64 fallback for small file");
+                const base64Data = await fileToBase64(selectedFile);
+                mediaURI = base64Data;
+              } else {
+                throw new Error("File too large for base64 encoding fallback");
+              }
+            } catch (fallbackError) {
+              console.error("Base64 fallback also failed:", fallbackError);
+              toast.error("Failed to upload media: File too large or unsupported");
+              setIsLoading(false);
+              return;
+            }
+          } else {
+            toast.error("Failed to upload media");
+            setIsLoading(false);
+            return;
+          }
         }
       }
 
       // Create metadata based on media type
-      let metadata:
-        | ImageMetadata
-        | VideoMetadata
-        | AudioMetadata
-        | TextOnlyMetadata;
+      let metadata: ImageMetadata | VideoMetadata | AudioMetadata | TextOnlyMetadata;
 
       if (mediaURI && selectedFile) {
         if (mediaType === "image") {
@@ -230,7 +319,7 @@ export function PostComposer() {
             video: {
               item: mediaURI,
               type: determineVideoType(selectedFile),
-              duration: 0, // You might want to extract this from the video
+              duration: mediaDuration, // Using the calculated duration
             },
           });
         } else if (mediaType === "audio") {
@@ -240,7 +329,7 @@ export function PostComposer() {
               item: mediaURI,
               type: determineAudioType(selectedFile),
               artist: "Believr Artist", // You might want to make this configurable
-              duration: 0, // You might want to extract this from the audio
+              duration: mediaDuration, // Using the calculated duration
             },
           });
         } else {
@@ -277,8 +366,7 @@ export function PostComposer() {
       }
     } catch (error) {
       console.error("Error creating post:", error);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
       toast.error(`Error creating post: ${errorMessage}`);
     } finally {
       setIsLoading(false);
@@ -309,18 +397,10 @@ export function PostComposer() {
     return (
       <div className="relative mb-2 overflow-hidden rounded-md">
         {mediaType === "image" && (
-          <img
-            src={previewUrl}
-            alt="Preview"
-            className="max-h-48 w-auto rounded-md"
-          />
+          <img src={previewUrl} alt="Preview" className="max-h-48 w-auto rounded-md" />
         )}
         {mediaType === "video" && (
-          <video
-            controls
-            src={previewUrl}
-            className="max-h-48 w-auto rounded-md"
-          >
+          <video controls src={previewUrl} className="max-h-48 w-auto rounded-md">
             <track kind="captions" src="" label="Captions" />
           </video>
         )}
@@ -329,9 +409,7 @@ export function PostComposer() {
             <audio controls src={previewUrl} className="w-full">
               <track kind="captions" src="" label="Captions" />
             </audio>
-            <p className="mt-1 text-gray-500 text-sm">
-              Audio: {selectedFile?.name}
-            </p>
+            <p className="mt-1 text-gray-500 text-sm">Audio: {selectedFile?.name}</p>
           </div>
         )}
         <Button
@@ -448,11 +526,7 @@ export function PostComposer() {
                   </TooltipContent>
                 </Tooltip>
                 <PopoverContent className="w-full border-none p-0">
-                  <Picker
-                    data={data}
-                    onEmojiSelect={handleEmojiSelect}
-                    theme="light"
-                  />
+                  <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" />
                 </PopoverContent>
               </Popover>
             </div>

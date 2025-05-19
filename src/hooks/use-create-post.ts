@@ -79,11 +79,7 @@ export function useCreatePost() {
       const sessionClient = client as SessionClient;
 
       // Prepare metadata
-      let metadata:
-        | ImageMetadata
-        | ArticleMetadata
-        | VideoMetadata
-        | AudioMetadata;
+      let metadata: ImageMetadata | ArticleMetadata | VideoMetadata | AudioMetadata;
       let imageAttachment = null;
 
       // Handle image file if provided
@@ -105,7 +101,8 @@ export function useCreatePost() {
           }
         } catch (error) {
           console.error("Error uploading image:", error);
-          toast.error("Failed to upload image");
+          const errorMessage = error instanceof Error ? error.message : "Unknown error";
+          toast.error(`Failed to upload image: ${errorMessage}`);
           setIsLoading(false);
           return null;
         }
@@ -187,95 +184,119 @@ export function useCreatePost() {
       }
 
       // Upload metadata to Grove
-      const metadataResult = await storageClient.uploadAsJson(metadata);
-      if (!metadataResult || !metadataResult.uri) {
-        toast.error("Failed to upload post metadata");
+      try {
+        const metadataResult = await storageClient.uploadAsJson(metadata);
+        if (!metadataResult || !metadataResult.uri) {
+          toast.error("Failed to upload post metadata: No URI returned");
+          setIsLoading(false);
+          return null;
+        }
+
+        // Create post request
+        const createPostRequest = {
+          contentUri: uri(metadataResult.uri),
+        };
+
+        // Add collect module if enabled
+        if (input.collectible && input.collectSettings) {
+          // Create the request with the proper typing
+          const requestWithCollect = {
+            contentUri: createPostRequest.contentUri,
+            actions: [
+              {
+                simpleCollect: {
+                  // Configure according to GraphQL schema
+                  payToCollect: {
+                    amount: {
+                      currency: input.collectSettings.currency || "WGHO",
+                      value: input.collectSettings.price || "0",
+                    },
+                    // Split revenue with original creator
+                    recipients: [
+                      {
+                        address: evmAddress(user.address),
+                        percent: 100, // 100% to creator, can be adjusted for revenue sharing
+                      },
+                    ],
+                    referralShare: 0, // Optional referral fee
+                  },
+                  collectLimit: input.collectSettings.supply
+                    ? Number.parseInt(input.collectSettings.supply)
+                    : undefined,
+                  followerOnGraph: null, // Can restrict collect to followers
+                  endsAt: input.investmentMetadata?.endDate || null,
+                  isImmutable: true,
+                },
+              },
+            ],
+          };
+
+          // Create post with collect action
+          const result = await post(sessionClient, requestWithCollect);
+          if (result.isErr()) {
+            console.error("Failed to create post:", result.error);
+
+            // Extract detailed error information
+            let errorDetails = "Unknown error";
+            if (result.error.message) {
+              errorDetails = result.error.message;
+            } else if (typeof result.error === "object") {
+              errorDetails = JSON.stringify(result.error);
+            }
+
+            toast.error(`Failed to create post: ${errorDetails}`);
+            setIsLoading(false);
+            return null;
+          }
+
+          // Post created successfully
+          toast.success("Investment post created successfully!");
+          setIsLoading(false);
+
+          // Return the post ID if available, otherwise just return success indicator
+          return result.value && typeof result.value === "object" && "id" in result.value
+            ? { id: result.value.id }
+            : { success: true };
+        } else {
+          // Create regular post without collect action
+          const result = await post(sessionClient, createPostRequest);
+          if (result.isErr()) {
+            console.error("Failed to create post:", result.error);
+
+            // Extract detailed error information
+            let errorDetails = "Unknown error";
+            if (result.error.message) {
+              errorDetails = result.error.message;
+            } else if (typeof result.error === "object") {
+              errorDetails = JSON.stringify(result.error);
+            }
+
+            toast.error(`Failed to create post: ${errorDetails}`);
+            setIsLoading(false);
+            return null;
+          }
+
+          // Post created successfully
+          toast.success("Post created successfully!");
+          setIsLoading(false);
+
+          // Return the post ID if available, otherwise just return success indicator
+          return result.value && typeof result.value === "object" && "id" in result.value
+            ? { id: result.value.id }
+            : { success: true };
+        }
+      } catch (metadataError) {
+        console.error("Error uploading metadata or creating post:", metadataError);
+        const errorMessage =
+          metadataError instanceof Error ? metadataError.message : "Unknown error";
+        toast.error(`Failed to process post: ${errorMessage}`);
         setIsLoading(false);
         return null;
       }
-
-      // Create post request
-      const createPostRequest = {
-        contentUri: uri(metadataResult.uri),
-      };
-
-      // Add collect module if enabled
-      if (input.collectible && input.collectSettings) {
-        // Create the request with the proper typing
-        const requestWithCollect = {
-          contentUri: createPostRequest.contentUri,
-          actions: [
-            {
-              simpleCollect: {
-                // Configure according to GraphQL schema
-                payToCollect: {
-                  amount: {
-                    currency: input.collectSettings.currency || "GHO",
-                    value: input.collectSettings.price || "0",
-                  },
-                  // Split revenue with original creator
-                  recipients: [
-                    {
-                      address: evmAddress(user.address),
-                      percent: 100, // 100% to creator, can be adjusted for revenue sharing
-                    },
-                  ],
-                  referralShare: 0, // Optional referral fee
-                },
-                collectLimit: input.collectSettings.supply
-                  ? Number.parseInt(input.collectSettings.supply)
-                  : undefined,
-                followerOnGraph: null, // Can restrict collect to followers
-                endsAt: input.investmentMetadata?.endDate || null,
-                isImmutable: true,
-              },
-            },
-          ],
-        };
-
-        // Create post with collect action
-        const result = await post(sessionClient, requestWithCollect);
-        if (result.isErr()) {
-          console.error("Failed to create post:", result.error);
-          toast.error("Failed to create post");
-          setIsLoading(false);
-          return null;
-        }
-
-        // Post created successfully
-        toast.success("Investment post created successfully!");
-        setIsLoading(false);
-
-        // Return the post ID if available, otherwise just return success indicator
-        return result.value &&
-          typeof result.value === "object" &&
-          "id" in result.value
-          ? { id: result.value.id }
-          : { success: true };
-      } else {
-        // Create regular post without collect action
-        const result = await post(sessionClient, createPostRequest);
-        if (result.isErr()) {
-          console.error("Failed to create post:", result.error);
-          toast.error("Failed to create post");
-          setIsLoading(false);
-          return null;
-        }
-
-        // Post created successfully
-        toast.success("Post created successfully!");
-        setIsLoading(false);
-
-        // Return the post ID if available, otherwise just return success indicator
-        return result.value &&
-          typeof result.value === "object" &&
-          "id" in result.value
-          ? { id: result.value.id }
-          : { success: true };
-      }
     } catch (error) {
       console.error("Error creating post:", error);
-      toast.error("Failed to create post");
+      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Post creation failed: ${errorMessage}`);
       setIsLoading(false);
       return null;
     }

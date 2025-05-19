@@ -8,7 +8,7 @@ import { NotificationsNavButton } from "@/components/navigation/notifications-na
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import { PlusIcon } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -60,12 +60,12 @@ export function Header() {
         <div className="flex items-center gap-2 md:gap-5">
           <Button
             asChild
-            className="hidden min-w-28 bg-[#00A8FF] text-white hover:bg-[#00A8FF]/90 sm:flex"
+            className="hidden bg-gradient-to-r from-[#00A8FF] to-[#2D8CFF] font-medium text-white hover:from-[#00A8FF]/90 hover:to-[#2D8CFF]/90 sm:flex"
             size="sm"
           >
             <Link href="/posts/create">
-              <PlusIcon className="mr-1.5 size-3.5" />
-              Create
+              <Sparkles className="mr-1.5 size-3.5" />
+              Create Investment Campaign
             </Link>
           </Button>
           <div className="flex items-center gap-2 md:gap-3">

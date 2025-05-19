@@ -25,7 +25,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { ImageIcon, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 
 // Define the form schema
@@ -40,6 +40,34 @@ const formSchema = z.object({
   endDate: z.string().min(1, "End date is required"),
   media: z.any().optional(),
   mediaType: z.enum(["image", "video", "audio"]).optional(),
+  imageFile: z.instanceof(File).optional(),
+  collectible: z.boolean().default(false),
+  collectSettings: z
+    .object({
+      price: z.string().default("0"),
+      currency: z.string().default("WGHO"),
+      supply: z.string().default(""),
+    })
+    .optional()
+    .default({
+      price: "0",
+      currency: "WGHO",
+      supply: "",
+    }),
+  investmentMetadata: z
+    .object({
+      category: z.enum(["content", "art", "music", "tech", "writing"]).default("content"),
+      revenueShare: z.string().default("0"),
+      benefits: z.string().default(""),
+      endDate: z.string().default(""),
+    })
+    .optional()
+    .default({
+      category: "content",
+      revenueShare: "0",
+      benefits: "",
+      endDate: "",
+    }),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -49,9 +77,9 @@ export function CreateForm() {
   const { createPost, isLoading } = useCreatePost();
   const [preview, setPreview] = useState<string | null>(null);
 
-  // Initialize form
+  // Initialize form with explicit type
   const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolver(formSchema) as any, // Use 'as any' to bypass the type mismatch
     defaultValues: {
       title: "",
       content: "",
@@ -61,6 +89,7 @@ export function CreateForm() {
       totalSupply: "",
       benefits: "",
       endDate: "",
+      collectible: true,
     },
   });
 
@@ -86,8 +115,8 @@ export function CreateForm() {
     }
   };
 
-  // Submit form data
-  const onSubmit = async (values: FormValues) => {
+  // Submit form data with explicit type
+  const onSubmit: SubmitHandler<FormValues> = async (values) => {
     try {
       // Call our createPost hook with the form values
       const result = await createPost({
@@ -98,7 +127,7 @@ export function CreateForm() {
         collectible: true,
         collectSettings: {
           price: values.amount,
-          currency: "GHO",
+          currency: "WGHO",
           supply: values.totalSupply,
         },
         // Investment metadata
@@ -123,7 +152,7 @@ export function CreateForm() {
     <Card>
       <CardContent className="pt-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
             <FormField
               control={form.control}
               name="title"
@@ -187,7 +216,7 @@ export function CreateForm() {
                 name="amount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Target Amount (GHO)</FormLabel>
+                    <FormLabel>Target Amount (WGHO)</FormLabel>
                     <FormControl>
                       <Input type="text" placeholder="200" {...field} />
                     </FormControl>

@@ -12,6 +12,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { FeedSkeleton } from "./_components/feed-skeleton";
 import { PostCard } from "./_components/post-card";
+import { PostComposer } from "./_components/post-composer";
 import { type Campaign, type Creator, Trending } from "./_components/trending";
 import { TrendingSkeleton } from "./_components/trending-skeleton";
 
@@ -295,6 +296,9 @@ export default function FeedPage() {
       <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
         {/* Main Content - Left Column (Scrollable) */}
         <div className="md:col-span-2">
+          {/* Post Composer */}
+          <PostComposer />
+
           <Tabs
             defaultValue={activeTab}
             value={activeTab}

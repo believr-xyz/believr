@@ -553,7 +553,7 @@ export function PostComposer() {
         <div className="flex-1">
           <Textarea
             placeholder="What's happening?"
-            className="mb-2 min-h-14 max-w-[500px] border-none pt-1 pr-3 pl-0 text-base focus-visible:ring-0"
+            className="mb-2 min-h-14 max-w-[500px] border-none pt-1 pr-3 pl-0 font-medium text-base focus-visible:ring-0"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />

@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import { Bell, Bookmark, Home, Search, Sparkles } from "lucide-react";
+import { Bell, BookmarkSimple, House, Sparkle, Users } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -22,7 +22,7 @@ export function MobileNavigation() {
 
   return (
     <div className="fixed bottom-0 left-0 z-10 w-full border-border border-t bg-background md:hidden">
-      <nav className="grid h-14 grid-cols-5 items-center">
+      <nav className="grid h-16 grid-cols-5 items-center">
         <Link
           href="/feed"
           className={cn(
@@ -30,19 +30,19 @@ export function MobileNavigation() {
             pathname.startsWith("/feed") ? "text-[#00A8FF]" : "text-muted-foreground",
           )}
         >
-          <Home className="size-5" />
-          <span className="text-xs">Home</span>
+          <House className="mb-0.5 size-6" weight="bold" />
+          <span className="font-medium text-xs">Home</span>
         </Link>
 
         <Link
-          href="/explore"
+          href="/groups"
           className={cn(
             "flex flex-col items-center justify-center text-center transition-colors",
-            pathname.startsWith("/explore") ? "text-[#00A8FF]" : "text-muted-foreground",
+            pathname.startsWith("/groups") ? "text-[#00A8FF]" : "text-muted-foreground",
           )}
         >
-          <Search className="size-5" />
-          <span className="text-xs">Explore</span>
+          <Users className="mb-0.5 size-6" weight="bold" />
+          <span className="font-medium text-xs">Believers</span>
         </Link>
 
         <Link
@@ -50,9 +50,20 @@ export function MobileNavigation() {
           className="flex flex-col items-center justify-center text-center"
         >
           <div className="flex size-10 items-center justify-center rounded-full bg-[#00A8FF] text-white">
-            <Sparkles className="size-6" />
+            <Sparkle className="size-6" weight="bold" />
           </div>
-          <span className="text-xs">Campaign</span>
+          <span className="font-medium text-xs">Campaign</span>
+        </Link>
+
+        <Link
+          href="/notifications"
+          className={cn(
+            "flex flex-col items-center justify-center text-center transition-colors",
+            pathname.startsWith("/notifications") ? "text-[#00A8FF]" : "text-muted-foreground",
+          )}
+        >
+          <Bell className="mb-0.5 size-6" weight="bold" />
+          <span className="font-medium text-xs">Alerts</span>
         </Link>
 
         <Link
@@ -62,22 +73,8 @@ export function MobileNavigation() {
             pathname.startsWith("/bookmarks") ? "text-[#00A8FF]" : "text-muted-foreground",
           )}
         >
-          <Bookmark className="size-5" />
-          <span className="text-xs">Saved</span>
-        </Link>
-
-        <Link
-          href="/notifications"
-          className={cn(
-            "relative flex flex-col items-center justify-center text-center transition-colors",
-            pathname.startsWith("/notifications") ? "text-[#00A8FF]" : "text-muted-foreground",
-          )}
-        >
-          <div className="relative">
-            <Bell className="size-5" />
-            {/* Simple static implementation without hooks */}
-          </div>
-          <span className="text-xs">Alerts</span>
+          <BookmarkSimple className="mb-0.5 size-6" weight="bold" />
+          <span className="font-medium text-xs">Saved</span>
         </Link>
       </nav>
     </div>

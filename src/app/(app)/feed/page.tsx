@@ -1,6 +1,5 @@
 "use client";
 
-import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getLensClient, getPublicClient } from "@/lib/lens/client";
@@ -244,56 +243,43 @@ export default function FeedPage() {
 
   return (
     <div className="container mx-auto max-w-5xl pb-12">
-      {/* Mobile Search - Only visible on mobile */}
-      <div className="mb-6 block md:hidden">
-        <SearchBar className="w-full" />
-      </div>
+      {/* Top section with tabs and trending */}
+      <div className="flex flex-col gap-6 md:flex-row">
+        <div className="flex-1">
+          <div className="mb-6">
+            <Tabs
+              defaultValue={activeTab}
+              onValueChange={(value) => setActiveTab(value)}
+              className="w-full"
+            >
+              <TabsList className="w-full">
+                <TabsTrigger value="following" className="flex-1">
+                  Following
+                </TabsTrigger>
+                <TabsTrigger value="for-you" className="flex-1">
+                  For You
+                </TabsTrigger>
+              </TabsList>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3 md:gap-8">
-        {/* Main Content - Left Column (Scrollable) */}
-        <div className="md:col-span-2">
-          {/* Tabs first, at the very top */}
-          <Tabs
-            defaultValue={activeTab}
-            value={activeTab}
-            onValueChange={setActiveTab}
-            className="mb-6 w-full md:w-auto"
-          >
-            <TabsList className="mb-4 grid w-full grid-cols-2">
-              <TabsTrigger value="following">Following</TabsTrigger>
-              <TabsTrigger value="for-you">For You</TabsTrigger>
-            </TabsList>
+              <div className="mt-6">
+                <PostComposer />
+              </div>
 
-            <TabsContent value="following">
-              {/* Post Composer inside tab content */}
-              <PostComposer />
-              <Suspense fallback={<FeedSkeleton />}>
+              <TabsContent value="following" className="mt-6">
                 <FollowingFeed />
-              </Suspense>
-            </TabsContent>
-
-            <TabsContent value="for-you">
-              {/* Post Composer inside tab content */}
-              <PostComposer />
-              <Suspense fallback={<FeedSkeleton />}>
+              </TabsContent>
+              <TabsContent value="for-you" className="mt-6">
                 <ForYouFeed />
-              </Suspense>
-            </TabsContent>
-          </Tabs>
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
 
-        {/* Sidebar - Right Column (Trending, Recommendations) */}
-        <div className="hidden md:block">
-          <div className="sticky top-16 space-y-6">
-            {/* Search bar in the sidebar */}
-            <div className="mt-1">
-              <SearchBar className="w-full" />
-            </div>
-
-            <Suspense fallback={<TrendingSkeleton />}>
-              <TrendingContent />
-            </Suspense>
-          </div>
+        {/* Trending section */}
+        <div className="hidden w-[300px] md:block">
+          <Suspense fallback={<TrendingSkeleton />}>
+            <TrendingContent />
+          </Suspense>
         </div>
       </div>
     </div>

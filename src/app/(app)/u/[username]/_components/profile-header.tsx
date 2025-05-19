@@ -3,6 +3,7 @@
 import { FollowButton } from "@/components/shared/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useFollowers } from "@/hooks/use-followers";
+import { extractMediaUrl } from "@/lib/url-utils";
 import { Account, AccountStats } from "@lens-protocol/client";
 import { User } from "@phosphor-icons/react";
 import Image from "next/image";
@@ -59,31 +60,11 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
   const name = account.metadata?.name || username;
   const bio = account.metadata?.bio;
 
-  // Handle picture which could be in different formats
-  const processPictureUrl = (picture: any): string => {
-    if (!picture) return "";
-
-    if (typeof picture === "string") {
-      return picture;
-    }
-
-    // Try different image formats from Lens Protocol
-    if (picture.optimized?.uri) {
-      return picture.optimized.uri;
-    }
-
-    if (picture.raw?.uri) {
-      return picture.raw.uri;
-    }
-
-    return picture.item || picture.original?.url || "";
-  };
-
   // Get profile picture
-  const picture = processPictureUrl(account.metadata?.picture);
+  const picture = extractMediaUrl(account.metadata?.picture);
 
   // Get cover picture
-  const coverPicture = processPictureUrl(
+  const coverPicture = extractMediaUrl(
     (account.metadata as any)?.coverPhoto || account.metadata?.coverPicture,
   );
 

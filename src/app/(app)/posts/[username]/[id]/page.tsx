@@ -9,6 +9,8 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { usePostComment } from "@/hooks/use-post-comment";
+import { FormatPostContent } from "@/lib/format-content";
 import { getLensClient } from "@/lib/lens/client";
 import { Post, PostReferenceType, postId } from "@lens-protocol/client";
 import { fetchPost, fetchPostReferences } from "@lens-protocol/client/actions";
@@ -387,7 +389,9 @@ export default function PostPage() {
                 </div>
               )}
 
-              <div className="whitespace-pre-line text-base">{content}</div>
+              <div className="whitespace-pre-line text-base">
+                <FormatPostContent content={content} />
+              </div>
 
               {/* Investment Terms */}
               {isInvestmentPost && investmentTerms && (

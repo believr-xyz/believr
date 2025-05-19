@@ -63,6 +63,54 @@ const nextConfig: NextConfig = {
         hostname: "**cdn.lens.xyz",
         pathname: "**",
       },
+      // Additional IPFS and Arweave gateways
+      {
+        protocol: "https",
+        hostname: "gateway.pinata.cloud",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "gateway.ipfs.io",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "ipfs.nftstorage.link",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "cloudflare-ipfs.com",
+        pathname: "**",
+      },
+      // Lens Protocol specific domains
+      {
+        protocol: "https",
+        hostname: "ik.imagekit.io",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "**lens.xyz",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "**lenster.xyz",
+        pathname: "**",
+      },
+      {
+        protocol: "https",
+        hostname: "**lensprotocol.xyz",
+        pathname: "**",
+      },
+      // Allow any domain for development
+      {
+        protocol: "https",
+        hostname: "**",
+        pathname: "**",
+      },
     ],
   },
 };

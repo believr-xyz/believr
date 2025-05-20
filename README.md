@@ -1,63 +1,41 @@
 <a href="https://believr.fun">
-  <img alt="Believr – Co-invest in creators you believe in" src="/public/cover.png">
+  <img alt="Believr – Co-invest in creators you believe in" src="/public/banner.png">
   <h1 align="center">Believr</h1>
 </a>
 
 <p align="center">
-  A decentralized social platform where early believers co-invest in creators they believe in and share in their rise. Built on Lens Protocol, it enables creators to launch tokenized posts or campaigns to gain support, while backers earn rewards, access, and a stake in their journey.
+A decentralized social platform where early backers co-invest in creators they believe in and share in their rise. Powered by Lens Protocol, it enables creators to launch tokenized campaigns to raise support, while backers earn rewards, access, and a stake in their journey.
 </p>
 
 ## Problem
 
-### For Creators
-
-- **Value Capture**: Struggle to capture the value they create, especially from their most dedicated supporters
-- **Platform Dependency**: Rely heavily on platform algorithms and advertising for monetization
-- **Community Recognition**: No way to reward and recognize early supporters who believed in them before success
-- **Fan Engagement**: Limited tools to build meaningful relationships with their most valuable supporters
-
-### For Fans
-
-- **Early Support**: No way to be recognized for supporting creators before they became successful
-- **Value Sharing**: Can't share in the success of creators they believed in early
-- **Access**: Limited opportunities to get exclusive access to creators they support
-- **Engagement**: Traditional platforms don't facilitate meaningful creator-fan relationships
+Creators have big project ideas but struggle to raise early support, while fans who believe in them have no real way to belong, benefit, or share in their success — there’s no shared upside; fans become donors, not co-owners.
 
 ## Solution
 
-Believr introduces a novel approach to creator-fan relationships:
-
-### For Creators
-
-- **Tokenized Content**: Convert posts into investable assets, creating new revenue streams
-- **Direct Monetization**: Earn directly from your most dedicated supporters, reducing platform dependency
-- **Community Building**: Build stronger relationships with early supporters through token ownership
-- **Value Recognition**: Reward and recognize early believers through token appreciation
-
-### For Fans
-
-- **Early Investment**: Get in early on creators you believe in through tokenized posts
-- **Value Appreciation**: Share in creators' success as their tokens appreciate in value
-- **Exclusive Access**: Gain special access and rewards as an early supporter
-- **Meaningful Connection**: Build deeper relationships with creators through token ownership
+Believr is a decentralized platform where fans co-invest in creators by collecting tokenized posts, becoming co-owners with rewards, revenue share, and a stake in their success — all on-chain and community-owned.
 
 ## Features
 
-- **Login with Lens Profile**
-  Sign in by connecting your wallet and Lens profile.
-
-- **Tokenized Creator Posts**
-  Creators can launch tokenized posts to gain early backing from their community.
-
-- **Believer Co-Investing**
-  Back your favorite creators early by collecting tokenized posts to earn rewards, exclusive access, and a stake in their journey.
-
-- **Lens-Powered Social Layer**
-  Creators and believers connect, share, and engage in a community-led space powered by Lens Protocol's social primitives.
+- **Creator Campaigns** – Launch tokenized posts to raise funds directly from your community.
+- **Fan Co-Investment** – Fans can collect and co-invest to gain ownership and rewards from their favorite creators.
+- **Revenue Sharing** – Supporters earn a stake in a creator’s future success.
+- **Exclusive Access** – Unlock gated content and private communities from creators.
+- **Community-Owned** – Transparent, on-chain relationships with no intermediaries.
 
 ## How it Works
 
-### Architectural Diagram
+### For Creators
+
+- Raise early funds directly from your true believers
+- Build a loyal, invested community — not just followers
+- Share success with the people who backed you from day one
+
+### For Believers:
+
+- Support creators you believe in — and share in their rise
+- Get exclusive access, rewards, and real ownership
+- Be more than a follower — be part of the story
 
 ## Tech Stack
 
@@ -74,6 +52,14 @@ Believr introduces a novel approach to creator-fan relationships:
 - **Charts & Visualization**: [Recharts](https://recharts.org/)
 - **Icons**: [Lucide React](https://lucide.dev/guide/packages/lucide-react)
 - **Notifications**: [Sonner](https://sonner.emilkowal.ski/)
+
+## Lens Protocol Integration
+
+- **Profiles** – Used for on-chain identities and unique handles for both fans and creators.
+- **Lens Graph (Follows)** – Enables social discovery and relationship building by letting fans find and follow creators.
+- **Posts** – Power project campaigns, creator updates, and tokenized content directly on-chain.
+- **Collect Modules** – Allow fans to co-invest in creator posts, enabling ownership, rewards, and funding mechanics.
+- **Groups** – Enable gated community access for collectors and top supporters, fostering exclusive creator-fan spaces.
 
 ## Setup
 
@@ -115,27 +101,12 @@ Believr introduces a novel approach to creator-fan relationships:
 
    Open [http://localhost:3000](http://localhost:3000) in your browser
 
-## Guide
-
-### Project Structure
-
-```
-src/
-├── app/                    # Next.js app directory (pages and layouts)
-├── components/            # Reusable React components
-├── hooks/                # Custom React hooks
-├── lib/                  # Utility functions and shared logic
-├── contracts/           # Smart contract interactions and ABIs
-├── styles/              # Global styles and Tailwind configurations
-└── env.ts               # Environment configuration
-```
-
 ## Roadmap
 
-- [ ]
-- [ ]
-- [ ]
-- [ ]
+- [ ] Fully implement tokenized collection actions
+- [ ] Complete gated community rules and access controls
+- [ ] Implement creator dashboard for campaign and earnings
+- [ ] Implement off-chain revenue sharing mechanisms
 
 ## Contributing
 

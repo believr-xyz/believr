@@ -97,13 +97,14 @@ export function PostComposer() {
           // Fetch user's groups - using the correct filter API
           const groupsResult = await fetchGroups(client, {
             filter: {
-              member: user.address,
+              member: evmAddress(user.address),
             },
           });
 
           if (groupsResult.isOk() && isMounted) {
             // Convert readonly array to mutable array
             const groupsData = [...groupsResult.value.items];
+            console.log("Fetched groups:", groupsData); // Debug: Log fetched groups
             setGroups(groupsData);
 
             // Cache successful results
@@ -119,6 +120,9 @@ export function PostComposer() {
             } catch (error) {
               console.error("Error storing cache:", error);
             }
+          } else if (groupsResult.isErr()) {
+            // Log the specific error for debugging
+            console.error("Failed to fetch groups:", groupsResult.error);
           }
         } catch (error) {
           console.error("Failed to fetch account:", error);
@@ -585,18 +589,31 @@ export function PostComposer() {
             </Tabs>
 
             {postTarget === "group" && (
-              <select
-                className="mt-2 w-full rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-[#00A8FF]"
-                value={selectedGroupId}
-                onChange={(e) => setSelectedGroupId(e.target.value)}
-              >
-                <option value="">Select a group</option>
-                {groups.map((group) => (
-                  <option key={group.address} value={group.address}>
-                    {group.metadata?.name || group.address.substring(0, 8)}
-                  </option>
-                ))}
-              </select>
+              <div className="relative">
+                <select
+                  className="mt-2 w-full rounded-md border border-input bg-transparent px-3 py-1 text-xs shadow-sm focus:outline-none focus:ring-1 focus:ring-[#00A8FF]"
+                  value={selectedGroupId}
+                  onChange={(e) => setSelectedGroupId(e.target.value)}
+                >
+                  <option value="">Select a group</option>
+                  {groups && groups.length > 0 ? (
+                    groups.map((group) => (
+                      <option key={group.address} value={group.address}>
+                        {group.metadata?.name || group.address.substring(0, 8)}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="" disabled>
+                      No groups found
+                    </option>
+                  )}
+                </select>
+                {groups.length === 0 && (
+                  <p className="mt-1 text-muted-foreground text-xs">
+                    You're not a member of any groups yet
+                  </p>
+                )}
+              </div>
             )}
           </div>
 

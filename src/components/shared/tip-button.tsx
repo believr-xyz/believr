@@ -8,12 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getLensClient } from "@/lib/lens/client";
 import { SessionClient, evmAddress } from "@lens-protocol/client";
 import { executeAccountAction } from "@lens-protocol/client/actions";
@@ -27,11 +22,7 @@ export interface TipButtonProps {
   className?: string;
 }
 
-export function TipButton({
-  authorAddress,
-  username,
-  className = "",
-}: TipButtonProps) {
+export function TipButton({ authorAddress, username, className = "" }: TipButtonProps) {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [tipAmount, setTipAmount] = useState("1");
@@ -66,9 +57,7 @@ export function TipButton({
             tipping: {
               value: tipAmount,
               // WGHO token address on Lens Chain testnet
-              currency: evmAddress(
-                "0xD1C132923c7A6565DE4147A9896CAE867777132d"
-              ),
+              currency: evmAddress("0xD1C132923c7A6565DE4147A9896CAE867777132d"),
             },
           },
         });
@@ -129,7 +118,7 @@ export function TipButton({
             </p>
 
             <div className="flex flex-col gap-2">
-              <label htmlFor="tipAmount" className="text-sm font-medium">
+              <label htmlFor="tipAmount" className="font-medium text-sm">
                 Amount (WGHO):
               </label>
               <input
@@ -144,11 +133,7 @@ export function TipButton({
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowModal(false)}
-              disabled={isLoading}
-            >
+            <Button variant="outline" onClick={() => setShowModal(false)} disabled={isLoading}>
               Cancel
             </Button>
             <Button onClick={handleTip} disabled={isLoading} className="gap-1">

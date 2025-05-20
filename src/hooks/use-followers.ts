@@ -55,8 +55,12 @@ export function useFollowers({
   const [isLoadingFollowers, setIsLoadingFollowers] = useState(false);
   const [isLoadingFollowing, setIsLoadingFollowing] = useState(false);
   const [error, setError] = useState<Error | null>(null);
-  const [followersCursor, setFollowersCursor] = useState<string | undefined>(undefined);
-  const [followingCursor, setFollowingCursor] = useState<string | undefined>(undefined);
+  const [followersCursor, setFollowersCursor] = useState<string | undefined>(
+    undefined
+  );
+  const [followingCursor, setFollowingCursor] = useState<string | undefined>(
+    undefined
+  );
 
   // Function to load followers
   const loadFollowers = useCallback(
@@ -86,7 +90,9 @@ export function useFollowers({
         // Map the results to a simpler format
         const followerItems = result.value.items.map((follower: any) => ({
           address: follower.follower.address,
-          handle: follower.follower.username?.value || follower.follower.address.slice(0, 8),
+          handle:
+            follower.follower.username?.value ||
+            follower.follower.address.slice(0, 8),
           picture:
             typeof follower.follower.metadata?.picture === "string"
               ? follower.follower.metadata.picture
@@ -116,7 +122,7 @@ export function useFollowers({
         setIsLoadingFollowers(false);
       }
     },
-    [accountAddress, pageSize],
+    [accountAddress, pageSize]
   );
 
   // Function to load following
@@ -147,7 +153,9 @@ export function useFollowers({
         // Map the results to a simpler format
         const followingItems = result.value.items.map((follow: any) => ({
           address: follow.following.address,
-          handle: follow.following.username?.value || follow.following.address.slice(0, 8),
+          handle:
+            follow.following.username?.value ||
+            follow.following.address.slice(0, 8),
           picture:
             typeof follow.following.metadata?.picture === "string"
               ? follow.following.metadata.picture
@@ -177,7 +185,7 @@ export function useFollowers({
         setIsLoadingFollowing(false);
       }
     },
-    [accountAddress, pageSize],
+    [accountAddress, pageSize]
   );
 
   // Function to fetch more followers (pagination)

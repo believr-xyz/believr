@@ -207,7 +207,7 @@ function TrendingContent() {
   const topCreators: Creator[] = data.items
     .filter((post): post is Post => post.__typename === "Post")
     .slice(0, 3)
-    .map((post) => {
+    .map((post, index) => {
       const author = post.author;
       const username = author.username?.value?.split("/").pop() || author.address.substring(0, 8);
 
@@ -220,7 +220,7 @@ function TrendingContent() {
       }
 
       return {
-        id: author.address,
+        id: `${author.address}-${index}`,
         name: author.metadata?.name || username,
         username: username,
         picture: picture,

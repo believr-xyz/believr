@@ -78,7 +78,7 @@ export function PostCard({ post }: PostCardProps) {
               className="h-full w-full object-cover"
               onClick={(e) => e.stopPropagation()}
             >
-              <track kind="captions" src="" label="English" srcLang="en" default />
+              <track kind="captions" label="English" srcLang="en" default />
               Your browser does not support the video element.
             </video>
           </div>
@@ -107,7 +107,7 @@ export function PostCard({ post }: PostCardProps) {
           </div>
           <audio controls className="w-full" onClick={(e) => e.stopPropagation()}>
             <source src={audioUrl} />
-            <track kind="captions" src="" label="English" srcLang="en" default />
+            <track kind="captions" label="English" srcLang="en" default />
             Your browser does not support the audio element.
           </audio>
         </div>

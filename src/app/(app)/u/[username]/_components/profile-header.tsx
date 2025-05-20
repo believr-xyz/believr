@@ -56,7 +56,9 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
   };
 
   // Extract data from the Lens account
-  const username = account.username?.value || account.address.substring(0, 8);
+  const username = account.username?.value
+    ? account.username.value.split("/").pop() || account.username.value
+    : account.address.substring(0, 8);
   const name = account.metadata?.name || username;
   const bio = account.metadata?.bio;
 
@@ -71,7 +73,7 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
   return (
     <div>
       {/* Cover image */}
-      <div className="relative mb-8 h-48 w-full overflow-hidden rounded-xl md:h-64">
+      <div className="relative mb-16 h-48 w-full overflow-hidden rounded-xl md:h-64">
         {coverPicture && !coverImageError ? (
           <Image
             src={coverPicture}
@@ -90,7 +92,7 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
         )}
 
         {/* Profile avatar - positioned to overlap cover and content */}
-        <div className="absolute bottom-[-24px] left-4 rounded-full border-4 border-background md:left-8">
+        <div className="absolute bottom-[-40px] left-6 rounded-full border-4 border-background md:left-8">
           <Avatar className="size-32">
             {picture && !profileImageError ? (
               <AvatarImage
@@ -131,21 +133,12 @@ export function ProfileHeader({ account, stats, onFollowChange }: ProfileHeaderP
 
           <div className="mt-4 flex flex-wrap gap-8 text-sm md:mt-0">
             <div>
-              <span className="font-semibold">{stats?.feedStats?.posts || 0}</span>
-              <span className="ml-1 text-muted-foreground">Posts</span>
-            </div>
-            <div>
               <span className="font-semibold">{followerCount}</span>
               <span className="ml-1 text-muted-foreground">Followers</span>
             </div>
             <div>
               <span className="font-semibold">{followingCount}</span>
               <span className="ml-1 text-muted-foreground">Following</span>
-            </div>
-            {/* Display collects as believers */}
-            <div>
-              <span className="font-semibold">{stats?.feedStats?.collects || 0}</span>
-              <span className="ml-1 text-muted-foreground">Believers</span>
             </div>
           </div>
         </div>

@@ -28,9 +28,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex min-h-screen flex-col bg-[#F7F8F9] dark:bg-background">
       <Header />
-      <main className="mx-auto mt-16 w-full max-w-6xl flex-1 md:mt-20">
-        {children}
-      </main>
+      <main className="mx-auto mt-16 w-full max-w-6xl flex-1 md:mt-20">{children}</main>
       <MobileNavigation />
     </div>
   );

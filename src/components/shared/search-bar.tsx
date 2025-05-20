@@ -19,13 +19,14 @@ export function SearchBar({ className }: SearchBarProps) {
   const [showResults, setShowResults] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [searchFilter, setSearchFilter] = useState<any>(undefined);
   const resultsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
 
-  // Use the Lens useAccounts hook to search for profiles
-  const { data, loading, error } = useAccounts({
-    filter:
+  // Update search filter when query changes
+  useEffect(() => {
+    setSearchFilter(
       query.length > 1
         ? {
             searchBy: {
@@ -33,6 +34,12 @@ export function SearchBar({ className }: SearchBarProps) {
             },
           }
         : undefined,
+    );
+  }, [query]);
+
+  // Use the Lens useAccounts hook to search for profiles
+  const { data, loading, error } = useAccounts({
+    filter: searchFilter,
     orderBy: "BEST_MATCH",
     pageSize: PageSize.Ten,
   });

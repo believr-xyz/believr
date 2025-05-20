@@ -327,15 +327,10 @@ function ProfileContent({ username }: { username: string }) {
 
   return (
     <div className="w-full px-4 pb-12 md:px-6">
-      {/* Mobile Search - Only visible on mobile */}
-      <div className="mb-6 block md:hidden">
-        <SearchBar className="w-full" />
-      </div>
-
-      {/* Grid layout for main content and sidebar */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-[1fr,320px] md:gap-8">
-        {/* Main Profile Content */}
-        <div>
+      {/* Grid layout for main content and sidebar - Structure similar to feed page */}
+      <div className="flex flex-col gap-6 md:flex-row">
+        {/* Main Profile Content - Takes full width on mobile, flex-1 on desktop */}
+        <div className="flex-1">
           <ProfileHeader
             account={account}
             stats={accountStats}
@@ -401,14 +396,9 @@ function ProfileContent({ username }: { username: string }) {
           </div>
         </div>
 
-        {/* Right Sidebar - Sticky */}
-        <div className="hidden md:block">
-          <div className="sticky top-16 space-y-6">
-            {/* Search bar in the sidebar */}
-            <div className="mt-1">
-              <SearchBar className="w-full" />
-            </div>
-
+        {/* Right Sidebar - Fixed width on desktop, hidden on mobile */}
+        <div className="hidden w-[320px] md:block">
+          <div className="sticky top-20 space-y-6">
             <Suspense fallback={<TrendingSkeleton />}>
               <TrendingContent />
             </Suspense>

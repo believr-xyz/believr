@@ -1,5 +1,5 @@
 <a href="https://believr.fun">
-  <img alt="Believr – Co-invest in creators you believe in" src="/public/banner.png">
+  <img alt="Believr – Co-invest in creators you believe in" src="./public/banner.png">
   <h1 align="center">Believr</h1>
 </a>
 

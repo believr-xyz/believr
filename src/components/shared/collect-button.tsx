@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getLensClient } from "@/lib/lens/client";
+import { formatLensError, logLensError } from "@/lib/lens/error-handler";
 import { cn } from "@/lib/utils";
 import { SessionClient, postId as createPostId } from "@lens-protocol/client";
 import { executePostAction } from "@lens-protocol/client/actions";
@@ -71,45 +72,48 @@ export function CollectButton({
       // Create a post ID from the string
       const lensPostId = createPostId(postId);
 
-      try {
-        // Execute the post action to collect
-        const result = await executePostAction(sessionClient, {
-          post: lensPostId,
-          action: {
-            simpleCollect: {
-              selected: true,
-            },
+      // Execute the post action to collect
+      const result = await executePostAction(sessionClient, {
+        post: lensPostId,
+        action: {
+          simpleCollect: {
+            selected: true,
           },
-        });
+        },
+      });
 
-        if (result.isErr()) {
-          console.error("Failed to collect post:", result.error);
-          toast.error("Failed to collect post");
-          setIsLoading(false);
-          return;
-        }
-
-        setShowModal(false);
-
-        // Update internal state if not controlled externally
-        if (externalHasCollected === undefined) {
-          setInternalHasCollected(true);
-          setInternalCollectCount((prev) => prev + 1);
-        }
-
-        // Notify parent component if callback provided
-        if (onCollectChange) {
-          onCollectChange(true, currentCollectCount + 1);
-        }
-
-        toast.success("Post collected successfully!");
-      } catch (error) {
-        console.error("Failed to collect post:", error);
-        toast.error("Failed to collect post");
+      if (result.isErr()) {
+        // Use our custom error handler for better error messages
+        logLensError("collecting post", result.error);
+        toast.error(`Failed to collect: ${formatLensError(result.error)}`);
+        setIsLoading(false);
+        return;
       }
+
+      // The operation completed successfully
+      const txHash = "hash" in result.value ? result.value.hash : null;
+      if (txHash) {
+        console.log("Collection transaction hash:", txHash);
+      }
+
+      setShowModal(false);
+
+      // Update internal state if not controlled externally
+      if (externalHasCollected === undefined) {
+        setInternalHasCollected(true);
+        setInternalCollectCount((prev) => prev + 1);
+      }
+
+      // Notify parent component if callback provided
+      if (onCollectChange) {
+        onCollectChange(true, currentCollectCount + 1);
+      }
+
+      toast.success("Post collected successfully!");
     } catch (error) {
-      console.error("Error collecting post:", error);
-      toast.error("Failed to collect post");
+      // Use our custom error handler for general errors
+      logLensError("collect initialization", error);
+      toast.error(`Failed to collect: ${formatLensError(error)}`);
     } finally {
       setIsLoading(false);
     }

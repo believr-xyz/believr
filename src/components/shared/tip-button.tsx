@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getLensClient } from "@/lib/lens/client";
+import { formatLensError, logLensError } from "@/lib/lens/error-handler";
 import { SessionClient, evmAddress } from "@lens-protocol/client";
 import { executeAccountAction } from "@lens-protocol/client/actions";
 import { CurrencyDollar } from "@phosphor-icons/react";
@@ -50,34 +51,41 @@ export function TipButton({ authorAddress, username, className = "" }: TipButton
 
       try {
         // Execute the account action to tip
-        // Note: This is using WGHO token on Lens Chain for tips
+        // Note: Using the correct WGHO token address on Lens Chain mainnet
         const result = await executeAccountAction(sessionClient, {
           account: evmAddress(authorAddress),
           action: {
             tipping: {
               value: tipAmount,
-              // WGHO token address on Lens Chain testnet
-              currency: evmAddress("0xD1C132923c7A6565DE4147A9896CAE867777132d"),
+              // Correct WGHO token address on Lens Chain mainnet
+              currency: evmAddress("0x6bDc36E20D267Ff0dd6097799f82e78907105e2F"),
             },
           },
         });
 
         if (result.isErr()) {
-          console.error("Failed to tip:", result.error);
-          toast.error(`Failed to tip: ${result.error.message}`);
+          // Use our custom error handler to format the error message
+          logLensError("tipping", result.error);
+          toast.error(`Failed to tip: ${formatLensError(result.error)}`);
           setIsLoading(false);
           return;
+        }
+
+        // The operation completed successfully
+        const txHash = "hash" in result.value ? result.value.hash : null;
+        if (txHash) {
+          console.log("Tip transaction hash:", txHash);
         }
 
         setShowModal(false);
         toast.success(`Successfully tipped ${tipAmount} WGHO!`);
       } catch (error) {
-        console.error("Failed to tip:", error);
-        toast.error("Failed to send tip");
+        logLensError("tip execution", error);
+        toast.error(`Failed to send tip: ${formatLensError(error)}`);
       }
     } catch (error) {
-      console.error("Error tipping:", error);
-      toast.error("Failed to send tip");
+      logLensError("tip initialization", error);
+      toast.error(`Error tipping: ${formatLensError(error)}`);
     } finally {
       setIsLoading(false);
     }

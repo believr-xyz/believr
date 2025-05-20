@@ -2,17 +2,29 @@
 
 import { BelieveButton } from "@/components/shared/believe-button";
 import { BookmarkToggleButton } from "@/components/shared/bookmark-toggle-button";
+import { CollectButton } from "@/components/shared/collect-button";
 import { CommentButton } from "@/components/shared/comment-button";
 import { ImageModal } from "@/components/shared/image-modal";
 import { ReactionButton } from "@/components/shared/reaction-button";
 import { RepostQuoteButton } from "@/components/shared/repost-quote-button";
+import { TipButton } from "@/components/shared/tip-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { useLensPostUtils } from "@/hooks/use-lens-post-utils";
 import { FormatPostContent } from "@/lib/format-content";
 import { cn } from "@/lib/utils";
 import { AnyPost, Post } from "@lens-protocol/client";
-import { CurrencyDollar, Image as ImageIcon, MusicNote, Video } from "@phosphor-icons/react";
+import {
+  CurrencyDollar,
+  Image as ImageIcon,
+  MusicNote,
+  Video,
+} from "@phosphor-icons/react";
 import { formatDistanceToNow } from "date-fns";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -38,6 +50,7 @@ export function PostCard({ post }: PostCardProps) {
   const username = postUtils.getUsername(typedPost);
   const profilePicture = postUtils.getProfilePicture(typedPost);
   const isCollectible = postUtils.isCollectible(typedPost);
+  const collectLimit = postUtils.getCollectLimit(typedPost);
 
   // Create formatted date
   const timestamp = new Date(typedPost.timestamp);
@@ -46,7 +59,10 @@ export function PostCard({ post }: PostCardProps) {
   let mediaElement = null;
 
   // Handle Image metadata
-  if (typedPost.metadata.__typename === "ImageMetadata" && typedPost.metadata.image) {
+  if (
+    typedPost.metadata.__typename === "ImageMetadata" &&
+    typedPost.metadata.image
+  ) {
     const imageUrl = postUtils.getImageUrl(typedPost);
 
     if (imageUrl) {
@@ -63,7 +79,10 @@ export function PostCard({ post }: PostCardProps) {
   }
 
   // Handle Video metadata
-  else if (typedPost.metadata.__typename === "VideoMetadata" && typedPost.metadata.video) {
+  else if (
+    typedPost.metadata.__typename === "VideoMetadata" &&
+    typedPost.metadata.video
+  ) {
     const videoUrl = postUtils.getVideoUrl(typedPost);
     const posterUrl = postUtils.getVideoPosterUrl(typedPost);
 
@@ -78,7 +97,13 @@ export function PostCard({ post }: PostCardProps) {
               className="h-full w-full object-cover"
               onClick={(e) => e.stopPropagation()}
             >
-              <track kind="captions" src="" label="English" srcLang="en" default />
+              <track
+                kind="captions"
+                src=""
+                label="English"
+                srcLang="en"
+                default
+              />
               Your browser does not support the video element.
             </video>
           </div>
@@ -95,7 +120,10 @@ export function PostCard({ post }: PostCardProps) {
   }
 
   // Handle Audio metadata
-  else if (typedPost.metadata.__typename === "AudioMetadata" && typedPost.metadata.audio) {
+  else if (
+    typedPost.metadata.__typename === "AudioMetadata" &&
+    typedPost.metadata.audio
+  ) {
     const audioUrl = postUtils.getAudioUrl(typedPost);
 
     if (audioUrl) {
@@ -105,9 +133,19 @@ export function PostCard({ post }: PostCardProps) {
             <MusicNote className="size-6 text-primary" weight="bold" />
             <span className="font-medium">{postUtils.getTitle(typedPost)}</span>
           </div>
-          <audio controls className="w-full" onClick={(e) => e.stopPropagation()}>
+          <audio
+            controls
+            className="w-full"
+            onClick={(e) => e.stopPropagation()}
+          >
             <source src={audioUrl} />
-            <track kind="captions" src="" label="English" srcLang="en" default />
+            <track
+              kind="captions"
+              src=""
+              label="English"
+              srcLang="en"
+              default
+            />
             Your browser does not support the audio element.
           </audio>
         </div>
@@ -115,22 +153,27 @@ export function PostCard({ post }: PostCardProps) {
     }
   }
 
-  // Check if post has a collect action and collect limit
-  const collectLimit = postUtils.getCollectLimit(typedPost);
-
   // Handle navigation to post detail page
   const navigateToPostDetail = () => {
     router.push(`/posts/${username}/${typedPost.id}`);
   };
 
   return (
-    <Card className="cursor-pointer overflow-hidden" onClick={navigateToPostDetail}>
+    <Card
+      className="cursor-pointer overflow-hidden"
+      onClick={navigateToPostDetail}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
           <Avatar className="size-10">
-            <AvatarImage src={profilePicture} alt={typedPost.author.metadata?.name || username} />
+            <AvatarImage
+              src={profilePicture}
+              alt={typedPost.author.metadata?.name || username}
+            />
             <AvatarFallback>
-              {(typedPost.author.metadata?.name?.[0] || username[0])?.toUpperCase()}
+              {(
+                typedPost.author.metadata?.name?.[0] || username[0]
+              )?.toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
@@ -175,21 +218,38 @@ export function PostCard({ post }: PostCardProps) {
             />
             <RepostQuoteButton
               postId={typedPost.id}
-              count={(typedPost.stats?.reposts || 0) + (typedPost.stats?.quotes || 0)}
+              count={
+                (typedPost.stats?.reposts || 0) + (typedPost.stats?.quotes || 0)
+              }
             />
             <ReactionButton
               postId={typedPost.id}
               reactionCount={typedPost.stats?.upvotes || 0}
               isReacted={typedPost.operations?.hasUpvoted}
             />
+            {isCollectible && (
+              <CollectButton
+                postId={typedPost.id}
+                username={username}
+                collectCount={typedPost.stats?.collects || 0}
+                collectLimit={collectLimit}
+                hasSimpleCollected={typedPost.operations?.hasSimpleCollected}
+              />
+            )}
           </div>
 
           <div className="flex gap-2">
+            <TipButton
+              authorAddress={typedPost.author.address}
+              username={username}
+            />
             <BookmarkToggleButton
               postId={typedPost.id}
               isBookmarked={typedPost.operations?.hasBookmarked}
             />
-            {isCollectible && <BelieveButton postId={typedPost.id} username={username} />}
+            {isCollectible && (
+              <BelieveButton postId={typedPost.id} username={username} />
+            )}
           </div>
         </div>
       </CardFooter>

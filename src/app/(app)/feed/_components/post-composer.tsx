@@ -3,10 +3,18 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useLensGroups } from "@/hooks/use-lens-groups";
 import { useMediaCompression } from "@/hooks/use-media-compression";
 import { getLensClient } from "@/lib/lens/client";
@@ -33,7 +41,15 @@ import {
   video,
 } from "@lens-protocol/metadata";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import { File, FilmStrip, Image, Smiley, UsersThree } from "@phosphor-icons/react";
+import {
+  CurrencyDollar,
+  File,
+  FilmStrip,
+  Image,
+  Smiley,
+  Star,
+  UsersThree,
+} from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -53,6 +69,8 @@ export function PostComposer() {
   const [postTarget, setPostTarget] = useState<PostTarget>("global");
   const [selectedGroupId, setSelectedGroupId] = useState<string>("");
   const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
+  const [isCollectible, setIsCollectible] = useState(false);
+  const [collectLimit, setCollectLimit] = useState<number | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { compressImage } = useMediaCompression();
@@ -106,7 +124,7 @@ export function PostComposer() {
               JSON.stringify({
                 account,
                 timestamp: Date.now(),
-              }),
+              })
             );
           } catch (error) {
             console.error("Error storing cache:", error);
@@ -118,7 +136,9 @@ export function PostComposer() {
           if (retryCount < maxRetries && isMounted) {
             const delay = 2 ** retryCount * 1000; // Exponential backoff
             retryCount++;
-            console.log(`Retrying fetch (${retryCount}/${maxRetries}) after ${delay}ms`);
+            console.log(
+              `Retrying fetch (${retryCount}/${maxRetries}) after ${delay}ms`
+            );
             setTimeout(fetchWithRetry, delay);
           }
         }
@@ -359,16 +379,23 @@ export function PostComposer() {
         if (uploadResult.success && uploadResult.uri) {
           mediaURI = uploadResult.uri;
         } else {
-          toast.error(`Failed to upload media: ${uploadResult.error || "Unknown error"}`, {
-            id: toastId,
-          });
+          toast.error(
+            `Failed to upload media: ${uploadResult.error || "Unknown error"}`,
+            {
+              id: toastId,
+            }
+          );
           setIsLoading(false);
           return;
         }
       }
 
       // Create metadata based on media type
-      let metadata: ImageMetadata | VideoMetadata | AudioMetadata | TextOnlyMetadata;
+      let metadata:
+        | ImageMetadata
+        | VideoMetadata
+        | AudioMetadata
+        | TextOnlyMetadata;
 
       if (mediaURI && selectedFile) {
         if (mediaType === "image") {
@@ -413,12 +440,25 @@ export function PostComposer() {
       // Upload metadata
       const { uri } = await storageClient.uploadAsJson(metadata);
 
-      // Create post with properly typed group ID if posting to a group
+      // Create post request with properly typed group ID if posting to a group
       const postRequest = {
         contentUri: uri,
         // Properly convert group ID to EVM address format when targeting a group
         ...(postTarget === "group" && selectedGroupId
           ? { groupId: evmAddress(selectedGroupId) }
+          : {}),
+        // Add collect action if collectible is enabled
+        ...(isCollectible
+          ? {
+              actions: [
+                {
+                  simpleCollect: {
+                    ...(collectLimit ? { collectLimit } : {}),
+                    isImmutable: true,
+                  },
+                },
+              ],
+            }
           : {}),
       };
 
@@ -431,6 +471,8 @@ export function PostComposer() {
         setPreviewUrl(null);
         setMediaType(null);
         setVideoThumbnail(null);
+        setIsCollectible(false);
+        setCollectLimit(null);
         router.refresh();
       } else {
         console.error("Failed to create post:", result.error);
@@ -440,7 +482,8 @@ export function PostComposer() {
       }
     } catch (error) {
       console.error("Error creating post:", error);
-      const errorMessage = error instanceof Error ? error.message : "Unknown error";
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
       toast.error(`Error creating post: ${errorMessage}`, { id: toastId });
     } finally {
       setIsLoading(false);
@@ -469,7 +512,10 @@ export function PostComposer() {
       }
 
       // Check if URL is from IPFS and do some sanitization
-      if (fallbackUrl && (fallbackUrl.startsWith("ipfs://") || fallbackUrl.includes("ipfs"))) {
+      if (
+        fallbackUrl &&
+        (fallbackUrl.startsWith("ipfs://") || fallbackUrl.includes("ipfs"))
+      ) {
         // Ensure proper gateway format
         fallbackUrl = fallbackUrl.replace("ipfs://", "https://ipfs.io/ipfs/");
       }
@@ -492,10 +538,18 @@ export function PostComposer() {
     return (
       <div className="relative mb-2 overflow-hidden rounded-md">
         {mediaType === "image" && (
-          <img src={previewUrl} alt="Preview" className="max-h-48 w-auto rounded-md" />
+          <img
+            src={previewUrl}
+            alt="Preview"
+            className="max-h-48 w-auto rounded-md"
+          />
         )}
         {mediaType === "video" && (
-          <video controls src={previewUrl} className="max-h-48 w-auto rounded-md">
+          <video
+            controls
+            src={previewUrl}
+            className="max-h-48 w-auto rounded-md"
+          >
             <track kind="captions" src="" label="Captions" />
           </video>
         )}
@@ -504,7 +558,9 @@ export function PostComposer() {
             <audio controls src={previewUrl} className="w-full">
               <track kind="captions" src="" label="Captions" />
             </audio>
-            <p className="mt-1 text-gray-500 text-sm">Audio: {selectedFile?.name}</p>
+            <p className="mt-1 text-gray-500 text-sm">
+              Audio: {selectedFile?.name}
+            </p>
           </div>
         )}
         <Button
@@ -520,6 +576,71 @@ export function PostComposer() {
         >
           ✕
         </Button>
+      </div>
+    );
+  };
+
+  // Render collect configuration UI
+  const renderCollectConfig = () => {
+    if (!isCollectible) return null;
+
+    return (
+      <div className="mb-2 rounded-md border border-[#00A8FF]/20 bg-[#00A8FF]/5 p-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1 text-[#00A8FF]">
+            <Star className="h-4 w-4" />
+            <span className="font-medium text-sm">Collectible Post</span>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-6 px-2 text-xs"
+            onClick={() => {
+              setIsCollectible(false);
+              setCollectLimit(null);
+            }}
+          >
+            Remove
+          </Button>
+        </div>
+
+        {/* Collect Limit Option */}
+        <div className="mt-2">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={collectLimit !== null}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  setCollectLimit(100); // Default to 100
+                } else {
+                  setCollectLimit(null);
+                }
+              }}
+              className="rounded border-gray-300"
+            />
+            <span>Limit collections</span>
+          </label>
+
+          {collectLimit !== null && (
+            <div className="mt-1 flex items-center gap-2">
+              <input
+                type="number"
+                min="1"
+                max="10000"
+                value={collectLimit}
+                onChange={(e) =>
+                  setCollectLimit(parseInt(e.target.value) || 100)
+                }
+                className="h-8 w-24 rounded-md border border-input bg-transparent px-2 py-1 text-sm shadow-sm"
+              />
+              <span className="text-sm text-muted-foreground">
+                collectibles
+              </span>
+            </div>
+          )}
+        </div>
       </div>
     );
   };
@@ -550,6 +671,7 @@ export function PostComposer() {
           />
 
           {renderMediaPreview()}
+          {renderCollectConfig()}
 
           {/* Compact post target selection */}
           <div className="mb-2">
@@ -661,6 +783,26 @@ export function PostComposer() {
                 </TooltipContent>
               </Tooltip>
 
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsCollectible(!isCollectible)}
+                    className={`${
+                      isCollectible
+                        ? "bg-[#00A8FF]/10 text-[#00A8FF]"
+                        : "text-[#00A8FF] hover:bg-[#00A8FF]/10 hover:text-[#00A8FF]"
+                    }`}
+                  >
+                    <Star className="h-6 w-6" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Make Collectible</p>
+                </TooltipContent>
+              </Tooltip>
+
               <Popover>
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -679,7 +821,11 @@ export function PostComposer() {
                   </TooltipContent>
                 </Tooltip>
                 <PopoverContent className="w-full border-none p-0">
-                  <Picker data={data} onEmojiSelect={handleEmojiSelect} theme="light" />
+                  <Picker
+                    data={data}
+                    onEmojiSelect={handleEmojiSelect}
+                    theme="light"
+                  />
                 </PopoverContent>
               </Popover>
             </div>

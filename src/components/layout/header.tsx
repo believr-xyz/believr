@@ -7,7 +7,7 @@ import { SearchBar } from "@/components/shared/search-bar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuthenticatedUser } from "@lens-protocol/react";
-import { Bell, House, Sparkle, Users as UsersIcon } from "@phosphor-icons/react";
+import { Bell, ChartLineUp, House, Sparkle, Users as UsersIcon } from "@phosphor-icons/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect } from "react";
@@ -73,6 +73,17 @@ export function Header() {
             >
               <Bell className="mb-0.5 size-6" weight="bold" />
               <span className="font-semibold text-xs">Notifications</span>
+            </Link>
+
+            <Link
+              href="/dashboard"
+              className={cn(
+                "flex flex-col items-center justify-center px-3 text-primary/80 transition-colors hover:text-[#00A8FF]",
+                pathname.startsWith("/dashboard") && "text-[#00A8FF]",
+              )}
+            >
+              <ChartLineUp className="mb-0.5 size-6" weight="bold" />
+              <span className="font-semibold text-xs">Dashboard</span>
             </Link>
           </div>
         </div>

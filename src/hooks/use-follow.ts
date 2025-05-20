@@ -2,11 +2,7 @@
 
 import { getLensClient } from "@/lib/lens/client";
 import { type Result, evmAddress } from "@lens-protocol/client";
-import {
-  fetchFollowStatus,
-  follow,
-  unfollow,
-} from "@lens-protocol/client/actions";
+import { fetchFollowStatus, follow, unfollow } from "@lens-protocol/client/actions";
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { useCallback, useState } from "react";
 import { toast } from "sonner";
@@ -72,15 +68,12 @@ export function useFollow(): UseFollowResult {
         return { isOk: () => true, value: true } as Result<boolean, Error>;
       } catch (error) {
         console.error("Error following account:", error);
-        return { isErr: () => true, error: error as Error } as Result<
-          boolean,
-          Error
-        >;
+        return { isErr: () => true, error: error as Error } as Result<boolean, Error>;
       } finally {
         setIsLoading(false);
       }
     },
-    [user]
+    [user],
   );
 
   /**
@@ -122,23 +115,18 @@ export function useFollow(): UseFollowResult {
 
         if (result.isErr()) {
           console.error("Error unfollowing account:", result.error);
-          throw new Error(
-            `Failed to unfollow account: ${result.error.message}`
-          );
+          throw new Error(`Failed to unfollow account: ${result.error.message}`);
         }
 
         return { isOk: () => true, value: true } as Result<boolean, Error>;
       } catch (error) {
         console.error("Error unfollowing account:", error);
-        return { isErr: () => true, error: error as Error } as Result<
-          boolean,
-          Error
-        >;
+        return { isErr: () => true, error: error as Error } as Result<boolean, Error>;
       } finally {
         setIsLoading(false);
       }
     },
-    [user]
+    [user],
   );
 
   /**
@@ -173,15 +161,13 @@ export function useFollow(): UseFollowResult {
         }
 
         // Return isFollowing status
-        return (
-          result.value.length > 0 && result.value[0].isFollowing.optimistic
-        );
+        return result.value.length > 0 && result.value[0].isFollowing.optimistic;
       } catch (error) {
         console.error("Error checking follow status:", error);
         return false;
       }
     },
-    [user]
+    [user],
   );
 
   return {

@@ -74,7 +74,7 @@ export function CollectCard({
     : ["Early access to content", "Exclusive community access", "Support the creator directly"];
 
   return (
-    <Card className="sticky top-24">
+    <Card className="sticky top-24 mb-6">
       <CardContent className="p-4">
         <h3 className="mb-4 font-semibold text-lg">Collect This Post</h3>
 

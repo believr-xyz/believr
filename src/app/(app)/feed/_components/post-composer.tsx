@@ -7,6 +7,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useLensGroups } from "@/hooks/use-lens-groups";
 import { useMediaCompression } from "@/hooks/use-media-compression";
 import { getLensClient } from "@/lib/lens/client";
 import { storageClient } from "@/lib/lens/storage-client";
@@ -34,7 +35,7 @@ import {
 import { useAuthenticatedUser } from "@lens-protocol/react";
 import { File, FilmStrip, Image, Smiley, UsersThree } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 type MediaType = "image" | "video" | "audio" | null;
@@ -51,12 +52,17 @@ export function PostComposer() {
   const [accountData, setAccountData] = useState<any>(null);
   const [postTarget, setPostTarget] = useState<PostTarget>("global");
   const [selectedGroupId, setSelectedGroupId] = useState<string>("");
-  const [groups, setGroups] = useState<Group[]>([]);
   const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
   const { compressImage } = useMediaCompression();
   const [profileImageError, setProfileImageError] = useState(false);
+  const { groups: allGroups, isGroupMember } = useLensGroups();
+
+  // Filter groups to only include groups the user is a member of
+  const memberGroups = useMemo(() => {
+    return allGroups.filter((group) => isGroupMember(group));
+  }, [allGroups, isGroupMember]);
 
   // Fetch account data for profile picture
   useEffect(() => {
@@ -75,7 +81,6 @@ export function PostComposer() {
         if (cachedData) {
           const parsed = JSON.parse(cachedData);
           setAccountData(parsed.account);
-          setGroups(parsed.groups || []);
           return;
         }
       } catch (error) {
@@ -94,35 +99,17 @@ export function PostComposer() {
             setAccountData(account);
           }
 
-          // Fetch user's groups - using the correct filter API
-          const groupsResult = await fetchGroups(client, {
-            filter: {
-              member: evmAddress(user.address),
-            },
-          });
-
-          if (groupsResult.isOk() && isMounted) {
-            // Convert readonly array to mutable array
-            const groupsData = [...groupsResult.value.items];
-            console.log("Fetched groups:", groupsData); // Debug: Log fetched groups
-            setGroups(groupsData);
-
-            // Cache successful results
-            try {
-              sessionStorage.setItem(
-                cacheKey,
-                JSON.stringify({
-                  account,
-                  groups: groupsData,
-                  timestamp: Date.now(),
-                }),
-              );
-            } catch (error) {
-              console.error("Error storing cache:", error);
-            }
-          } else if (groupsResult.isErr()) {
-            // Log the specific error for debugging
-            console.error("Failed to fetch groups:", groupsResult.error);
+          // Cache successful results
+          try {
+            sessionStorage.setItem(
+              cacheKey,
+              JSON.stringify({
+                account,
+                timestamp: Date.now(),
+              }),
+            );
+          } catch (error) {
+            console.error("Error storing cache:", error);
           }
         } catch (error) {
           console.error("Failed to fetch account:", error);
@@ -596,8 +583,8 @@ export function PostComposer() {
                   onChange={(e) => setSelectedGroupId(e.target.value)}
                 >
                   <option value="">Select a group</option>
-                  {groups && groups.length > 0 ? (
-                    groups.map((group) => (
+                  {memberGroups && memberGroups.length > 0 ? (
+                    memberGroups.map((group) => (
                       <option key={group.address} value={group.address}>
                         {group.metadata?.name || group.address.substring(0, 8)}
                       </option>
@@ -608,7 +595,7 @@ export function PostComposer() {
                     </option>
                   )}
                 </select>
-                {groups.length === 0 && (
+                {memberGroups.length === 0 && (
                   <p className="mt-1 text-muted-foreground text-xs">
                     You're not a member of any groups yet
                   </p>

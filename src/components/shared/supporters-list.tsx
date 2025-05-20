@@ -59,7 +59,8 @@ export function SupportersList({
     },
   ];
 
-  const displaySupporters = supporters.length > 0 ? supporters : placeholderSupporters;
+  const displaySupporters =
+    supporters.length > 0 ? supporters : placeholderSupporters;
 
   // Function to render loading skeletons
   const renderSkeletons = () => {
@@ -100,7 +101,9 @@ export function SupportersList({
                 <div className="relative">
                   <Avatar>
                     <AvatarImage src={supporter.imageUrl} />
-                    <AvatarFallback>{supporter.name?.[0] || supporter.handle[0]}</AvatarFallback>
+                    <AvatarFallback>
+                      {supporter.name?.[0] || supporter.handle[0]}
+                    </AvatarFallback>
                   </Avatar>
                   {supporter.rank <= 3 && (
                     <span className="-top-1 -right-1 absolute flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] text-primary-foreground">
@@ -109,8 +112,12 @@ export function SupportersList({
                   )}
                 </div>
                 <div className="flex-1 truncate">
-                  <p className="truncate font-medium">{supporter.name || supporter.handle}</p>
-                  <p className="text-muted-foreground text-xs">@{supporter.handle}</p>
+                  <p className="truncate font-medium">
+                    {supporter.name || supporter.handle}
+                  </p>
+                  <p className="text-muted-foreground text-xs">
+                    @{supporter.handle}
+                  </p>
                 </div>
                 <span className="font-medium text-sm">
                   {supporter.amount} {supporter.currency}

@@ -1,66 +1,35 @@
 "use client";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { formatDistanceToNow } from "date-fns";
-import { BadgeCheck } from "lucide-react";
+import { SupportersList } from "@/components/shared/supporters-list";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useAuthenticatedUser } from "@lens-protocol/react";
+import { Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 
-interface Collector {
-  id: string;
-  username: string;
-  name: string;
-  avatar?: string;
-  collectedAt: Date;
-  verified?: boolean;
-}
-
 interface CollectorsListProps {
-  collectors: Collector[];
+  postId: string;
+  collectors?: {
+    id: string;
+    handle: string;
+    name?: string;
+    imageUrl?: string;
+  }[];
 }
 
-export function CollectorsList({ collectors }: CollectorsListProps) {
+export function CollectorsList({ postId, collectors = [] }: CollectorsListProps) {
+  const { data: user } = useAuthenticatedUser();
   const router = useRouter();
 
-  if (collectors.length === 0) {
-    return (
-      <div className="rounded-lg border border-dashed p-8 text-center">
-        <p className="text-muted-foreground">No collectors yet. Be the first to collect!</p>
-      </div>
-    );
-  }
+  // If we have collectors, convert them to the format expected by SupportersList
+  const supporters = collectors.map((collector, index) => ({
+    id: collector.id,
+    handle: collector.handle,
+    name: collector.name || collector.handle,
+    imageUrl: collector.imageUrl,
+    amount: 0, // Placeholder - we don't have real data yet
+    currency: "WGHO",
+    rank: index + 1,
+  }));
 
-  return (
-    <div className="space-y-4">
-      {collectors.map((collector) => (
-        <div key={collector.id} className="flex items-center justify-between rounded-lg border p-3">
-          <div className="flex items-center gap-3">
-            <Avatar
-              className="size-10 cursor-pointer"
-              onClick={() => router.push(`/u/${collector.username}`)}
-            >
-              <AvatarImage src={collector.avatar} alt={collector.name} />
-              <AvatarFallback>{collector.name[0]}</AvatarFallback>
-            </Avatar>
-            <div>
-              <div className="flex items-center gap-1">
-                <span
-                  className="cursor-pointer font-semibold hover:underline"
-                  onClick={() => router.push(`/u/${collector.username}`)}
-                >
-                  {collector.name}
-                </span>
-                {collector.verified && <BadgeCheck className="size-4 text-[#00A8FF]" />}
-              </div>
-              <p className="text-muted-foreground text-sm">@{collector.username}</p>
-            </div>
-          </div>
-          <span className="text-muted-foreground text-xs">
-            {formatDistanceToNow(collector.collectedAt, {
-              addSuffix: true,
-            })}
-          </span>
-        </div>
-      ))}
-    </div>
-  );
+  return <SupportersList postId={postId} supporters={supporters} showComingSoon={true} />;
 }

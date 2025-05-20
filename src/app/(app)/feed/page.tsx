@@ -196,7 +196,7 @@ function TrendingContent() {
         },
         collectible: {
           price: "0",
-          currency: "ETH",
+          currency: "WGHO",
           collected: post.stats.collects || 0,
           total: 100,
         },

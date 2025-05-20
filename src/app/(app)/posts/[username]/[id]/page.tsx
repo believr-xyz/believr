@@ -311,6 +311,7 @@ export default function PostPage() {
       </Button>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr,320px]">
+        {/* Main Content Column */}
         <div>
           <Card className="overflow-hidden">
             {imageUrl && (
@@ -392,16 +393,16 @@ export default function PostPage() {
                 <FormatPostContent content={content} />
               </div>
 
-              {/* Investment Terms */}
+              {/* Investment Terms - Only shown on mobile */}
               {isInvestmentPost && investmentTerms && (
-                <div className="mt-8">
+                <div className="mt-8 lg:hidden">
                   <InvestmentTerms
                     terms={investmentTerms}
                     collectedAmount={post.stats?.collects || 0}
                     currency={
                       collectAction?.__typename === "SimpleCollectAction"
-                        ? collectAction.payToCollect?.amount?.asset?.symbol || "ETH"
-                        : "ETH"
+                        ? collectAction.payToCollect?.amount?.asset?.symbol || "WGHO"
+                        : "WGHO"
                     }
                   />
 
@@ -438,7 +439,7 @@ export default function PostPage() {
                     />
                   </TabsContent>
                   <TabsContent value="collectors" className="mt-0 pt-4">
-                    <CollectorsList collectors={[]} />
+                    <CollectorsList postId={post.id} collectors={[]} />
                   </TabsContent>
                 </Tabs>
               </div>
@@ -446,45 +447,73 @@ export default function PostPage() {
           </Card>
         </div>
 
-        <div>
+        {/* Sidebar Column - Visible on desktop in normal order, appears first on mobile */}
+        <div className="order-first lg:order-none">
           {isInvestmentPost ? (
-            <CollectCard
-              postId={post.id}
-              price={
-                collectAction?.__typename === "SimpleCollectAction"
-                  ? collectAction.payToCollect?.amount?.value || "0"
-                  : "0"
-              }
-              currency={
-                collectAction?.__typename === "SimpleCollectAction"
-                  ? collectAction.payToCollect?.amount?.asset?.symbol || "ETH"
-                  : "ETH"
-              }
-              collected={post.stats?.collects || 0}
-              total={
-                collectAction?.__typename === "SimpleCollectAction"
-                  ? collectAction.collectLimit || 100
-                  : 100
-              }
-              creator={{
-                id: post.author.address,
-                username,
-                name: post.author.metadata?.name || username,
-                avatar: authorPicture,
-                bio: post.author.metadata?.bio || undefined,
-                stats: {
-                  followers: 0, // Would need an additional API call
-                  believers: post.stats?.collects || 0,
-                },
-              }}
-              benefits={investmentMetadata?.benefits}
-              onCollect={handleCollect}
-            />
+            <>
+              <CollectCard
+                postId={post.id}
+                price={
+                  collectAction?.__typename === "SimpleCollectAction"
+                    ? collectAction.payToCollect?.amount?.value || "0"
+                    : "0"
+                }
+                currency={
+                  collectAction?.__typename === "SimpleCollectAction"
+                    ? collectAction.payToCollect?.amount?.asset?.symbol || "WGHO"
+                    : "WGHO"
+                }
+                collected={post.stats?.collects || 0}
+                total={
+                  collectAction?.__typename === "SimpleCollectAction"
+                    ? collectAction.collectLimit || 100
+                    : 100
+                }
+                creator={{
+                  id: post.author.address,
+                  username,
+                  name: post.author.metadata?.name || username,
+                  avatar: authorPicture,
+                  bio: post.author.metadata?.bio || undefined,
+                  stats: {
+                    followers: 0, // Would need an additional API call
+                    believers: post.stats?.collects || 0,
+                  },
+                }}
+                benefits={investmentMetadata?.benefits}
+                onCollect={handleCollect}
+              />
+
+              {/* Investment Terms (Desktop Only) */}
+              {investmentTerms && (
+                <div className="hidden lg:block">
+                  <InvestmentTerms
+                    terms={investmentTerms}
+                    collectedAmount={post.stats?.collects || 0}
+                    currency={
+                      collectAction?.__typename === "SimpleCollectAction"
+                        ? collectAction.payToCollect?.amount?.asset?.symbol || "WGHO"
+                        : "WGHO"
+                    }
+                  />
+
+                  {/* Benefits Section */}
+                  {investmentMetadata?.benefits && (
+                    <div className="mt-4">
+                      <h3 className="mb-2 font-semibold text-lg">Benefits for Believers</h3>
+                      <div className="whitespace-pre-line rounded-md bg-muted/50 p-4">
+                        {investmentMetadata.benefits}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </>
           ) : (
             <CollectCard
               postId={post.id}
               price={"0"}
-              currency={"ETH"}
+              currency={"WGHO"}
               collected={post.stats?.collects || 0}
               total={
                 collectAction?.__typename === "SimpleCollectAction"

@@ -22,7 +22,7 @@ import {
 } from "@phosphor-icons/react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 interface ProfileMenuProps {
@@ -36,23 +36,26 @@ export function ProfileMenu({ className }: ProfileMenuProps) {
   const [accountData, setAccountData] = useState<any>(null);
   const { setTheme, resolvedTheme: theme } = useTheme();
 
-  useEffect(() => {
-    async function fetchUserAccount() {
-      if (!user) return;
+  // Memoize the fetch function to prevent recreation on each render
+  const fetchUserAccount = useCallback(async () => {
+    if (!user) return;
 
-      try {
-        const client = await getLensClient();
-        const account = await fetchAccount(client, {
-          address: user.address,
-        }).unwrapOr(null);
-        setAccountData(account);
-      } catch (error) {
-        console.error("Failed to fetch account:", error);
-      }
+    try {
+      const client = await getLensClient();
+      const account = await fetchAccount(client, {
+        address: user.address,
+      }).unwrapOr(null);
+      setAccountData(account);
+    } catch (error) {
+      console.error("Failed to fetch account:", error);
     }
+  }, [user, setAccountData]);
 
-    fetchUserAccount();
-  }, [user]);
+  useEffect(() => {
+    if (user) {
+      fetchUserAccount();
+    }
+  }, [fetchUserAccount]);
 
   const handleLogout = async () => {
     if (!user || isLoggingOut) return;

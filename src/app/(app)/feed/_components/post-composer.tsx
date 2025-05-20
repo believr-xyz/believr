@@ -43,7 +43,7 @@ import {
   UsersThree,
 } from "@phosphor-icons/react";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 
 type MediaType = "image" | "video" | "audio" | null;
@@ -74,76 +74,73 @@ export function PostComposer() {
     return allGroups.filter((group) => isGroupMember(group));
   }, [allGroups, isGroupMember]);
 
-  // Fetch account data for profile picture
-  useEffect(() => {
+  // Add useCallback to imports
+  const fetchUserAccount = useCallback(async () => {
+    if (!user) return;
+
     // Add a cache key based on user address
     const cacheKey = `lens_account_${user?.address}`;
-    let isMounted = true;
+
+    // Try to get from sessionStorage first
+    try {
+      const cachedData = sessionStorage.getItem(cacheKey);
+      if (cachedData) {
+        const parsed = JSON.parse(cachedData);
+        setAccountData(parsed.account);
+        return;
+      }
+    } catch (error) {
+      console.error("Error accessing cache:", error);
+    }
+
     let retryCount = 0;
     const maxRetries = 3;
 
-    async function fetchUserAccount() {
-      if (!user) return;
-
-      // Try to get from sessionStorage first
+    // Implement exponential backoff for retries
+    const fetchWithRetry = async () => {
       try {
-        const cachedData = sessionStorage.getItem(cacheKey);
-        if (cachedData) {
-          const parsed = JSON.parse(cachedData);
-          setAccountData(parsed.account);
-          return;
+        const client = await getLensClient();
+        const account = await fetchAccount(client, {
+          address: user.address,
+        }).unwrapOr(null);
+
+        setAccountData(account);
+
+        // Cache successful results
+        try {
+          sessionStorage.setItem(
+            cacheKey,
+            JSON.stringify({
+              account,
+              timestamp: Date.now(),
+            }),
+          );
+        } catch (error) {
+          console.error("Error storing cache:", error);
         }
       } catch (error) {
-        console.error("Error accessing cache:", error);
-      }
+        console.error("Failed to fetch account:", error);
 
-      // Implement exponential backoff for retries
-      const fetchWithRetry = async () => {
-        try {
-          const client = await getLensClient();
-          const account = await fetchAccount(client, {
-            address: user.address,
-          }).unwrapOr(null);
-
-          if (isMounted) {
-            setAccountData(account);
-          }
-
-          // Cache successful results
-          try {
-            sessionStorage.setItem(
-              cacheKey,
-              JSON.stringify({
-                account,
-                timestamp: Date.now(),
-              }),
-            );
-          } catch (error) {
-            console.error("Error storing cache:", error);
-          }
-        } catch (error) {
-          console.error("Failed to fetch account:", error);
-
-          // Retry with exponential backoff
-          if (retryCount < maxRetries && isMounted) {
-            const delay = 2 ** retryCount * 1000; // Exponential backoff
-            retryCount++;
-            console.log(`Retrying fetch (${retryCount}/${maxRetries}) after ${delay}ms`);
-            setTimeout(fetchWithRetry, delay);
-          }
+        // Retry with exponential backoff
+        if (retryCount < maxRetries) {
+          const delay = 2 ** retryCount * 1000; // Exponential backoff
+          retryCount++;
+          console.log(`Retrying fetch (${retryCount}/${maxRetries}) after ${delay}ms`);
+          setTimeout(fetchWithRetry, delay);
         }
-      };
+      }
+    };
 
-      fetchWithRetry();
+    fetchWithRetry();
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserAccount();
     }
 
-    fetchUserAccount();
-
-    // Clean up function
-    return () => {
-      isMounted = false;
-    };
-  }, [user]);
+    // No need for cleanup here since we've moved the state management
+  }, [fetchUserAccount]);
 
   const handleMediaUpload = (type: MediaType) => {
     if (fileInputRef.current) {

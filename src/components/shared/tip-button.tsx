@@ -8,12 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getLensClient } from "@/lib/lens/client";
 import { formatLensError, logLensError } from "@/lib/lens/error-handler";
 import { SessionClient, evmAddress } from "@lens-protocol/client";
@@ -28,11 +23,7 @@ export interface TipButtonProps {
   className?: string;
 }
 
-export function TipButton({
-  authorAddress,
-  username,
-  className = "",
-}: TipButtonProps) {
+export function TipButton({ authorAddress, username, className = "" }: TipButtonProps) {
   const [showModal, setShowModal] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [tipAmount, setTipAmount] = useState("1");
@@ -67,9 +58,7 @@ export function TipButton({
             tipping: {
               value: tipAmount,
               // Correct WGHO token address on Lens Chain mainnet
-              currency: evmAddress(
-                "0x6bDc36E20D267Ff0dd6097799f82e78907105e2F"
-              ),
+              currency: evmAddress("0x6bDc36E20D267Ff0dd6097799f82e78907105e2F"),
             },
           },
         });
@@ -152,11 +141,7 @@ export function TipButton({
             </div>
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowModal(false)}
-              disabled={isLoading}
-            >
+            <Button variant="outline" onClick={() => setShowModal(false)} disabled={isLoading}>
               Cancel
             </Button>
             <Button onClick={handleTip} disabled={isLoading} className="gap-1">

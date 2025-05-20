@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getLensClient, getPublicClient } from "@/lib/lens/client";
 import { AnyPost, PageSize, Post, evmAddress } from "@lens-protocol/client";
-import { fetchPostsForYou, fetchPostsToExplore } from "@lens-protocol/client/actions";
+import {
+  fetchPostsForYou,
+  fetchPostsToExplore,
+} from "@lens-protocol/client/actions";
 import { useAuthenticatedUser, usePosts } from "@lens-protocol/react";
 import { useTimeline } from "@lens-protocol/react";
 import { useSearchParams } from "next/navigation";
@@ -119,7 +122,9 @@ function FollowingFeed() {
   if (!data?.items?.length) {
     return (
       <div className="flex flex-col items-center justify-center p-6 text-center">
-        <p className="mb-3 text-muted-foreground">No posts from accounts you follow</p>
+        <p className="mb-3 text-muted-foreground">
+          No posts from accounts you follow
+        </p>
         <p className="text-muted-foreground text-sm">
           Follow some creators to see their posts here
         </p>
@@ -163,11 +168,20 @@ function TrendingContent() {
         title = post.metadata.title || "Untitled Post";
       } else if (post.metadata.__typename === "TextOnlyMetadata") {
         title = post.metadata.content || "Untitled Post";
-      } else if (post.metadata.__typename === "ImageMetadata" && post.metadata.content) {
+      } else if (
+        post.metadata.__typename === "ImageMetadata" &&
+        post.metadata.content
+      ) {
         title = post.metadata.content.slice(0, 50) + "..." || "Untitled Post";
-      } else if (post.metadata.__typename === "VideoMetadata" && post.metadata.content) {
+      } else if (
+        post.metadata.__typename === "VideoMetadata" &&
+        post.metadata.content
+      ) {
         title = post.metadata.content.slice(0, 50) + "..." || "Untitled Post";
-      } else if (post.metadata.__typename === "AudioMetadata" && post.metadata.content) {
+      } else if (
+        post.metadata.__typename === "AudioMetadata" &&
+        post.metadata.content
+      ) {
         title = post.metadata.content.slice(0, 50) + "..." || "Untitled Post";
       } else {
         title = "Untitled Post";
@@ -175,7 +189,8 @@ function TrendingContent() {
 
       // Extract username from profile
       const username =
-        post.author.username?.value?.split("/").pop() || post.author.address.substring(0, 8);
+        post.author.username?.value?.split("/").pop() ||
+        post.author.address.substring(0, 8);
 
       // Extract profile picture
       let picture = "";
@@ -207,9 +222,11 @@ function TrendingContent() {
   const topCreators: Creator[] = data.items
     .filter((post): post is Post => post.__typename === "Post")
     .slice(0, 3)
-    .map((post) => {
+    .map((post, index) => {
       const author = post.author;
-      const username = author.username?.value?.split("/").pop() || author.address.substring(0, 8);
+      const username =
+        author.username?.value?.split("/").pop() ||
+        author.address.substring(0, 8);
 
       // Extract profile picture
       let picture = "";
@@ -220,7 +237,7 @@ function TrendingContent() {
       }
 
       return {
-        id: author.address,
+        id: `${author.address}-${index}`,
         name: author.metadata?.name || username,
         username: username,
         picture: picture,
@@ -238,7 +255,7 @@ export default function FeedPage() {
   const searchParams = useSearchParams();
   const tabParam = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState<string>(
-    tabParam === "following" || tabParam === "for-you" ? tabParam : "following",
+    tabParam === "following" || tabParam === "for-you" ? tabParam : "following"
   );
 
   return (

@@ -52,7 +52,7 @@ export function PostCard({ post }: PostCardProps) {
   if (typedPost.metadata.__typename === "ImageMetadata" && typedPost.metadata.image) {
     const imageUrl = postUtils.getImageUrl(typedPost);
 
-    if (imageUrl) {
+    if (imageUrl && imageUrl.trim() !== "") {
       mediaElement = (
         <div className="mb-3">
           <ImageModal
@@ -77,11 +77,11 @@ export function PostCard({ post }: PostCardProps) {
             <video
               src={videoUrl}
               controls
-              poster={posterUrl}
+              poster={posterUrl || undefined}
               className="h-full w-full object-cover"
               onClick={(e) => e.stopPropagation()}
             >
-              <track kind="captions" src="" label="English" srcLang="en" default />
+              <track kind="captions" src="" label="Captions" />
               Your browser does not support the video element.
             </video>
           </div>
@@ -110,7 +110,7 @@ export function PostCard({ post }: PostCardProps) {
           </div>
           <audio controls className="w-full" onClick={(e) => e.stopPropagation()}>
             <source src={audioUrl} />
-            <track kind="captions" src="" label="English" srcLang="en" default />
+            <track kind="captions" src="" label="Captions" />
             Your browser does not support the audio element.
           </audio>
         </div>
@@ -128,10 +128,13 @@ export function PostCard({ post }: PostCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-center gap-3">
           <Avatar className="size-10">
-            <AvatarImage src={profilePicture} alt={typedPost.author.metadata?.name || username} />
-            <AvatarFallback>
-              {(typedPost.author.metadata?.name?.[0] || username[0])?.toUpperCase()}
-            </AvatarFallback>
+            {profilePicture ? (
+              <AvatarImage src={profilePicture} alt={typedPost.author.metadata?.name || username} />
+            ) : (
+              <AvatarFallback>
+                {(typedPost.author.metadata?.name?.[0] || username[0])?.toUpperCase()}
+              </AvatarFallback>
+            )}
           </Avatar>
           <div className="flex-1">
             <div className="flex items-center gap-1">

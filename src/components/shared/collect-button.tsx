@@ -8,12 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { getLensClient } from "@/lib/lens/client";
 import { formatLensError, logLensError } from "@/lib/lens/error-handler";
 import { cn } from "@/lib/utils";
@@ -46,16 +41,12 @@ export function CollectButton({
   const [isLoading, setIsLoading] = useState(false);
   // Use external state if provided, otherwise manage internally
   const [internalHasCollected, setInternalHasCollected] = useState(false);
-  const [internalCollectCount, setInternalCollectCount] =
-    useState(collectCount);
+  const [internalCollectCount, setInternalCollectCount] = useState(collectCount);
 
   // Use the external state if provided, otherwise use internal state
   const isCollected =
-    externalHasCollected !== undefined
-      ? externalHasCollected
-      : internalHasCollected;
-  const currentCollectCount =
-    collectCount !== undefined ? collectCount : internalCollectCount;
+    externalHasCollected !== undefined ? externalHasCollected : internalHasCollected;
+  const currentCollectCount = collectCount !== undefined ? collectCount : internalCollectCount;
 
   const handleCollect = async () => {
     setIsLoading(true);
@@ -137,10 +128,7 @@ export function CollectButton({
             <Button
               size="sm"
               variant="ghost"
-              className={cn(
-                "flex items-center gap-1 text-green-500",
-                className
-              )}
+              className={cn("flex items-center gap-1 text-green-500", className)}
               onClick={(e) => e.stopPropagation()}
             >
               <Star className="h-4 w-4 fill-green-500" weight="fill" />
@@ -177,30 +165,21 @@ export function CollectButton({
           </DialogHeader>
           <div className="py-4 text-center">
             <p className="mb-4">
-              Collect this post {username ? `by @${username}` : ""} to own it as
-              an NFT on the blockchain.
+              Collect this post {username ? `by @${username}` : ""} to own it as an NFT on the
+              blockchain.
             </p>
 
             {collectLimit && (
               <p className="text-muted-foreground text-sm">
-                Limited collection: {currentCollectCount} of {collectLimit}{" "}
-                collected
+                Limited collection: {currentCollectCount} of {collectLimit} collected
               </p>
             )}
           </div>
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setShowModal(false)}
-              disabled={isLoading}
-            >
+            <Button variant="outline" onClick={() => setShowModal(false)} disabled={isLoading}>
               Cancel
             </Button>
-            <Button
-              onClick={handleCollect}
-              disabled={isLoading}
-              className="gap-1"
-            >
+            <Button onClick={handleCollect} disabled={isLoading} className="gap-1">
               {isLoading ? "Processing..." : "Collect now"}
             </Button>
           </DialogFooter>

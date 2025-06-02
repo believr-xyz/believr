@@ -31,11 +31,23 @@ import { useRef, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from "@/components/ui/dialog";
 
 // Define the form schema
 const formSchema = z.object({
   title: z.string().min(1, "Title is required").max(100, "Title is too long"),
-  content: z.string().min(1, "Content is required").max(2000, "Content is too long"),
+  content: z
+    .string()
+    .min(1, "Content is required")
+    .max(2000, "Content is too long"),
   category: z.enum(["content", "art", "music", "tech", "writing"]),
   amount: z.string().min(1, "Target amount is required"),
   revenueShare: z.string().min(1, "Revenue share percentage is required"),
@@ -61,7 +73,9 @@ const formSchema = z.object({
     }),
   investmentMetadata: z
     .object({
-      category: z.enum(["content", "art", "music", "tech", "writing"]).default("content"),
+      category: z
+        .enum(["content", "art", "music", "tech", "writing"])
+        .default("content"),
       revenueShare: z.string().default("0"),
       benefits: z.string().default(""),
       endDate: z.string().default(""),
@@ -84,9 +98,12 @@ export function CreateForm() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [mediaType, setMediaType] = useState<"image" | "video" | "audio" | null>(null);
+  const [mediaType, setMediaType] = useState<
+    "image" | "video" | "audio" | null
+  >(null);
   const [mediaDuration, setMediaDuration] = useState<number>(0);
   const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
+  const [showWaitlist, setShowWaitlist] = useState(false);
 
   // Initialize form with explicit type
   const form = useForm<FormValues>({
@@ -250,10 +267,18 @@ export function CreateForm() {
     return (
       <div className="relative mb-2 overflow-hidden rounded-md border">
         {mediaType === "image" && (
-          <img src={previewUrl} alt="Preview" className="max-h-48 w-auto rounded-md" />
+          <img
+            src={previewUrl}
+            alt="Preview"
+            className="max-h-48 w-auto rounded-md"
+          />
         )}
         {mediaType === "video" && (
-          <video controls src={previewUrl} className="max-h-48 w-auto rounded-md">
+          <video
+            controls
+            src={previewUrl}
+            className="max-h-48 w-auto rounded-md"
+          >
             <track kind="captions" src="" label="Captions" />
           </video>
         )}
@@ -262,7 +287,9 @@ export function CreateForm() {
             <audio controls src={previewUrl} className="w-full">
               <track kind="captions" src="" label="Captions" />
             </audio>
-            <p className="mt-1 text-muted-foreground text-xs">Audio: {selectedFile?.name}</p>
+            <p className="mt-1 text-muted-foreground text-xs">
+              Audio: {selectedFile?.name}
+            </p>
           </div>
         )}
         <Button
@@ -286,44 +313,17 @@ export function CreateForm() {
     );
   };
 
-  // Submit form data with explicit type
-  const onSubmit: SubmitHandler<FormValues> = async (values) => {
-    try {
-      // Call our createPost hook with the form values
-      const result = await createPost({
-        title: values.title,
-        content: values.content,
-        imageFile: values.media,
-        // Investment post is always collectible
-        collectible: true,
-        collectSettings: {
-          price: values.amount,
-          currency: "WGHO",
-          supply: values.totalSupply,
-        },
-        // Investment metadata
-        investmentMetadata: {
-          category: values.category,
-          revenueShare: values.revenueShare,
-          benefits: values.benefits,
-          endDate: values.endDate,
-          mediaType: values.mediaType,
-        },
-      });
-
-      if (result) {
-        router.push(`/posts/${result.id}`);
-      }
-    } catch (error) {
-      console.error("Error creating post:", error);
-    }
-  };
-
   return (
     <Card>
       <CardContent className="pt-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setShowWaitlist(true);
+            }}
+            className="space-y-6"
+          >
             <FormField
               control={form.control}
               name="title"
@@ -331,7 +331,10 @@ export function CreateForm() {
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input placeholder="Name your investment project" {...field} />
+                    <Input
+                      placeholder="Name your investment project"
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -362,7 +365,10 @@ export function CreateForm() {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Category</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a category" />
@@ -511,7 +517,8 @@ export function CreateForm() {
                     </div>
                   </FormControl>
                   <FormDescription>
-                    Upload an image, video, or audio file to showcase your project
+                    Upload an image, video, or audio file to showcase your
+                    project
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -519,17 +526,29 @@ export function CreateForm() {
             />
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating your investment post...
-                </>
-              ) : (
-                "Launch Investment Campaign"
-              )}
+              Launch Investment Campaign
             </Button>
           </form>
         </Form>
+        <Dialog open={showWaitlist} onOpenChange={setShowWaitlist}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>
+                Campaign creation is temporarily waitlisted
+              </DialogTitle>
+              <DialogDescription>
+                You'll be able to launch soon—stay tuned!
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline" className="w-full mt-2">
+                  Close
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

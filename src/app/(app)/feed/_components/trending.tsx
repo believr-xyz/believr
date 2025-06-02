@@ -52,8 +52,8 @@ export function Trending({ creators, campaigns }: TrendingProps) {
             Featured Campaigns
           </CardTitle>
         </CardHeader>
-        <CardContent className="px-6 pb-4">
-          <div className="space-y-4">
+        <CardContent className="px-3 pb-4">
+          <div className="space-y-2">
             {campaigns.length === 0 ? (
               <div className="py-2 text-center text-muted-foreground text-sm">
                 No trending campaigns to display
@@ -62,20 +62,60 @@ export function Trending({ creators, campaigns }: TrendingProps) {
               campaigns.map((campaign) => {
                 if (!campaign.post) return null;
                 const username = campaign.creator.username;
+                const profilePic = campaign.creator.picture;
+                const displayName = campaign.creator.name;
+                const date = campaign.post.timestamp
+                  ? new Date(campaign.post.timestamp).toLocaleDateString(undefined, {
+                      month: "short",
+                      day: "numeric",
+                    })
+                  : "";
+                // Use content or title for summary
+                let summary = "";
+                if (campaign.post.metadata?.__typename === "TextOnlyMetadata") {
+                  summary = campaign.post.metadata.content || "";
+                } else if (campaign.post.metadata?.__typename === "ArticleMetadata") {
+                  summary = campaign.post.metadata.title || "";
+                } else if (campaign.post.metadata?.__typename === "ImageMetadata") {
+                  summary = campaign.post.metadata.content || "";
+                } else if (campaign.post.metadata?.__typename === "VideoMetadata") {
+                  summary = campaign.post.metadata.content || "";
+                } else if (campaign.post.metadata?.__typename === "AudioMetadata") {
+                  summary = campaign.post.metadata.content || "";
+                }
                 return (
-                  <div key={campaign.id} className="pt-1">
-                    <div
-                      className="cursor-pointer"
-                      onClick={() => {
-                        window.location.href = `/posts/${username}/${campaign.id}`;
-                      }}
-                    >
-                      <PostCard post={campaign.post} />
+                  <div
+                    key={campaign.id}
+                    className="flex cursor-pointer flex-col gap-1 rounded-lg px-2 py-2 transition-colors hover:bg-accent"
+                    onClick={() => {
+                      window.location.href = `/posts/${username}/${campaign.id}`;
+                    }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Avatar className="size-7 border">
+                        <AvatarImage src={profilePic} alt={displayName} />
+                        <AvatarFallback>{displayName[0]}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex min-w-0 flex-col">
+                        <span className="truncate font-semibold text-[14px]">@{username}</span>
+                        <span className="text-muted-foreground text-xs">{date}</span>
+                      </div>
                     </div>
-                    <div className="mt-2 h-1.5 w-full rounded-full bg-muted">
+                    <div className="truncate text-foreground/90 text-sm">
+                      {summary.length > 40 ? summary.slice(0, 40) + "…" : summary}
+                    </div>
+                    <div className="mt-1 flex items-center justify-between text-muted-foreground text-xs">
+                      <span>
+                        {campaign.collectible.collected} of {campaign.collectible.total} collected
+                      </span>
+                      <span>
+                        {campaign.collectible.price} {campaign.collectible.currency}
+                      </span>
+                    </div>
+                    <div className="mt-1 h-1 w-full rounded-full bg-muted">
                       <div
                         className={cn(
-                          "h-1.5 rounded-full",
+                          "h-1 rounded-full",
                           campaign.collectible.collected >= campaign.collectible.total
                             ? "bg-green-500"
                             : "bg-primary",

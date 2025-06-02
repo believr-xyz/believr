@@ -15,7 +15,8 @@ export function FormatPostContent({ content }: { content: string }) {
   if (!content) return null;
 
   // Regex for mentions, hashtags, and URLs
-  const combinedRegex = /(@\w+|#\w+|https?:\/\/[^\s]+)/g;
+  // This will match @username, @lens/username, #hashtag, and URLs
+  const combinedRegex = /(@[\w/]+|#\w+|https?:\/\/[^\s]+)/g;
   const parts: ReactNode[] = [];
   let lastIndex = 0;
   let match: RegExpExecArray | null = null;
@@ -27,15 +28,17 @@ export function FormatPostContent({ content }: { content: string }) {
     }
     const tag = match[0];
     if (tag.startsWith("@")) {
-      const username = tag.substring(1);
+      // Remove any @lens/ or @hey/ or @something/ prefix, just use the last part
+      const username = tag.replace(/^@([\w-]+\/)*/, "@").substring(1);
       parts.push(
         <Link
           href={`/u/${username}`}
           key={`mention-${match.index}`}
-          className="font-medium text-primary hover:underline"
+          style={{ color: "#00A8FF", fontWeight: 500 }}
+          className="hover:underline"
           onClick={(e) => e.stopPropagation()}
         >
-          {tag}
+          @{username}
         </Link>,
       );
     } else if (tag.startsWith("#")) {
@@ -44,7 +47,8 @@ export function FormatPostContent({ content }: { content: string }) {
         <Link
           href={`/tag/${hashtag}`}
           key={`hashtag-${match.index}`}
-          className="font-medium text-primary hover:underline"
+          style={{ color: "#00A8FF", fontWeight: 500 }}
+          className="hover:underline"
           onClick={(e) => e.stopPropagation()}
         >
           {tag}
@@ -55,7 +59,8 @@ export function FormatPostContent({ content }: { content: string }) {
         <a
           href={tag}
           key={`url-${match.index}`}
-          className="font-medium text-primary hover:underline"
+          style={{ color: "#00A8FF", fontWeight: 500 }}
+          className="hover:underline"
           target="_blank"
           rel="noopener noreferrer"
           onClick={(e) => e.stopPropagation()}

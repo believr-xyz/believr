@@ -36,7 +36,7 @@ export function Footer() {
             </Link>
 
             <Link
-              href="https://github.com/believr-fun"
+              href="https://github.com/believr-xyz/believr"
               target="_blank"
               rel="noopener noreferrer"
               className="font-medium text-muted-foreground text-sm transition-colors hover:text-[#00A8FF]"

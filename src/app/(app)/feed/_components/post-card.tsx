@@ -55,7 +55,7 @@ export function PostCard({ post }: PostCardProps) {
           <ImageModal
             src={imageUrl}
             alt={postUtils.getTitle(typedPost)}
-            className="relative flex max-h-64 w-full items-center justify-center overflow-hidden rounded-lg bg-muted"
+            className="relative aspect-[4/3] overflow-hidden rounded-lg"
           />
         </div>
       );

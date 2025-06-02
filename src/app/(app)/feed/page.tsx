@@ -153,11 +153,10 @@ function TrendingContent() {
   }
 
   // Transform Lens posts directly to the component props
-  const trendingPosts: Campaign[] = data.items
+  const trendingPosts = data.items
     .filter((post): post is Post => post.__typename === "Post")
     .slice(0, 5)
     .map((post) => {
-      // Extract title from post metadata or use content snippet
       let title = "";
       if (post.metadata.__typename === "ArticleMetadata") {
         title = post.metadata.title || "Untitled Post";
@@ -173,11 +172,8 @@ function TrendingContent() {
         title = "Untitled Post";
       }
 
-      // Extract username from profile
       const username =
         post.author.username?.value?.split("/").pop() || post.author.address.substring(0, 8);
-
-      // Extract profile picture
       let picture = "";
       if (typeof post.author.metadata?.picture === "string") {
         picture = post.author.metadata.picture;
@@ -200,6 +196,7 @@ function TrendingContent() {
           collected: post.stats.collects || 0,
           total: 100,
         },
+        post,
       };
     });
 

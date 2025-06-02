@@ -65,17 +65,6 @@ export function Header() {
             </Link>
 
             <Link
-              href="/notifications"
-              className={cn(
-                "flex flex-col items-center justify-center px-3 text-primary/80 transition-colors hover:text-[#00A8FF]",
-                pathname.startsWith("/notifications") && "text-[#00A8FF]",
-              )}
-            >
-              <Bell className="mb-0.5 size-6" weight="bold" />
-              <span className="font-semibold text-xs">Notifications</span>
-            </Link>
-
-            <Link
               href="/dashboard"
               className={cn(
                 "flex flex-col items-center justify-center px-3 text-primary/80 transition-colors hover:text-[#00A8FF]",
@@ -84,6 +73,17 @@ export function Header() {
             >
               <ChartLineUp className="mb-0.5 size-6" weight="bold" />
               <span className="font-semibold text-xs">Dashboard</span>
+            </Link>
+
+            <Link
+              href="/notifications"
+              className={cn(
+                "flex flex-col items-center justify-center px-3 text-primary/80 transition-colors hover:text-[#00A8FF]",
+                pathname.startsWith("/notifications") && "text-[#00A8FF]",
+              )}
+            >
+              <Bell className="mb-0.5 size-6" weight="bold" />
+              <span className="font-semibold text-xs">Notifications</span>
             </Link>
           </div>
         </div>

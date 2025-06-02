@@ -24,17 +24,6 @@ const nextConfig: NextConfig = {
       },
       {
         protocol: "https",
-        hostname: "assets.lenster.xyz",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "metamask.github.io",
-        pathname: "**",
-      },
-      // Lens and IPFS gateways
-      {
-        protocol: "https",
         hostname: "lens.infura-ipfs.io",
         pathname: "**",
       },
@@ -46,11 +35,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "ipfs.io",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "arweave.net",
         pathname: "**",
       },
       {
@@ -93,16 +77,6 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "**lens.xyz",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "**lenster.xyz",
-        pathname: "**",
-      },
-      {
-        protocol: "https",
-        hostname: "**lensprotocol.xyz",
         pathname: "**",
       },
       // Allow any domain for development

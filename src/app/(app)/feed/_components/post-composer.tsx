@@ -579,7 +579,7 @@ export function PostComposer() {
                   className="flex h-8 items-center gap-1 rounded px-3 text-sm data-[state=active]:bg-[#00A8FF]/10 data-[state=active]:text-[#00A8FF]"
                 >
                   <UsersThree className="h-3.5 w-3.5" />
-                  Group
+                  Believers
                 </TabsTrigger>
               </TabsList>
             </Tabs>

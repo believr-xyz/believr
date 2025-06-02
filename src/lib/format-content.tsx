@@ -9,34 +9,23 @@ import Link from "next/link";
 import React, { ReactNode } from "react";
 
 /**
- * Formats and renders post content with clickable @mentions and #hashtags
+ * Formats and renders post content with clickable @mentions, #hashtags, and URLs
  */
 export function FormatPostContent({ content }: { content: string }) {
   if (!content) return null;
 
-  // Split content by mentions and hashtags
+  // Regex for mentions, hashtags, and URLs
+  const combinedRegex = /(@\w+|#\w+|https?:\/\/[^\s]+)/g;
   const parts: ReactNode[] = [];
   let lastIndex = 0;
-
-  // Combined regex for mentions and hashtags
-  const combinedRegex = /(@\w+|#\w+)/g;
-
-  // Define match type explicitly for RegExpExecArray
   let match: RegExpExecArray | null = null;
 
-  // Execute regex first time before loop
   match = combinedRegex.exec(content);
-
-  // Loop while match is not null
   while (match !== null) {
-    // Add text before the match
     if (match.index > lastIndex) {
       parts.push(content.substring(lastIndex, match.index));
     }
-
     const tag = match[0];
-
-    // Handle mentions
     if (tag.startsWith("@")) {
       const username = tag.substring(1);
       parts.push(
@@ -49,9 +38,7 @@ export function FormatPostContent({ content }: { content: string }) {
           {tag}
         </Link>,
       );
-    }
-    // Handle hashtags
-    else if (tag.startsWith("#")) {
+    } else if (tag.startsWith("#")) {
       const hashtag = tag.substring(1);
       parts.push(
         <Link
@@ -63,19 +50,26 @@ export function FormatPostContent({ content }: { content: string }) {
           {tag}
         </Link>,
       );
+    } else if (tag.startsWith("http")) {
+      parts.push(
+        <a
+          href={tag}
+          key={`url-${match.index}`}
+          className="font-medium text-primary hover:underline"
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {tag}
+        </a>,
+      );
     }
-
     lastIndex = match.index + match[0].length;
-
-    // Get next match
     match = combinedRegex.exec(content);
   }
-
-  // Add remaining text
   if (lastIndex < content.length) {
     parts.push(content.substring(lastIndex));
   }
-
   return <>{parts}</>;
 }
 

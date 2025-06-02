@@ -4,8 +4,10 @@ import { FollowButton } from "@/components/shared/follow-button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { Post } from "@lens-protocol/client";
 import { ArrowUpRight, TrendUp } from "@phosphor-icons/react";
 import Link from "next/link";
+import { PostCard } from "./post-card";
 
 export interface Creator {
   id: string;
@@ -37,7 +39,7 @@ export interface Campaign {
 
 interface TrendingProps {
   creators: Creator[];
-  campaigns: Campaign[];
+  campaigns: (Campaign & { post?: Post })[];
 }
 
 export function Trending({ creators, campaigns }: TrendingProps) {
@@ -57,67 +59,38 @@ export function Trending({ creators, campaigns }: TrendingProps) {
                 No trending campaigns to display
               </div>
             ) : (
-              campaigns.map((campaign) => (
-                <Link
-                  key={campaign.id}
-                  href={`/posts/${campaign.id}`}
-                  className="group block cursor-pointer pt-1"
-                >
-                  <div className="flex items-center gap-2 pb-1">
-                    <Avatar className="size-6 border">
-                      <AvatarImage src={campaign.creator.picture} alt={campaign.creator.name} />
-                      <AvatarFallback>{campaign.creator.name[0]}</AvatarFallback>
-                    </Avatar>
-                    <span className="font-semibold text-[14px] text-muted-foreground">
-                      @{campaign.creator.username}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <h3 className="truncate font-medium text-sm group-hover:text-primary">
-                      {campaign.title}
-                    </h3>
-                    <ArrowUpRight className="ml-2 hidden size-3 group-hover:inline" weight="bold" />
-                  </div>
-                  <div className="mt-1 flex items-center justify-between">
-                    <div className="text-muted-foreground text-xs">
-                      <span className="font-medium text-foreground">
-                        {campaign.collectible.collected}
-                      </span>{" "}
-                      of{" "}
-                      <span
-                        className={cn(
-                          "font-medium",
-                          campaign.collectible.collected >= campaign.collectible.total
-                            ? "text-green-500 dark:text-green-400"
-                            : "text-foreground",
-                        )}
-                      >
-                        {campaign.collectible.total}
-                      </span>{" "}
-                      collected
-                    </div>
-                    <div className="font-medium text-xs">
-                      {campaign.collectible.price} {campaign.collectible.currency}
-                    </div>
-                  </div>
-                  <div className="mt-2 h-1.5 w-full rounded-full bg-muted">
+              campaigns.map((campaign) => {
+                if (!campaign.post) return null;
+                const username = campaign.creator.username;
+                return (
+                  <div key={campaign.id} className="pt-1">
                     <div
-                      className={cn(
-                        "h-1.5 rounded-full",
-                        campaign.collectible.collected >= campaign.collectible.total
-                          ? "bg-green-500"
-                          : "bg-primary",
-                      )}
-                      style={{
-                        width: `${Math.min(
-                          100,
-                          (campaign.collectible.collected / campaign.collectible.total) * 100,
-                        )}%`,
+                      className="cursor-pointer"
+                      onClick={() => {
+                        window.location.href = `/posts/${username}/${campaign.id}`;
                       }}
-                    />
+                    >
+                      <PostCard post={campaign.post} />
+                    </div>
+                    <div className="mt-2 h-1.5 w-full rounded-full bg-muted">
+                      <div
+                        className={cn(
+                          "h-1.5 rounded-full",
+                          campaign.collectible.collected >= campaign.collectible.total
+                            ? "bg-green-500"
+                            : "bg-primary",
+                        )}
+                        style={{
+                          width: `${Math.min(
+                            100,
+                            (campaign.collectible.collected / campaign.collectible.total) * 100,
+                          )}%`,
+                        }}
+                      />
+                    </div>
                   </div>
-                </Link>
-              ))
+                );
+              })
             )}
           </div>
         </CardContent>

@@ -3,6 +3,15 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Form,
   FormControl,
   FormDescription,
@@ -87,6 +96,7 @@ export function CreateForm() {
   const [mediaType, setMediaType] = useState<"image" | "video" | "audio" | null>(null);
   const [mediaDuration, setMediaDuration] = useState<number>(0);
   const [videoThumbnail, setVideoThumbnail] = useState<string | null>(null);
+  const [showWaitlist, setShowWaitlist] = useState(false);
 
   // Initialize form with explicit type
   const form = useForm<FormValues>({
@@ -286,44 +296,17 @@ export function CreateForm() {
     );
   };
 
-  // Submit form data with explicit type
-  const onSubmit: SubmitHandler<FormValues> = async (values) => {
-    try {
-      // Call our createPost hook with the form values
-      const result = await createPost({
-        title: values.title,
-        content: values.content,
-        imageFile: values.media,
-        // Investment post is always collectible
-        collectible: true,
-        collectSettings: {
-          price: values.amount,
-          currency: "WGHO",
-          supply: values.totalSupply,
-        },
-        // Investment metadata
-        investmentMetadata: {
-          category: values.category,
-          revenueShare: values.revenueShare,
-          benefits: values.benefits,
-          endDate: values.endDate,
-          mediaType: values.mediaType,
-        },
-      });
-
-      if (result) {
-        router.push(`/posts/${result.id}`);
-      }
-    } catch (error) {
-      console.error("Error creating post:", error);
-    }
-  };
-
   return (
     <Card>
       <CardContent className="pt-6">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-6">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              setShowWaitlist(true);
+            }}
+            className="space-y-6"
+          >
             <FormField
               control={form.control}
               name="title"
@@ -519,17 +502,25 @@ export function CreateForm() {
             />
 
             <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Creating your investment post...
-                </>
-              ) : (
-                "Launch Investment Campaign"
-              )}
+              Launch Investment Campaign
             </Button>
           </form>
         </Form>
+        <Dialog open={showWaitlist} onOpenChange={setShowWaitlist}>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Campaign creation is temporarily waitlisted</DialogTitle>
+              <DialogDescription>You'll be able to launch soon—stay tuned!</DialogDescription>
+            </DialogHeader>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline" className="mt-2 w-full">
+                  Close
+                </Button>
+              </DialogClose>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );

@@ -7,14 +7,6 @@
 A decentralized social platform where early backers co-invest in creators they believe in and share in their rise. Powered by Lens Protocol, it enables creators to launch tokenized campaigns to raise support, while backers earn rewards, access, and a stake in their journey.
 </p>
 
-## Problem
-
-Creators have big project ideas but struggle to raise early support, while fans who believe in them have no real way to belong, benefit, or share in their success — there’s no shared upside; fans become donors, not co-owners.
-
-## Solution
-
-Believr is a decentralized platform where fans co-invest in creators by collecting tokenized posts, becoming co-owners with rewards, revenue share, and a stake in their success — all on-chain and community-owned.
-
 ## Features
 
 - **Creator Campaigns** – Launch tokenized posts to raise funds directly from your community.
